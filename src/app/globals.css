@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-papel:        #F4EFE6;
+  --color-tinta:        #1A1714;
+  --color-acento:       #B8821C;
+  --color-acento-soft:  #C9A227;
+  --color-acento-deep:  #8F5E1A;
+  --color-lino:         #E8DFCE;
+  --color-cuero:        #8B7F70;
+  --color-blanco:       #FDFBF8;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-papel);
+  color: var(--color-tinta);
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Keyframes ─────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes navSlideDown {
+  from { opacity: 0; transform: translateY(-8px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes expandX {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ── Hero entrance (staggered) ─────────────────────────── */
+.anim-nav    { animation: navSlideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.anim-hero-1 { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both; }
+.anim-hero-2 { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s  both; }
+.anim-hero-3 { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both; }
+.anim-hero-4 { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s  both; }
+.anim-hero-5 { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.65s both; }
+
+/* ── Marquee ───────────────────────────────────────────── */
+.anim-marquee { animation: marquee 34s linear infinite; }
+
+/* ── Decorative expand line ────────────────────────────── */
+.anim-line { animation: expandX 1s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both; transform-origin: left; }
+
+/* ── Scroll reveal ─────────────────────────────────────── */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-reveal="left"]  { transform: translateX(-22px); }
+[data-reveal="right"] { transform: translateX(22px); }
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+[data-delay="1"] { transition-delay: 80ms; }
+[data-delay="2"] { transition-delay: 160ms; }
+[data-delay="3"] { transition-delay: 240ms; }
+[data-delay="4"] { transition-delay: 320ms; }
+[data-delay="5"] { transition-delay: 400ms; }
+
+/* ── Nav link underline hover ──────────────────────────── */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+.nav-link:hover::after { transform: scaleX(1); }
+
+/* ── Button active press (Emil: scale 0.97 on :active) ─── */
+@layer components {
+  .btn {
+    transition:
+      background-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+      color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+      transform 120ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+}
+
+/* ── Focus rings ───────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-acento);
+  outline-offset: 2px;
+}
