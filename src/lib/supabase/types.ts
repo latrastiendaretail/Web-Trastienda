@@ -1,6 +1,6 @@
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       categories: {
@@ -11,8 +11,13 @@ export interface Database {
           order_index: number
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['categories']['Row'], 'id' | 'created_at'>
+        Insert: {
+          name: string
+          slug: string
+          order_index?: number
+        }
         Update: Partial<Database['public']['Tables']['categories']['Insert']>
+        Relationships: []
       }
       courses: {
         Row: {
@@ -33,8 +38,23 @@ export interface Database {
           created_at: string
           updated_at: string
         }
-        Insert: Omit<Database['public']['Tables']['courses']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Insert: {
+          category_id?: string | null
+          title: string
+          slug: string
+          tagline?: string | null
+          description?: string | null
+          thumbnail_url?: string | null
+          duration_minutes?: number
+          status?: 'draft' | 'published' | 'coming_soon'
+          order_index?: number
+          format?: string | null
+          start_date?: string | null
+          max_students?: number | null
+          features?: Json | null
+        }
         Update: Partial<Database['public']['Tables']['courses']['Insert']>
+        Relationships: []
       }
       lessons: {
         Row: {
@@ -48,8 +68,24 @@ export interface Database {
           is_preview: boolean
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['lessons']['Row'], 'id' | 'created_at'>
+        Insert: {
+          course_id: string
+          title: string
+          description?: string | null
+          video_url?: string | null
+          duration_minutes?: number
+          order_index?: number
+          is_preview?: boolean
+        }
         Update: Partial<Database['public']['Tables']['lessons']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'lessons_course_id_fkey'
+            columns: ['course_id']
+            referencedRelation: 'courses'
+            referencedColumns: ['id']
+          }
+        ]
       }
       enrollments: {
         Row: {
@@ -58,8 +94,19 @@ export interface Database {
           course_id: string
           enrolled_at: string
         }
-        Insert: Omit<Database['public']['Tables']['enrollments']['Row'], 'id' | 'enrolled_at'>
+        Insert: {
+          user_id: string
+          course_id: string
+        }
         Update: never
+        Relationships: [
+          {
+            foreignKeyName: 'enrollments_course_id_fkey'
+            columns: ['course_id']
+            referencedRelation: 'courses'
+            referencedColumns: ['id']
+          }
+        ]
       }
       lesson_progress: {
         Row: {
@@ -69,8 +116,24 @@ export interface Database {
           completed: boolean
           completed_at: string | null
         }
-        Insert: Omit<Database['public']['Tables']['lesson_progress']['Row'], 'id'>
-        Update: Partial<Pick<Database['public']['Tables']['lesson_progress']['Row'], 'completed' | 'completed_at'>>
+        Insert: {
+          user_id: string
+          lesson_id: string
+          completed?: boolean
+          completed_at?: string | null
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'lesson_progress_lesson_id_fkey'
+            columns: ['lesson_id']
+            referencedRelation: 'lessons'
+            referencedColumns: ['id']
+          }
+        ]
       }
       posts: {
         Row: {
@@ -86,9 +149,37 @@ export interface Database {
           created_at: string
           updated_at: string
         }
-        Insert: Omit<Database['public']['Tables']['posts']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Insert: {
+          title: string
+          slug: string
+          content: string
+          excerpt?: string | null
+          linkedin_url?: string | null
+          cover_image?: string | null
+          status?: 'draft' | 'published'
+          published_at?: string | null
+        }
         Update: Partial<Database['public']['Tables']['posts']['Insert']>
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          id: string
+          email: string
+          source: string
+          created_at: string
+        }
+        Insert: {
+          email: string
+          source?: string
+        }
+        Update: Partial<Database['public']['Tables']['leads']['Insert']>
+        Relationships: []
       }
     }
+    Views: { [_ in never]: never }
+    Functions: { [_ in never]: never }
+    Enums: { [_ in never]: never }
+    CompositeTypes: { [_ in never]: never }
   }
 }
