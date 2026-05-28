@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>La Trastienda · Identidad Visual</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=Funnel+Display:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  html, body { margin: 0; padding: 0; background: #1a1a1a; }
+  body { font-family: "Instrument Sans", system-ui, sans-serif; color: #111; }
+
+  /* Reusable building blocks for the brand boards */
+  .board {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto 1fr;
+    gap: 56px 80px;
+    position: relative;
+  }
+  .board .meta { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: flex-end; gap: 60px; }
+  .board .meta .left { display: flex; flex-direction: column; gap: 18px; max-width: 720px; }
+  .board .meta .right { font-family: "IBM Plex Mono", monospace; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.7; text-align: right; line-height: 1.6; }
+  .board .index-tag { font-family: "IBM Plex Mono", monospace; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.55; }
+  .board .direction-name { font-size: 88px; line-height: 0.95; letter-spacing: -0.02em; margin: 0; }
+  .board .direction-concept { font-size: 22px; line-height: 1.45; max-width: 620px; margin: 0; opacity: 0.8; }
+
+  .section-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin: 0 0 22px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid currentColor;
+    border-bottom-color: rgba(0,0,0,0.15);
+  }
+
+  /* Palette */
+  .palette { display: flex; flex-direction: column; gap: 14px; }
+  .swatch-row { display: flex; align-items: stretch; gap: 18px; height: 100px; }
+  .swatch { border-radius: 4px; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px; color: inherit; box-sizing: border-box; }
+  .swatch .name { font-family: "IBM Plex Mono", monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .swatch .hex { font-family: "IBM Plex Mono", monospace; font-size: 11px; opacity: 0.7; margin-top: 2px; }
+  .swatch.lg { flex: 2; height: 140px; }
+  .swatch-row.large { height: 140px; }
+
+  /* Type stack */
+  .type-stack { display: flex; flex-direction: column; gap: 26px; }
+  .type-row { display: flex; flex-direction: column; gap: 6px; }
+  .type-tag { font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.55; }
+
+  /* Applied example block */
+  .applied {
+    grid-column: 1 / -1;
+    border-radius: 6px;
+    padding: 56px 64px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 60px;
+    align-items: end;
+    min-height: 340px;
+    position: relative;
+    overflow: hidden;
+  }
+  .applied .eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.6; margin-bottom: 22px; }
+  .applied .hero-h { font-size: 64px; line-height: 1.02; letter-spacing: -0.02em; margin: 0 0 24px 0; }
+  .applied .hero-p { font-size: 18px; line-height: 1.55; opacity: 0.85; margin: 0; max-width: 460px; }
+  .applied .cta-row { display: flex; gap: 14px; margin-top: 32px; }
+  .cta { padding: 14px 24px; border-radius: 4px; font-size: 15px; font-weight: 500; letter-spacing: 0; cursor: pointer; border: 1px solid transparent; }
+  .cta.solid { color: white; }
+  .cta.ghost { background: transparent; border-color: rgba(0,0,0,0.25); }
+
+  .applied .stat-col { display: flex; flex-direction: column; gap: 24px; padding-left: 40px; border-left: 1px solid rgba(0,0,0,0.12); }
+  .applied .stat-num { font-size: 56px; line-height: 1; letter-spacing: -0.02em; margin: 0; }
+  .applied .stat-lab { font-family: "IBM Plex Mono", monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.65; margin-top: 6px; }
+
+  /* Logo lockup */
+  .logo-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .logo-lockup .door { width: 44px; height: 44px; }
+  .logo-lockup .wordmark { font-size: 20px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; line-height: 1; }
+  .logo-lockup .wordmark .small { font-size: 16px; opacity: 0.7; display: block; margin-top: 4px; letter-spacing: 0.06em; }
+
+  /* === DIRECTION A — MOSTRADOR === */
+  .board.dir-a {
+    background: #F4EFE6;
+    color: #1A1714;
+    font-family: "Instrument Sans", sans-serif;
+  }
+  .dir-a .direction-name { font-family: "Instrument Serif", serif; font-weight: 400; font-style: italic; }
+  .dir-a .direction-name .roman { font-style: normal; }
+  .dir-a .applied { background: #1A1714; color: #F4EFE6; }
+  .dir-a .applied .eyebrow { opacity: 0.65; }
+  .dir-a .applied .hero-h { font-family: "Instrument Serif", serif; font-weight: 400; }
+  .dir-a .applied .hero-h em { font-style: italic; }
+  .dir-a .applied .stat-col { border-left-color: rgba(244,239,230,0.18); }
+  .dir-a .cta.solid { background: #B85C3C; color: #F4EFE6; }
+  .dir-a .cta.ghost { color: #F4EFE6; border-color: rgba(244,239,230,0.3); }
+  .dir-a .section-label { border-bottom-color: rgba(26,23,20,0.18); }
+
+  /* === DIRECTION B — ALMACÉN === */
+  .board.dir-b {
+    background: #F2F1ED;
+    color: #15171A;
+    font-family: "Manrope", sans-serif;
+  }
+  .dir-b .direction-name { font-family: "Funnel Display", sans-serif; font-weight: 600; letter-spacing: -0.035em; }
+  .dir-b .applied { background: #15171A; color: #F2F1ED; }
+  .dir-b .applied .hero-h { font-family: "Funnel Display", sans-serif; font-weight: 600; letter-spacing: -0.03em; }
+  .dir-b .applied .stat-num { font-family: "Funnel Display", sans-serif; font-weight: 500; letter-spacing: -0.02em; }
+  .dir-b .applied .stat-col { border-left-color: rgba(242,241,237,0.18); }
+  .dir-b .cta.solid { background: #2D5BBF; color: #F2F1ED; }
+  .dir-b .cta.ghost { color: #F2F1ED; border-color: rgba(242,241,237,0.3); }
+  .dir-b .section-label { border-bottom-color: rgba(21,23,26,0.18); }
+  .dir-b .accent-mark { color: #2D5BBF; }
+
+  /* === DIRECTION C — TIERRA === */
+  .board.dir-c {
+    background: #EFEAE0;
+    color: #221E1A;
+    font-family: "Space Grotesk", sans-serif;
+  }
+  .dir-c .direction-name { font-family: "Newsreader", serif; font-weight: 400; letter-spacing: -0.015em; }
+  .dir-c .direction-name em { font-style: italic; font-weight: 400; }
+  .dir-c .applied { background: #3C4A2A; color: #EFEAE0; }
+  .dir-c .applied .hero-h { font-family: "Newsreader", serif; font-weight: 400; font-size: 68px; }
+  .dir-c .applied .hero-h em { font-style: italic; color: #D7C190; }
+  .dir-c .applied .stat-col { border-left-color: rgba(239,234,224,0.2); }
+  .dir-c .applied .stat-num { font-family: "Newsreader", serif; font-weight: 400; }
+  .dir-c .cta.solid { background: #B14B2F; color: #EFEAE0; }
+  .dir-c .cta.ghost { color: #EFEAE0; border-color: rgba(239,234,224,0.3); }
+  .dir-c .section-label { border-bottom-color: rgba(34,30,26,0.18); }
+
+  /* Intro board */
+  .board.intro {
+    background: #faf8f3;
+    color: #1A1714;
+    padding: 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-family: "Instrument Sans", sans-serif;
+  }
+  .intro h1 {
+    font-family: "Instrument Serif", serif;
+    font-weight: 400;
+    font-size: 120px;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    margin: 0;
+    max-width: 1100px;
+  }
+  .intro h1 em { font-style: italic; }
+  .intro .intro-lede {
+    font-size: 22px;
+    line-height: 1.5;
+    max-width: 720px;
+    margin: 32px 0 0 0;
+    opacity: 0.8;
+  }
+  .intro .intro-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    margin-top: 80px;
+  }
+  .intro .intro-card {
+    border-top: 1px solid rgba(26,23,20,0.18);
+    padding-top: 24px;
+  }
+  .intro .intro-card .num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    opacity: 0.55;
+  }
+  .intro .intro-card .name {
+    font-family: "Instrument Serif", serif;
+    font-style: italic;
+    font-size: 40px;
+    line-height: 1;
+    margin: 16px 0 12px 0;
+  }
+  .intro .intro-card .desc {
+    font-size: 15px;
+    line-height: 1.55;
+    opacity: 0.75;
+    margin: 0;
+  }
+  .intro .footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin-top: 60px;
+  }
+
+  /* Typography specimens */
+  .specimen-display { font-size: 64px; line-height: 1; letter-spacing: -0.02em; margin: 0; }
+  .specimen-display em { font-style: italic; }
+  .specimen-h2 { font-size: 36px; line-height: 1.1; letter-spacing: -0.015em; margin: 0; font-weight: 500; }
+  .specimen-body { font-size: 17px; line-height: 1.55; margin: 0; max-width: 540px; opacity: 0.88; }
+  .specimen-mono { font-family: "IBM Plex Mono", monospace; font-size: 13px; letter-spacing: 0.06em; opacity: 0.75; margin: 0; }
+
+  .door-svg path { fill: currentColor; }
+</style>
+</head>
+<body>
+
+<!-- Reusable door SVG (from the uploaded logo) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="door-icon" viewBox="0 0 100 100">
+      <rect x="8" y="6" width="84" height="88" fill="none" stroke="currentColor" stroke-width="7"/>
+      <path d="M 50 14 L 78 22 L 78 88 L 50 80 Z" fill="currentColor"/>
+      <circle cx="55" cy="51" r="2.4" fill="#F4EFE6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="logo-board.jsx"></script>
+<script type="text/babel" src="boards.jsx"></script>
+
+</body>
+</html>

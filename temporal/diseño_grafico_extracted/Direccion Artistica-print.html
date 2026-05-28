@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>La Trastienda · Dirección Artística</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500;1,6..72,600&family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --paper: #F4EFE6;
+    --tinta: #1A1714;
+    --lino: #E8DFCE;
+    --cobre: #8B7F70;
+    --acento: #B8821C;       /* D2 · Ocre — recomendado */
+    --acento-soft: #C9A227;  /* D1 · Trigo — uso secundario */
+    --acento-deep: #8F5E1A;  /* D3 · Bronce — uso en texto destacado */
+    --rule: rgba(26, 23, 20, 0.14);
+    --rule-strong: rgba(26, 23, 20, 0.5);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--paper); color: var(--tinta); }
+  body {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 96px 80px 160px;
+  }
+
+  /* HEADER */
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 40px;
+    align-items: end;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 80px;
+  }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin: 0 0 24px 0;
+  }
+  h1 {
+    font-family: "Newsreader", serif;
+    font-weight: 400;
+    font-size: 96px;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  h1 em { font-style: italic; }
+  .header .meta {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    line-height: 1.8;
+    text-align: right;
+  }
+
+  .lede {
+    font-family: "Newsreader", serif;
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 1.4;
+    letter-spacing: -0.005em;
+    max-width: 760px;
+    margin: 0 0 96px 0;
+  }
+  .lede em { font-style: italic; }
+
+  /* SECTION */
+  section { margin-bottom: 96px; }
+  section > .section-head {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 40px;
+    align-items: baseline;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--rule-strong);
+    margin-bottom: 48px;
+  }
+  .section-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    opacity: 0.55;
+  }
+  h2 {
+    font-family: "Newsreader", serif;
+    font-weight: 400;
+    font-size: 48px;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+  h2 em { font-style: italic; }
+
+  h3 {
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px 0;
+  }
+  h4 {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin: 0 0 16px 0;
+    font-weight: 400;
+  }
+  p { margin: 0 0 16px 0; max-width: 720px; }
+  p:last-child { margin-bottom: 0; }
+  ul { margin: 0 0 16px 0; padding-left: 0; list-style: none; max-width: 720px; }
+  ul li {
+    padding: 10px 0 10px 28px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+  ul li:last-child { border-bottom: none; }
+  ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 21px;
+    width: 14px;
+    height: 1px;
+    background: var(--acento);
+  }
+  strong { font-weight: 600; }
+  em { font-family: "Newsreader", serif; font-style: italic; font-weight: 400; }
+
+  /* PRINCIPLES */
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 48px 64px;
+  }
+  .principle .num {
+    font-family: "Newsreader", serif;
+    font-weight: 400;
+    font-size: 40px;
+    color: var(--acento);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .principle h3 {
+    font-family: "Newsreader", serif;
+    font-weight: 400;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+  }
+  .principle p { font-size: 16px; margin: 0; }
+
+  /* PALETTE */
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+  .swatch {
+    border-radius: 4px;
+    padding: 28px 28px 24px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid transparent;
+  }
+  .swatch .role {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .swatch .name {
+    font-family: "Newsreader", serif;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 1;
+    margin: 12px 0 4px;
+  }
+  .swatch .hex {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+  }
+  .swatch .desc {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-top: 24px;
+    opacity: 0.85;
+  }
+
+  .swatch.paper { background: var(--paper); color: var(--tinta); border-color: var(--rule); }
+  .swatch.tinta { background: var(--tinta); color: var(--paper); }
+  .swatch.lino { background: var(--lino); color: var(--tinta); }
+  .swatch.cobre { background: var(--cobre); color: var(--paper); }
+  .swatch.acento { background: var(--acento); color: var(--tinta); }
+  .swatch.acento-deep { background: var(--acento-deep); color: var(--paper); }
+
+  .palette-roles {
+    margin-top: 40px;
+    padding: 28px 32px;
+    background: var(--lino);
+    border-radius: 4px;
+  }
+  .palette-roles dl {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 12px 32px;
+    margin: 0;
+  }
+  .palette-roles dt {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    padding-top: 2px;
+  }
+  .palette-roles dd { margin: 0; font-size: 15px; }
+
+  /* TYPOGRAPHY */
+  .type-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 48px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-row .label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    line-height: 1.7;
+  }
+  .type-row .label .role { display: block; opacity: 1; font-weight: 600; margin-bottom: 6px; }
+
+  .spec-display { font-family: "Newsreader", serif; font-weight: 400; font-size: 64px; line-height: 1.02; letter-spacing: -0.02em; margin: 0; }
+  .spec-display em { font-style: italic; }
+  .spec-h1 { font-family: "Newsreader", serif; font-weight: 400; font-size: 48px; line-height: 1.05; letter-spacing: -0.015em; margin: 0; }
+  .spec-h2 { font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 28px; line-height: 1.2; letter-spacing: -0.01em; margin: 0; }
+  .spec-body { font-family: "Space Grotesk", sans-serif; font-weight: 400; font-size: 17px; line-height: 1.6; margin: 0; max-width: 580px; }
+  .spec-caption { font-family: "IBM Plex Mono", monospace; font-size: 13px; line-height: 1.6; letter-spacing: 0.06em; margin: 0; opacity: 0.75; }
+
+  /* VOICE */
+  .voice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .voice-cell {
+    padding: 28px 32px 28px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .voice-cell.no { padding-left: 32px; border-left: 1px solid var(--rule); padding-right: 0; }
+  .voice-cell .verdict {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .voice-cell.yes .verdict { color: var(--acento-deep); }
+  .voice-cell.no .verdict { color: var(--cobre); }
+  .voice-cell p {
+    font-family: "Newsreader", serif;
+    font-size: 22px;
+    line-height: 1.35;
+    margin: 0;
+  }
+  .voice-cell.no p { opacity: 0.55; text-decoration: line-through; text-decoration-thickness: 1px; }
+
+  /* APPLIED PREVIEW */
+  .preview {
+    margin-top: 48px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 56px 64px 64px;
+    background: var(--paper);
+  }
+  .preview .frame-tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 32px;
+  }
+  .preview .hero {
+    font-family: "Newsreader", serif;
+    font-weight: 400;
+    font-size: 72px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin: 0 0 24px 0;
+  }
+  .preview .hero em { font-style: italic; color: var(--acento); }
+  .preview .sub {
+    font-size: 18px;
+    line-height: 1.5;
+    max-width: 480px;
+    margin: 0 0 32px 0;
+  }
+  .preview .ctas { display: flex; gap: 14px; }
+  .btn {
+    padding: 14px 24px;
+    border-radius: 4px;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .btn.primary { background: var(--acento); color: var(--tinta); }
+  .btn.ghost { background: transparent; color: var(--tinta); border-color: var(--rule-strong); }
+
+  /* FOOTER */
+  .doc-footer {
+    margin-top: 120px;
+    padding-top: 40px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.55;
+  }
+
+  /* ===== PRINT STYLES ===== */
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 16mm 14mm;
+    }
+
+    html, body {
+      background: var(--paper) !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* Ensure every backgrounded element actually prints */
+    *, *::before, *::after {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .page {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Header — first page only */
+    .header {
+      margin-bottom: 40px;
+      padding-bottom: 28px;
+      break-after: page;
+    }
+    h1 { font-size: 64px; }
+    .lede {
+      font-size: 22px;
+      margin-bottom: 0;
+      break-after: page;
+    }
+
+    /* Section rhythm */
+    section {
+      margin-bottom: 0;
+      break-before: page;
+      break-inside: avoid;
+    }
+    section > .section-head {
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      break-after: avoid;
+    }
+    h2 { font-size: 36px; }
+    h3, h4 { break-after: avoid; }
+    p, ul, dl, .principle, .swatch, .type-row, .voice-cell, .preview {
+      break-inside: avoid;
+    }
+
+    /* Tighten principles + palette so each section fits on a page */
+    .principles {
+      gap: 28px 40px;
+      margin-top: 28px !important;
+    }
+    .principle .num { font-size: 32px; }
+    .principle h3 { font-size: 22px; }
+
+    .palette-grid { gap: 18px; }
+    .swatch {
+      min-height: 150px;
+      padding: 18px;
+    }
+    .swatch .name { font-size: 24px; }
+    .swatch .desc { font-size: 12px; margin-top: 14px; }
+    .palette-roles { margin-top: 24px; padding: 20px 24px; }
+
+    /* Type specimens — slightly tighter to fit on one page */
+    .type-row { padding: 18px 0; gap: 32px; }
+    .spec-display { font-size: 48px; }
+    .spec-h1 { font-size: 36px; }
+    .spec-h2 { font-size: 22px; }
+    .spec-body { font-size: 14px; }
+
+    /* Voice */
+    .voice-cell { padding: 18px 24px 18px 0; }
+    .voice-cell.no { padding-left: 24px; }
+    .voice-cell p { font-size: 17px; }
+
+    /* Preview hero */
+    .preview { padding: 36px 40px; }
+    .preview .hero { font-size: 52px; }
+
+    /* Footer */
+    .doc-footer {
+      margin-top: 48px;
+      padding-top: 24px;
+      break-before: avoid;
+    }
+
+    /* Remove any pointer/hover affordances that don't make sense on paper */
+    .btn { cursor: default; }
+  }
+
+  @media (max-width: 800px) {
+    .page { padding: 56px 32px 100px; }
+    h1 { font-size: 56px; }
+    .lede { font-size: 22px; }
+    .principles, .palette-grid { grid-template-columns: 1fr; }
+    .type-row, .header, .section-head { grid-template-columns: 1fr; gap: 16px; }
+    .palette-roles dl { grid-template-columns: 1fr; }
+    .voice-grid { grid-template-columns: 1fr; }
+    .voice-cell.no { padding-left: 0; border-left: none; }
+    .preview { padding: 32px; }
+    .preview .hero { font-size: 44px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div>
+      <p class="eyebrow">La Trastienda · Dirección artística</p>
+      <h1><em>El comercio,</em><br/>desde dentro.</h1>
+    </div>
+    <div class="meta">
+      Sistema · v1<br/>
+      Mayo 2026<br/>
+      Ref · A + trigo + C
+    </div>
+  </header>
+
+  <p class="lede">
+    Una marca <em>híbrida</em> — social y empresarial — construida sobre un papel cálido, una tinta honesta y un acento dorado que destaca sin gritar. Editorial en los titulares, operativa en el cuerpo, mostrador y almacén a partes iguales.
+  </p>
+
+  <!-- 01 — CONCEPTO -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <h2>Concepto <em>rector</em></h2>
+    </div>
+    <p>
+      <strong>La trastienda</strong> es el espacio donde ocurre lo real del comercio: donde se ordena el almacén, se prepara el escaparate, se forma al equipo nuevo. No es el escaparate brillante ni la oficina corporativa — es el lugar honesto, con olor a cartón y café.
+    </p>
+    <p>
+      La marca tiene que sentirse así: <strong>profesional pero con alma</strong>. Credibilidad de empresa, sensibilidad de proyecto social. Ni la frialdad de la startup tech, ni el tono asistencialista de la ONG clásica. Un proyecto que genera valor real a todas sus partes y lo dice sin adornos.
+    </p>
+
+    <div class="principles" style="margin-top: 48px;">
+      <div class="principle">
+        <div class="num">01</div>
+        <h3>Honestidad material</h3>
+        <p>Texturas de papel, tinta, madera. Composiciones donde respira el blanco. Nada de gradientes pastel ni glass-morphism. Lo que se muestra, se sostiene.</p>
+      </div>
+      <div class="principle">
+        <div class="num">02</div>
+        <h3>Editorial, no corporativo</h3>
+        <p>Cabeceras grandes en serif, párrafos generosos, citas con voz humana. La web se lee como una revista de oficio, no como un brochure.</p>
+      </div>
+      <div class="principle">
+        <div class="num">03</div>
+        <h3>Tres audiencias, un tono</h3>
+        <p>Persona, empresa e institución hablan el mismo idioma — cambia el contenido, no la voz. Cercanía sin paternalismo, datos sin frialdad.</p>
+      </div>
+      <div class="principle">
+        <div class="num">04</div>
+        <h3>El acento es premio</h3>
+        <p>El dorado nunca empapela. Aparece para señalar lo importante: un CTA, un número, una palabra italicizada. Su valor está en lo poco que se usa.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — PALETA -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <h2>Paleta de <em>color</em></h2>
+    </div>
+    <p style="margin-bottom: 40px;">Base de papel + tinta del logo original. Sobre esa base, un acento <strong>ocre dorado</strong> con cuerpo suficiente para destacar sobre el crema sin perder calidez. Dos tonos de apoyo (lino, cobre seco) para superficies y texto secundario.</p>
+
+    <div class="palette-grid">
+      <div class="swatch paper">
+        <div>
+          <div class="role">Base · 60% del lienzo</div>
+          <div class="name">Papel</div>
+          <div class="hex">#F4EFE6</div>
+        </div>
+        <div class="desc">Fondo principal de toda la web. Cálido, evita el blanco quirúrgico. Recuerda al papel sin blanquear.</div>
+      </div>
+      <div class="swatch tinta">
+        <div>
+          <div class="role">Texto · 25% del lienzo</div>
+          <div class="name">Tinta</div>
+          <div class="hex">#1A1714</div>
+        </div>
+        <div class="desc">Negro cálido del logo. Para todo el cuerpo de texto, titulares y secciones de contraste. Nunca negro puro.</div>
+      </div>
+      <div class="swatch acento">
+        <div>
+          <div class="role">Acento · 5% del lienzo</div>
+          <div class="name">Ocre</div>
+          <div class="hex">#B8821C</div>
+        </div>
+        <div class="desc">CTA primarios, palabras destacadas en itálica, números, marcas de sección. Destaca sobre papel y sobre tinta.</div>
+      </div>
+      <div class="swatch lino">
+        <div>
+          <div class="role">Superficie · 8% del lienzo</div>
+          <div class="name">Lino</div>
+          <div class="hex">#E8DFCE</div>
+        </div>
+        <div class="desc">Tarjetas, bloques de cita, separadores. Profundidad sin contraste — para suavizar el ritmo de la página.</div>
+      </div>
+      <div class="swatch cobre">
+        <div>
+          <div class="role">Muted · 2% del lienzo</div>
+          <div class="name">Cobre seco</div>
+          <div class="hex">#8B7F70</div>
+        </div>
+        <div class="desc">Texto secundario, captions, metadatos. Apaga sin desaparecer. Usar con moderación.</div>
+      </div>
+      <div class="swatch acento-deep">
+        <div>
+          <div class="role">Acento profundo · uso textual</div>
+          <div class="name">Bronce</div>
+          <div class="hex">#8F5E1A</div>
+        </div>
+        <div class="desc">Variante oscura del ocre. Para texto destacado y enlaces donde el ocre claro no cumpliría contraste.</div>
+      </div>
+    </div>
+
+    <div class="palette-roles">
+      <dl>
+        <dt>Regla 60-25-10-5</dt>
+        <dd>60% papel · 25% tinta · 10% lino + cobre · 5% ocre. Mantener esta proporción evita que la marca se vea "amarilla".</dd>
+        <dt>Acento nunca en fondo</dt>
+        <dd>El ocre no se usa como fondo de sección amplio — solo en botones, badges, números y palabras italicizadas.</dd>
+        <dt>Contraste mínimo AA</dt>
+        <dd>Para texto de cuerpo usar tinta sobre papel. Para enlaces o destacados, usar bronce (no ocre claro).</dd>
+        <dt>Modo oscuro</dt>
+        <dd>Tinta como fondo, papel como texto, ocre se mantiene. Reservado para hero impactantes o secciones de cierre.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- 03 — TIPOGRAFÍA -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <h2>Sistema <em>tipográfico</em></h2>
+    </div>
+    <p style="margin-bottom: 40px;">Dos familias, papeles distintos. <strong>Newsreader</strong> (serif editorial) hace todo el trabajo expresivo: titulares, citas, números, palabras italicizadas. <strong>Space Grotesk</strong> (sans contemporánea) sostiene el cuerpo, los menús y los datos. <strong>IBM Plex Mono</strong> aparece como detalle técnico — eyebrows, metadatos, etiquetas.</p>
+
+    <div class="type-row">
+      <div class="label">
+        <span class="role">Display</span>
+        Newsreader<br/>
+        Regular + Italic<br/>
+        64 / 72px<br/>
+        line-height 1.02<br/>
+        letter-spacing −0.02em
+      </div>
+      <div>
+        <p class="spec-display"><em>Donde ocurre</em> lo real.</p>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="label">
+        <span class="role">H1 · sección</span>
+        Newsreader 400<br/>
+        + Italic acento<br/>
+        48px<br/>
+        line-height 1.05<br/>
+        letter-spacing −0.015em
+      </div>
+      <div>
+        <p class="spec-h1">Formación, talento y consultoría <em>retail</em>.</p>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="label">
+        <span class="role">H2 · bloque</span>
+        Space Grotesk 500<br/>
+        28px<br/>
+        line-height 1.2<br/>
+        letter-spacing −0.01em
+      </div>
+      <div>
+        <p class="spec-h2">Tres audiencias, un mismo proyecto.</p>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="label">
+        <span class="role">Cuerpo</span>
+        Space Grotesk 400<br/>
+        17px<br/>
+        line-height 1.6<br/>
+        Para párrafos largos
+      </div>
+      <div>
+        <p class="spec-body">La Trastienda conecta a personas en transición laboral con empresas del sector retail que buscan talento real, formado y comprometido. Modelo híbrido: formación subvencionada + servicio a empresa.</p>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="label">
+        <span class="role">Mono · técnico</span>
+        IBM Plex Mono 400<br/>
+        12 - 13px<br/>
+        letter-spacing 0.18em<br/>
+        Mayúsculas
+      </div>
+      <div>
+        <p class="spec-caption">01 · PROGRAMAS &nbsp; · &nbsp; 02 · EMPRESAS &nbsp; · &nbsp; 03 · INSTITUCIONES</p>
+      </div>
+    </div>
+
+    <div class="palette-roles" style="margin-top: 48px;">
+      <dl>
+        <dt>Italic como acento</dt>
+        <dd>El italic de Newsreader es el gesto expresivo de la marca. Reservar para 1-2 palabras por titular — la palabra emocional, no la descriptiva.</dd>
+        <dt>Newsreader = voz</dt>
+        <dd>Todo lo que la marca "dice" va en Newsreader: titulares, citas, números grandes, frases destacadas.</dd>
+        <dt>Space Grotesk = información</dt>
+        <dd>Todo lo que la marca "estructura": navegación, párrafos, formularios, labels, botones.</dd>
+        <dt>Plex Mono = sistema</dt>
+        <dd>Aparece como "metadato visible": números de sección, fechas, tags, eyebrows. Nunca para párrafos.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- 04 — VOZ -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <h2>Voz y <em>tono</em></h2>
+    </div>
+    <p style="margin-bottom: 40px;">Cercano sin paternalismo. Profesional sin frialdad. Cuando dudemos, hablar como hablaría un encargado de tienda que sabe lo que hace y respeta a su equipo.</p>
+
+    <div class="voice-grid">
+      <div class="voice-cell yes">
+        <div class="verdict">→ Sí</div>
+        <p>"Formamos a personas para el sector retail."</p>
+      </div>
+      <div class="voice-cell no">
+        <div class="verdict">× No</div>
+        <p>"Empoderamos al colectivo vulnerable con skills 360º."</p>
+      </div>
+      <div class="voice-cell yes">
+        <div class="verdict">→ Sí</div>
+        <p>"Talento preparado desde el primer día."</p>
+      </div>
+      <div class="voice-cell no">
+        <div class="verdict">× No</div>
+        <p>"Soluciones de captación de talento de alto impacto."</p>
+      </div>
+      <div class="voice-cell yes">
+        <div class="verdict">→ Sí</div>
+        <p>"Lo que ocurre detrás del mostrador importa."</p>
+      </div>
+      <div class="voice-cell no">
+        <div class="verdict">× No</div>
+        <p>"Ayudamos a personas necesitadas a reinsertarse."</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — ESPACIO Y FORMA -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">05</span>
+      <h2>Espacio y <em>forma</em></h2>
+    </div>
+    <ul>
+      <li><strong>Aire generoso.</strong> Márgenes amplios, párrafos cortos, mucho espacio en blanco. La página tiene que respirar como una tienda bien colocada.</li>
+      <li><strong>Esquinas suaves, no redondeadas.</strong> Radius 4px máximo en botones y tarjetas. Nunca pills exagerados.</li>
+      <li><strong>Líneas finas.</strong> Separadores a 1px en color rule (rgba tinta · 14%). Nada de cajas con sombra ni cards flotantes.</li>
+      <li><strong>Grid editorial.</strong> 12 columnas, gutter 24px, ancho de lectura máximo 720px para párrafos.</li>
+      <li><strong>Sin iconografía decorativa.</strong> Iconos solo donde aportan información (navegación, formularios). Ningún icono "ilustrativo" sobre concepto abstracto.</li>
+      <li><strong>Imágenes reales o nada.</strong> Si no hay foto auténtica del proyecto, mejor un bloque de color o una cita grande. No stock genérico.</li>
+    </ul>
+  </section>
+
+  <!-- 06 — APLICADO -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">06</span>
+      <h2>Hero <em>aplicado</em></h2>
+    </div>
+    <p>Así se ve el sistema funcionando — paleta, tipografía y voz juntas en el primer pantallazo de la web.</p>
+
+    <div class="preview">
+      <div class="frame-tag">Web · home · hero</div>
+      <h3 class="hero">El comercio,<br/><em>desde dentro.</em></h3>
+      <p class="sub">Formamos a personas en riesgo de exclusión para el sector retail. Y conectamos su talento con las empresas que lo necesitan.</p>
+      <div class="ctas">
+        <button class="btn primary">Trabaja con nosotros</button>
+        <button class="btn ghost">Formaciones abiertas</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <span>La Trastienda · Sistema v1</span>
+    <span>Próximo paso → maquetar la web</span>
+  </div>
+
+</div>
+
+<script>
+  (async function autoPrint() {
+    try {
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
+    } catch (e) { /* noop */ }
+    await new Promise(r => setTimeout(r, 500));
+    window.print();
+  })();
+</script>
+</body>
+
+</html>
