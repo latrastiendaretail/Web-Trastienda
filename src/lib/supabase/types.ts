@@ -56,10 +56,67 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['courses']['Insert']>
         Relationships: []
       }
+      modules: {
+        Row: {
+          id: string
+          course_id: string
+          title: string
+          description: string | null
+          video_url: string | null
+          order_index: number
+          is_bonus: boolean
+          created_at: string
+        }
+        Insert: {
+          course_id: string
+          title: string
+          description?: string | null
+          video_url?: string | null
+          order_index?: number
+          is_bonus?: boolean
+        }
+        Update: Partial<Database['public']['Tables']['modules']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'modules_course_id_fkey'
+            columns: ['course_id']
+            referencedRelation: 'courses'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      module_progress: {
+        Row: {
+          id: string
+          user_id: string
+          module_id: string
+          completed: boolean
+          completed_at: string | null
+        }
+        Insert: {
+          user_id: string
+          module_id: string
+          completed?: boolean
+          completed_at?: string | null
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'module_progress_module_id_fkey'
+            columns: ['module_id']
+            referencedRelation: 'modules'
+            referencedColumns: ['id']
+          }
+        ]
+      }
       lessons: {
         Row: {
           id: string
           course_id: string
+          module_id: string | null
           title: string
           description: string | null
           video_url: string | null
@@ -70,6 +127,7 @@ export type Database = {
         }
         Insert: {
           course_id: string
+          module_id?: string | null
           title: string
           description?: string | null
           video_url?: string | null
@@ -83,6 +141,12 @@ export type Database = {
             foreignKeyName: 'lessons_course_id_fkey'
             columns: ['course_id']
             referencedRelation: 'courses'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'lessons_module_id_fkey'
+            columns: ['module_id']
+            referencedRelation: 'modules'
             referencedColumns: ['id']
           }
         ]
@@ -175,6 +239,29 @@ export type Database = {
         }
         Update: Partial<Database['public']['Tables']['leads']['Insert']>
         Relationships: []
+      }
+      certificates: {
+        Row: {
+          id: string
+          user_id: string
+          course_id: string
+          code: string
+          issued_at: string
+        }
+        Insert: {
+          user_id: string
+          course_id: string
+          code: string
+        }
+        Update: never
+        Relationships: [
+          {
+            foreignKeyName: 'certificates_course_id_fkey'
+            columns: ['course_id']
+            referencedRelation: 'courses'
+            referencedColumns: ['id']
+          }
+        ]
       }
     }
     Views: { [_ in never]: never }

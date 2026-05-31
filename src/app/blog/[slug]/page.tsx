@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createServerClient } from '@/lib/supabase/server'
 
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -37,16 +37,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.excerpt ?? undefined,
     },
   }
-}
-
-export async function generateStaticParams() {
-  const supabase = await createServerClient()
-  const { data: posts } = await supabase
-    .from('posts')
-    .select('slug')
-    .eq('status', 'published')
-
-  return (posts ?? []).map((p) => ({ slug: p.slug }))
 }
 
 function formatDate(dateString: string) {

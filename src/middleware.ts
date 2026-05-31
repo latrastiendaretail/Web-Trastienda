@@ -1,6 +1,12 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-const isProtectedRoute = createRouteMatcher(['/campus((?!/login).*)', '/admin(.*)'])
+// Browsing campus catalog is public; content consumption requires login
+const isProtectedRoute = createRouteMatcher([
+  '/campus/cursos/:slug/bloque(.*)',
+  '/campus/progreso(.*)',
+  '/campus/certificado(.*)',
+  '/admin(.*)',
+])
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) await auth.protect()

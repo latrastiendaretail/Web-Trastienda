@@ -54,16 +54,12 @@ export default async function CursosPage() {
                 <div className="space-y-3">
                   {cat.courses.map((course) => {
                     const isPublished = course.status === 'published'
-                    const Tag = isPublished ? 'a' : 'div'
+                    const isComingSoon = course.status === 'coming_soon'
                     return (
-                      <Tag
+                      <a
                         key={course.id}
-                        {...(isPublished ? { href: `/campus/cursos/${course.slug}` } : {})}
-                        className={`flex items-center justify-between bg-blanco border border-lino/50 px-6 py-5 ${
-                          !isPublished
-                            ? 'opacity-50 select-none'
-                            : 'hover:border-tinta/30 transition-colors duration-200 cursor-pointer'
-                        }`}
+                        href={`/campus/cursos/${course.slug}`}
+                        className="flex items-center justify-between bg-blanco border border-lino/50 px-6 py-5 hover:border-tinta/30 transition-colors duration-200 cursor-pointer"
                       >
                         <div>
                           <span className="block font-sans text-sm font-medium text-tinta">
@@ -82,9 +78,9 @@ export default async function CursosPage() {
                         <span className={`font-mono text-[9px] uppercase tracking-[0.1em] border px-2 py-1 shrink-0 ${
                           isPublished ? 'text-acento border-acento/40' : 'text-cuero border-lino/60'
                         }`}>
-                          {isPublished ? 'Disponible →' : 'Próximamente'}
+                          {isPublished ? 'Disponible →' : isComingSoon ? 'Ver programa →' : 'Próximamente'}
                         </span>
-                      </Tag>
+                      </a>
                     )
                   })}
                 </div>

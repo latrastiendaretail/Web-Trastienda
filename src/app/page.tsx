@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import YoutubeConsentGate from '@/components/YoutubeConsentGate'
 import ManageCookiesButton from '@/components/ManageCookiesButton'
 
@@ -32,14 +33,16 @@ const founders = [
     name: 'Javi',
     role: 'Ventas & Alianzas',
     description:
-      'Lidera el frente comercial y la relación con empresas del sector. El primero en abrirle las puertas a Trastienda.',
+      'He desarrollado mi carrera en retail, pasando por marcas como Decathlon, Fnac, Primark y Casa del Libro, desde posiciones de venta hasta dirección de tienda. Siempre he trabajado muy cerca de las personas, ayudando a sacar su mejor versión en el día a día. Hoy ayudo a jóvenes a entender qué buscan las empresas y a afrontar procesos reales con seguridad y criterio.',
+    photo: '/images/PerfilJavi.jpg',
   },
   {
     num: '02',
     name: 'Yeray',
     role: 'Operaciones & Instituciones',
     description:
-      'Gestiona las alianzas institucionales y mantiene la operativa interna funcionando. El que hace que todo encaje.',
+      'He desarrollado mi trayectoria en retail creciendo desde tienda hasta posiciones de dirección, en compañías como MediaMarkt, Fnac y Casa del Libro. A lo largo de este recorrido he trabajado en entornos exigentes, entendiendo cómo se toman decisiones, cómo se construyen equipos y qué hace que un perfil encaje de verdad en tienda. Hoy trabajo en cómo transformar ese conocimiento en una preparación útil y real para quienes quieren entrar en el sector.',
+    photo: '/images/PerfilYeray.jpg',
   },
   {
     num: '03',
@@ -47,6 +50,7 @@ const founders = [
     role: 'Tecnología & Digital',
     description:
       'Construye la presencia digital de Trastienda y coordina su identidad tecnológica. El que lo hace visible.',
+    photo: '/images/PerfilDavid.jpg',
   },
 ]
 
@@ -447,6 +451,15 @@ export default function Home() {
                   style={{ fontSize: '4.5rem' }}
                 >
                   {founder.num}
+                </div>
+                <div className="w-16 h-16 rounded-full overflow-hidden mb-5 ring-1 ring-papel/10">
+                  <Image
+                    src={founder.photo}
+                    alt={founder.name}
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <h3 className="font-display text-2xl font-medium text-papel tracking-[-0.01em] mb-1">
                   {founder.name}

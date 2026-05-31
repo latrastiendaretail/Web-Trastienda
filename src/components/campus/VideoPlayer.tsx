@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { markLessonComplete } from '@/app/actions/progress'
+import { markLessonComplete, markModuleComplete } from '@/app/actions/progress'
 import { getConsent, setConsent, CONSENT_EVENT } from '@/lib/consent'
 
 // Minimal YT types
@@ -43,14 +43,11 @@ function loadYTApi(): Promise<void> {
   return apiReady
 }
 
-interface Props {
-  videoId: string
-  lessonId: string
-  initialCompleted: boolean
-  title: string
-}
+type Props =
+  | { videoId: string; lessonId: string; moduleId?: never; initialCompleted: boolean; title: string }
+  | { videoId: string; moduleId: string; lessonId?: never; initialCompleted: boolean; title: string }
 
-export default function VideoPlayer({ videoId, lessonId, initialCompleted, title }: Props) {
+export default function VideoPlayer({ videoId, lessonId, moduleId, initialCompleted, title }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<YTPlayer | null>(null)
   const [completed, setCompleted] = useState(initialCompleted)
@@ -90,7 +87,11 @@ export default function VideoPlayer({ videoId, lessonId, initialCompleted, title
 
             if ((isEnded || isNearEnd) && !completed && !saving) {
               setSaving(true)
-              await markLessonComplete(lessonId)
+              if (moduleId) {
+                await markModuleComplete(moduleId)
+              } else {
+                await markLessonComplete(lessonId!)
+              }
               if (!cancelled) {
                 setCompleted(true)
                 setSaving(false)
@@ -106,7 +107,7 @@ export default function VideoPlayer({ videoId, lessonId, initialCompleted, title
       playerRef.current?.destroy()
       playerRef.current = null
     }
-  }, [videoId, lessonId, consentGiven]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [videoId, lessonId, moduleId, consentGiven]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!consentGiven) {
     return (

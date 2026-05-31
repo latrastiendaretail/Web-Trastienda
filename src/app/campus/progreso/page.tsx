@@ -9,6 +9,7 @@ export default async function ProgresoPage() {
     { count: enrolledCount },
     { count: completedLessons },
     { data: enrollments },
+    { data: certificates },
   ] = await Promise.all([
     supabase
       .from('enrollments')
@@ -21,16 +22,21 @@ export default async function ProgresoPage() {
       .eq('completed', true),
     supabase
       .from('enrollments')
-      .select('course_id, enrolled_at, courses(title, duration_minutes, status)')
+      .select('course_id, enrolled_at, courses(title, duration_minutes, status, slug)')
       .eq('user_id', userId ?? 'NONE')
       .order('enrolled_at', { ascending: false }),
+    supabase
+      .from('certificates')
+      .select('id, code, issued_at, courses(title, slug)')
+      .eq('user_id', userId ?? 'NONE')
+      .order('issued_at', { ascending: false }),
   ])
 
   const stats = [
     { value: String(enrolledCount ?? 0), label: 'Cursos inscritos', sub: 'activos' },
     { value: String(completedLessons ?? 0), label: 'Lecciones completadas', sub: 'en total' },
     { value: '0%', label: 'Progreso medio', sub: 'en todos los cursos' },
-    { value: '0', label: 'Certificados', sub: 'obtenidos' },
+    { value: String(certificates?.length ?? 0), label: 'Certificados', sub: 'obtenidos' },
   ]
 
   return (
@@ -111,11 +117,41 @@ export default async function ProgresoPage() {
         <h2 className="font-display text-xl font-medium text-tinta tracking-[-0.01em] mb-6">
           Certificados
         </h2>
-        <div className="border border-lino/40 bg-blanco px-6 py-12 flex flex-col items-center justify-center text-center">
-          <p className="font-sans text-sm text-cuero/60 max-w-[36ch] leading-relaxed">
-            Los certificados se generan al completar un curso.
-          </p>
-        </div>
+
+        {certificates && certificates.length > 0 ? (
+          <div className="space-y-3">
+            {certificates.map((cert) => {
+              const course = cert.courses as { title: string; slug: string } | null
+              return (
+                <div
+                  key={cert.id}
+                  className="flex items-center justify-between bg-blanco border border-lino/50 px-6 py-4"
+                >
+                  <div>
+                    <span className="block font-sans text-sm font-medium text-tinta">
+                      {course?.title ?? 'Curso'}
+                    </span>
+                    <span className="font-mono text-[10px] text-cuero uppercase tracking-[0.08em]">
+                      {cert.code} · {new Date(cert.issued_at).toLocaleDateString('es-ES')}
+                    </span>
+                  </div>
+                  <a
+                    href={`/campus/certificado/${cert.id}`}
+                    className="font-mono text-[10px] text-acento border border-acento/40 px-3 py-1.5 uppercase tracking-[0.08em] hover:bg-acento hover:text-tinta transition-colors duration-200 shrink-0"
+                  >
+                    Ver diploma →
+                  </a>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="border border-lino/40 bg-blanco px-6 py-12 flex flex-col items-center justify-center text-center">
+            <p className="font-sans text-sm text-cuero/60 max-w-[36ch] leading-relaxed">
+              Los certificados se generan al completar un curso.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
