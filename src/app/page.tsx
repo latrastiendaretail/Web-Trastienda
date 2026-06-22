@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useTransition } from 'react'
 import Image from 'next/image'
+import { getCalApi } from '@calcom/embed-react'
 import YoutubeConsentGate from '@/components/YoutubeConsentGate'
 import ManageCookiesButton from '@/components/ManageCookiesButton'
+import { submitContact, type ContactResult } from '@/app/actions/contact'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -49,7 +51,7 @@ const founders = [
     name: 'David',
     role: 'Tecnología & Digital',
     description:
-      'Construye la presencia digital de Trastienda y coordina su identidad tecnológica. El que lo hace visible.',
+      'He dedicado mi carrera a construir productos digitales: desde herramientas internas hasta plataformas con miles de usuarios. Siempre en la intersección entre tecnología y personas. En La Trastienda llevo la presencia digital del proyecto — web, campus, identidad — y me encargo de que la tecnología sirva a la misión, no al revés.',
     photo: '/images/PerfilDavid.jpg',
   },
 ]
@@ -94,12 +96,28 @@ const podcasts = [
     episode: '01',
     title: 'De vendedor a Business Manager',
     guest: 'con Iván Alcántara',
+    thumbnail: '/images/Podcast/miniatura-ivan-alcantara.png',
   },
   {
     videoId: 'QD3x4ZIEeOs',
     episode: '02',
     title: 'De vendedor a Responsable de Talento',
     guest: 'con Manuel del Barrio',
+    thumbnail: '/images/Podcast/miniatura-manuel-del-barrio.png',
+  },
+  {
+    videoId: 'VibCuRyc3Do',
+    episode: '03',
+    title: 'De vendedor a Área Manager',
+    guest: 'con Alex Vila',
+    thumbnail: '/images/Podcast/miniatura-alex-villa.png',
+  },
+  {
+    videoId: null as string | null,
+    episode: '04',
+    title: 'Próximamente',
+    guest: 'en camino',
+    thumbnail: null as string | null,
   },
 ]
 
@@ -109,9 +127,55 @@ type Audience = 'particular' | 'empresa' | 'institucion' | null
 
 function ContactForm() {
   const [audience, setAudience] = useState<Audience>(null)
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState('')
+  const [isPending, startTransition] = useTransition()
+  const formRef = useRef<HTMLFormElement>(null)
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (isPending) return
+    const fd = new FormData(e.currentTarget)
+    if (audience) fd.set('audience', audience)
+    startTransition(async () => {
+      const result: ContactResult = await submitContact(fd)
+      if (result.success) {
+        setStatus('success')
+        formRef.current?.reset()
+        setAudience(null)
+      } else {
+        setStatus('error')
+        setErrorMsg(result.error)
+      }
+    })
+  }
+
+  if (status === 'success') {
+    return (
+      <div className="flex flex-col items-start gap-6 py-10">
+        <div className="h-px w-10 bg-acento" />
+        <h3 className="font-display text-3xl font-medium text-tinta tracking-[-0.02em]">
+          Mensaje enviado
+        </h3>
+        <p className="font-sans text-base text-cuero leading-relaxed">
+          Nos pondremos en contacto contigo pronto.
+        </p>
+        <button
+          type="button"
+          onClick={() => setStatus('idle')}
+          className="font-mono text-[10px] text-cuero uppercase tracking-[0.1em] hover:text-tinta transition-colors duration-200"
+        >
+          Enviar otro mensaje →
+        </button>
+      </div>
+    )
+  }
 
   return (
-    <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+    <form ref={formRef} className="space-y-8" onSubmit={handleSubmit}>
+      {/* Honeypot anti-spam */}
+      <input type="text" name="website" className="hidden" tabIndex={-1} aria-hidden="true" />
+
       <div>
         <label className="block font-mono text-[10px] text-cuero uppercase tracking-[0.1em] mb-3">
           Soy...
@@ -150,6 +214,7 @@ function ContactForm() {
           </label>
           <input
             id="name"
+            name="name"
             type="text"
             required
             autoComplete="name"
@@ -166,6 +231,7 @@ function ContactForm() {
           </label>
           <input
             id="email"
+            name="email"
             type="email"
             required
             autoComplete="email"
@@ -182,6 +248,7 @@ function ContactForm() {
           </label>
           <textarea
             id="message"
+            name="message"
             rows={4}
             required
             className="w-full border-b border-lino bg-transparent pb-3 font-sans text-base text-tinta placeholder:text-lino focus:border-tinta focus:outline-none transition-colors duration-200 resize-none"
@@ -190,15 +257,24 @@ function ContactForm() {
         </div>
       </div>
 
+      {status === 'error' && (
+        <p role="alert" className="font-mono text-[10px] text-red-700 tracking-[0.06em]">
+          {errorMsg}
+        </p>
+      )}
+
       <button
         type="submit"
-        className="btn group w-full font-sans text-[11px] font-medium text-papel bg-tinta uppercase tracking-[0.08em] py-4 hover:bg-acento hover:text-tinta cursor-pointer min-h-[44px]"
+        disabled={isPending}
+        className="btn group w-full font-sans text-[11px] font-medium text-papel bg-tinta uppercase tracking-[0.08em] py-4 hover:bg-acento hover:text-tinta cursor-pointer min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span className="inline-flex items-center gap-2">
-          Enviar mensaje
-          <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
-            →
-          </span>
+          {isPending ? 'Enviando...' : 'Enviar mensaje'}
+          {!isPending && (
+            <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
+              →
+            </span>
+          )}
         </span>
       </button>
     </form>
@@ -212,10 +288,22 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
+    ;(async () => {
+      const cal = await getCalApi({ namespace: 'reunion' })
+      cal('ui', { hideEventTypeDetails: false, layout: 'month_view' })
+    })()
+  }, [])
+
+  useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  useEffect(() => {
+    document.body.style.overflow = navOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [navOpen])
 
   useEffect(() => {
     const els = document.querySelectorAll('[data-reveal]')
@@ -313,14 +401,14 @@ export default function Home() {
         {/* Decorative ghost text */}
         <div
           aria-hidden
-          className="pointer-events-none select-none absolute right-[-4%] top-1/2 -translate-y-1/2 font-display font-medium leading-none text-tinta/[0.035]"
+          className="pointer-events-none select-none absolute right-[-4%] top-1/2 -translate-y-1/2 font-display font-medium leading-none text-tinta/[0.05]"
           style={{ fontSize: 'clamp(10rem, 22vw, 20rem)', letterSpacing: '-0.04em' }}
         >
           RETAIL
         </div>
 
         {/* Content */}
-        <div className="relative z-10 flex-1 flex flex-col justify-center max-w-6xl mx-auto px-6 md:px-12 w-full pt-36 pb-16">
+        <div className="relative z-10 flex-1 flex flex-col justify-center max-w-6xl mx-auto px-6 md:px-12 w-full pt-24 md:pt-36 pb-16">
 
           {/* Eyebrow */}
           <div className="anim-hero-1 flex items-center gap-4 mb-10">
@@ -332,14 +420,14 @@ export default function Home() {
 
           {/* Headline */}
           <h1
-            className="anim-hero-2 font-display font-medium text-tinta tracking-[-0.025em] leading-[1.05] mb-10 max-w-[20ch]"
+            className="anim-hero-2 font-display font-medium text-tinta tracking-[-0.025em] leading-[1.05] mb-10 max-w-[24ch]"
             style={{ fontSize: 'clamp(2.6rem, 6.5vw, 5.75rem)' }}
           >
-            Formamos personas{' '}
-            <em className="italic text-acento">de −25/+50</em>{' '}
-            para crecer{' '}
+            Construimos la{' '}
+            <em className="italic text-acento">cantera de retail</em>{' '}
+            más grande de{' '}
             <span className="relative inline-block">
-              en Retail.
+              España.
               <span
                 aria-hidden
                 className="absolute left-0 bottom-1 h-px bg-acento/30 anim-line"
@@ -452,12 +540,12 @@ export default function Home() {
                 >
                   {founder.num}
                 </div>
-                <div className="w-16 h-16 rounded-full overflow-hidden mb-5 ring-1 ring-papel/10">
+                <div className="w-20 h-20 rounded-full overflow-hidden mb-5 ring-1 ring-papel/10">
                   <Image
                     src={founder.photo}
                     alt={founder.name}
-                    width={64}
-                    height={64}
+                    width={80}
+                    height={80}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -696,16 +784,26 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {podcasts.map((p, i) => (
               <div
-                key={p.videoId}
+                key={p.episode}
                 data-reveal
                 data-delay={String(i + 1)}
                 className="flex flex-col group"
               >
                 <div className="aspect-video w-full overflow-hidden">
-                  <YoutubeConsentGate videoId={p.videoId} title={p.title} />
+                  {p.videoId ? (
+                    <YoutubeConsentGate videoId={p.videoId} title={p.title} thumbnail={p.thumbnail ?? undefined} />
+                  ) : (
+                    <div className="w-full h-full border border-papel/10 flex flex-col items-center justify-center gap-3 bg-papel/[0.03]">
+                      <div className="w-8 h-px bg-papel/20" />
+                      <span className="font-mono text-[9px] text-papel/25 uppercase tracking-[0.18em]">
+                        En producción
+                      </span>
+                      <div className="w-8 h-px bg-papel/20" />
+                    </div>
+                  )}
                 </div>
                 <div className="pt-5 pb-5 border-b border-papel/10">
                   <span
@@ -714,7 +812,7 @@ export default function Home() {
                   >
                     {p.episode}
                   </span>
-                  <h3 className="font-display text-xl font-medium text-papel leading-snug tracking-[-0.01em]">
+                  <h3 className={`font-display text-xl font-medium leading-snug tracking-[-0.01em] ${p.videoId ? 'text-papel' : 'text-papel/20'}`}>
                     {p.title}
                   </h3>
                   {p.guest && (
@@ -723,30 +821,6 @@ export default function Home() {
                 </div>
               </div>
             ))}
-
-            {/* Placeholder Ep. 03 */}
-            <div
-              data-reveal
-              data-delay="3"
-              className="flex flex-col group"
-            >
-              <div className="aspect-video w-full border border-papel/10 flex items-center justify-center">
-                <span className="font-mono text-[9px] text-papel/20 uppercase tracking-[0.14em]">
-                  Próximamente
-                </span>
-              </div>
-              <div className="pt-5 pb-5 border-b border-papel/10">
-                <span
-                  className="block font-display font-medium text-papel/[0.07] leading-none tracking-[-0.04em] mb-2 select-none"
-                  style={{ fontSize: '3.5rem' }}
-                >
-                  03
-                </span>
-                <h3 className="font-display text-xl font-medium text-papel/20 leading-snug tracking-[-0.01em]">
-                  Nuevo episodio en camino
-                </h3>
-              </div>
-            </div>
           </div>
 
           <div className="mt-12 pt-10 border-t border-papel/10" data-reveal>
@@ -784,18 +858,81 @@ export default function Home() {
                 Tanto si buscas formación para crecer en Retail, como si quieres
                 incorporar talento a tu empresa — estamos aquí.
               </p>
-              <div className="border-t border-lino/60 pt-8">
-                <p className="font-mono text-[9px] text-cuero uppercase tracking-[0.14em] mb-3">
-                  Equipo
-                </p>
-                <p className="font-sans text-sm text-tinta">Javi · Yeray · David</p>
-                <p className="font-sans text-sm text-cuero mt-1">La Trastienda</p>
+              <div className="border-t border-lino/60 pt-8 space-y-6">
+                <div>
+                  <p className="font-mono text-[9px] text-cuero uppercase tracking-[0.14em] mb-3">
+                    Equipo
+                  </p>
+                  <p className="font-sans text-sm text-tinta">Javi · Yeray · David</p>
+                  <p className="font-sans text-sm text-cuero mt-1">La Trastienda</p>
+                </div>
+                <div>
+                  <p className="font-mono text-[9px] text-cuero uppercase tracking-[0.14em] mb-3">
+                    Síguenos
+                  </p>
+                  <div className="flex flex-col gap-3">
+                    <a
+                      href="https://www.linkedin.com/company/la-trastienda"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/li inline-flex items-center gap-2 font-sans text-sm text-tinta hover:text-acento transition-colors duration-200"
+                    >
+                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                      </svg>
+                      LinkedIn — La Trastienda
+                      <span className="transition-transform duration-300 group-hover/li:translate-x-1 inline-block">→</span>
+                    </a>
+                    <a
+                      href="https://www.youtube.com/@LaTrastiendaRetail"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/yt inline-flex items-center gap-2 font-sans text-sm text-tinta hover:text-acento transition-colors duration-200"
+                    >
+                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                      </svg>
+                      YouTube — La Trastienda Retail
+                      <span className="transition-transform duration-300 group-hover/yt:translate-x-1 inline-block">→</span>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
 
             <div data-reveal="right" data-delay="1">
               <ContactForm />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── RESERVA ───────────────────────────────────────── */}
+      <section className="py-20 md:py-24 bg-blanco border-t border-lino/40">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
+          <div data-reveal className="flex flex-col items-center text-center gap-5">
+            <div className="h-px w-10 bg-acento" />
+            <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.16em]">
+              Agenda una reunión
+            </span>
+            <h2
+              className="font-display font-medium text-tinta leading-[1.05] tracking-[-0.02em]"
+              style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)' }}
+            >
+              Hablemos en persona
+            </h2>
+            <p className="font-sans text-base text-cuero leading-relaxed max-w-[38ch]">
+              30 minutos para contarnos tu situación y ver cómo podemos ayudarte.
+            </p>
+            <button
+              data-cal-namespace="reunion"
+              data-cal-link="la-trastienda-ckfbtg"
+              data-cal-config='{"layout":"month_view"}'
+              className="btn group inline-flex items-center gap-2 font-sans text-[11px] font-medium text-papel bg-tinta px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-acento hover:text-tinta cursor-pointer mt-2"
+            >
+              Reservar reunión
+              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+            </button>
           </div>
         </div>
       </section>
@@ -824,10 +961,10 @@ export default function Home() {
               ))}
             </div>
             <p className="font-mono text-[9px] text-papel/30 tracking-[0.06em]">
-              © 2026 La Trastienda
+              © {new Date().getFullYear()} La Trastienda
             </p>
           </div>
-          <div className="border-t border-papel/10 pt-5 flex flex-wrap gap-5">
+          <div className="border-t border-papel/10 pt-5 flex flex-wrap items-center gap-5">
             {[
               { href: '/privacidad', label: 'Privacidad' },
               { href: '/terminos', label: 'Términos y condiciones' },
@@ -843,6 +980,30 @@ export default function Home() {
               </a>
             ))}
             <ManageCookiesButton className="font-mono text-[9px] text-papel/25 hover:text-papel/50 uppercase tracking-[0.1em] transition-colors duration-200" />
+            <div className="flex items-center gap-4 ml-auto">
+              <a
+                href="https://www.linkedin.com/company/la-trastienda"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn de La Trastienda"
+                className="text-papel/25 hover:text-papel/60 transition-colors duration-200"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </a>
+              <a
+                href="https://www.youtube.com/@LaTrastiendaRetail"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube de La Trastienda"
+                className="text-papel/25 hover:text-papel/60 transition-colors duration-200"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
       </footer>
