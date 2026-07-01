@@ -10,11 +10,11 @@ import { submitContact, type ContactResult } from '@/app/actions/contact'
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const navLinks = [
-  { href: '#quienes',  label: 'Quiénes somos' },
-  { href: '#programas', label: 'Programas' },
-  { href: '#campus',   label: 'Campus' },
-  { href: '#podcast',  label: 'Podcast' },
-  { href: '/blog',     label: 'Blog' },
+  { href: '#programas',      label: 'Programas' },
+  { href: '#quienes',        label: 'Quiénes somos' },
+  { href: '#campus',         label: 'Campus' },
+  { href: '#podcast',        label: 'Podcast' },
+  { href: '/ltt-consulting', label: 'LTT Consulting' },
 ]
 
 const marqueeItems = [
@@ -49,9 +49,9 @@ const founders = [
   {
     num: '03',
     name: 'David',
-    role: 'Tecnología & Digital',
+    role: 'Tecnología & Identidad Visual',
     description:
-      'He dedicado mi carrera a construir productos digitales: desde herramientas internas hasta plataformas con miles de usuarios. Siempre en la intersección entre tecnología y personas. En La Trastienda llevo la presencia digital del proyecto — web, campus, identidad — y me encargo de que la tecnología sirva a la misión, no al revés.',
+      'Mi trayectoria en retail me dio una visión de lo que el sector necesita de verdad. En La Trastienda llevo la identidad visual y la parte tecnológica — me encargo de que el proyecto tenga una presencia coherente, cuidada y que funcione.',
     photo: '/images/PerfilDavid.jpg',
   },
 ]
@@ -326,164 +326,250 @@ export default function Home() {
     <main className="bg-papel overflow-x-hidden">
 
       {/* ── NAV ──────────────────────────────────────────── */}
-      <header className="fixed top-4 left-4 right-4 z-30 anim-nav">
-        <div className="relative max-w-6xl mx-auto">
-          <nav className={`flex items-center justify-between px-6 py-3 bg-papel/95 backdrop-blur-sm border border-lino/40 transition-shadow duration-300${scrolled ? ' shadow-[0_4px_24px_rgba(26,23,20,0.08)]' : ''}`}>
-            <a href="#" className="cursor-pointer">
-              <img
-                src="/images/Logos/imagotipov2.svg"
-                alt="La Trastienda"
-                className="h-9 w-auto"
-              />
+      <header
+        className={`fixed top-0 left-0 right-0 z-30 anim-nav flex transition-shadow duration-500 ${
+          scrolled ? 'shadow-[0_2px_32px_rgba(26,23,20,0.12)]' : ''
+        }`}
+      >
+        {/* Bloque oscuro izquierdo — solo desktop */}
+        <div
+          className={`hidden md:flex bg-tinta items-center justify-center shrink-0 w-52 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            scrolled ? 'py-3' : 'py-5'
+          }`}
+        >
+          <a href="#" className="cursor-pointer block">
+            <img
+              src="/images/Logos/imagotipov2.svg"
+              alt="La Trastienda"
+              className={`w-auto brightness-0 invert transition-all duration-500 ${scrolled ? 'h-7' : 'h-9'}`}
+            />
+          </a>
+        </div>
+
+        {/* Divisor vertical acento */}
+        <div className="hidden md:block w-px bg-acento shrink-0" />
+
+        {/* Nav principal */}
+        <nav
+          className={`flex-1 flex items-center bg-papel transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            scrolled ? 'px-5 py-3' : 'px-7 py-5'
+          }`}
+        >
+          {/* Logo mobile */}
+          <a href="#" className="md:hidden cursor-pointer mr-auto">
+            <img src="/images/Logos/imagotipov2.svg" alt="La Trastienda" className="h-8 w-auto" />
+          </a>
+
+          {/* Links numerados — desktop */}
+          <div className="hidden md:flex items-center gap-7 flex-1">
+            {navLinks.map((link, i) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="nav-link font-mono text-[10px] font-medium text-cuero hover:text-tinta transition-colors duration-200 tracking-[0.1em] uppercase cursor-pointer"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          {/* CTA + burger */}
+          <div className="flex items-center gap-3 ml-auto md:ml-0">
+            <a
+              href="#contacto"
+              className="btn hidden md:inline-flex items-center gap-2 font-mono text-[10px] font-medium text-papel bg-tinta px-5 min-h-[40px] hover:bg-acento hover:text-tinta tracking-[0.1em] uppercase cursor-pointer"
+            >
+              Contactar
             </a>
 
-            <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="nav-link font-mono text-[11px] font-medium text-cuero hover:text-tinta transition-colors duration-200 tracking-[0.08em] uppercase cursor-pointer"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-3">
-              <a
-                href="#contacto"
-                className="btn hidden md:flex items-center justify-center font-sans text-[11px] font-medium text-papel bg-tinta px-5 min-h-[44px] hover:bg-acento hover:text-tinta tracking-[0.08em] uppercase cursor-pointer"
-              >
-                Contactar
-              </a>
-              <button
-                type="button"
-                onClick={() => setNavOpen(!navOpen)}
-                className="md:hidden font-mono text-[11px] text-tinta uppercase tracking-[0.08em] min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
-                aria-label={navOpen ? 'Cerrar menú' : 'Abrir menú'}
-                aria-expanded={navOpen}
-              >
-                {navOpen ? 'Cerrar' : 'Menú'}
-              </button>
-            </div>
-          </nav>
-
-          <div
-            aria-hidden={!navOpen}
-            className={`md:hidden absolute top-full left-0 right-0 mt-1 bg-papel border border-lino/40 px-6 py-6 transition-[opacity,transform] duration-200 ease-out${navOpen ? ' opacity-100 translate-y-0 pointer-events-auto' : ' opacity-0 -translate-y-2 pointer-events-none select-none'}`}
-          >
-            <div className="flex flex-col gap-6">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setNavOpen(false)}
-                  className="font-mono text-sm font-medium text-tinta uppercase tracking-[0.08em] cursor-pointer min-h-[44px] flex items-center"
-                >
-                  {link.label}
-                </a>
-              ))}
-              <a
-                href="#contacto"
-                onClick={() => setNavOpen(false)}
-                className="btn font-sans text-[11px] font-medium text-papel bg-tinta px-5 py-3.5 uppercase tracking-[0.08em] text-center cursor-pointer min-h-[44px] flex items-center justify-center hover:bg-acento hover:text-tinta"
-              >
-                Contactar
-              </a>
-            </div>
+            <button
+              type="button"
+              onClick={() => setNavOpen(!navOpen)}
+              className="md:hidden w-11 h-11 flex flex-col items-center justify-center gap-[5px] cursor-pointer"
+              aria-label={navOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-expanded={navOpen}
+            >
+              <span className={`block w-6 h-px bg-tinta origin-center transition-all duration-300 ${navOpen ? 'rotate-45 translate-y-[3px]' : ''}`} />
+              <span className={`block h-px bg-tinta transition-all duration-300 ${navOpen ? 'w-0 opacity-0' : 'w-3.5'}`} />
+              <span className={`block w-6 h-px bg-tinta origin-center transition-all duration-300 ${navOpen ? '-rotate-45 -translate-y-[3px]' : ''}`} />
+            </button>
           </div>
-        </div>
+        </nav>
       </header>
 
-      {/* ── HERO ──────────────────────────────────────────── */}
-      <section className="relative min-h-screen flex flex-col overflow-hidden">
-
-        {/* Decorative ghost text */}
+      {/* Overlay mobile fullscreen */}
+      <div
+        aria-hidden={!navOpen}
+        className={`md:hidden fixed inset-0 z-40 flex transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          navOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        {/* Tira tinta izquierda con texto vertical */}
         <div
-          aria-hidden
-          className="pointer-events-none select-none absolute right-[-4%] top-1/2 -translate-y-1/2 font-display font-medium leading-none text-tinta/[0.05]"
-          style={{ fontSize: 'clamp(10rem, 22vw, 20rem)', letterSpacing: '-0.04em' }}
+          className={`bg-tinta flex flex-col items-center justify-between py-6 shrink-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            navOpen ? 'w-14' : 'w-0 overflow-hidden'
+          }`}
         >
-          RETAIL
+          <div className="w-px flex-1 bg-acento/25 mx-auto" />
+          <span
+            className="font-mono text-[8px] text-acento/60 uppercase tracking-[0.22em] my-6 select-none"
+            style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+          >
+            La Trastienda
+          </span>
+          <div className="w-px flex-1 bg-acento/25 mx-auto" />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 flex-1 flex flex-col justify-center max-w-6xl mx-auto px-6 md:px-12 w-full pt-24 md:pt-36 pb-16">
-
-          {/* Eyebrow */}
-          <div className="anim-hero-1 flex items-center gap-4 mb-10">
-            <div className="h-px w-10 bg-acento anim-line" />
-            <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.18em]">
-              Formación · Retail · España
-            </span>
+        {/* Contenido derecho */}
+        <div className="flex-1 bg-papel flex flex-col">
+          {/* Header del overlay */}
+          <div className="flex items-center justify-between px-6 py-5 border-b border-lino/60">
+            <img src="/images/Logos/imagotipov2.svg" alt="La Trastienda" className="h-8 w-auto" />
+            <button
+              type="button"
+              onClick={() => setNavOpen(false)}
+              className="font-mono text-[10px] text-cuero uppercase tracking-[0.12em] min-h-[44px] flex items-center gap-2 hover:text-tinta transition-colors duration-200 cursor-pointer"
+              aria-label="Cerrar menú"
+            >
+              Cerrar <span className="text-acento text-base leading-none">×</span>
+            </button>
           </div>
 
-          {/* Headline */}
-          <h1
-            className="anim-hero-2 font-display font-medium text-tinta tracking-[-0.025em] leading-[1.05] mb-10 max-w-[24ch]"
-            style={{ fontSize: 'clamp(2.6rem, 6.5vw, 5.75rem)' }}
-          >
-            Construimos la{' '}
-            <em className="italic text-acento">cantera de retail</em>{' '}
-            más grande de{' '}
-            <span className="relative inline-block">
-              España.
-              <span
-                aria-hidden
-                className="absolute left-0 bottom-1 h-px bg-acento/30 anim-line"
-                style={{ right: 0 }}
-              />
-            </span>
-          </h1>
-
-          {/* Sub */}
-          <p className="anim-hero-3 font-sans text-lg text-cuero leading-relaxed mb-12 max-w-[50ch]">
-            Conectamos talento con empresas del sector. Formación real, impacto real.
-          </p>
-
-          {/* CTAs */}
-          <div className="anim-hero-4 flex flex-col sm:flex-row gap-3 mb-20">
-            <a
-              href="#programas"
-              className="btn group inline-flex items-center justify-center gap-2 font-sans text-[11px] font-medium text-tinta bg-acento px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-tinta hover:text-papel cursor-pointer"
-            >
-              Quiero formarme
-              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </a>
-            <a
-              href="#programas"
-              className="btn group inline-flex items-center justify-center gap-2 font-sans text-[11px] font-medium text-tinta border border-tinta px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-tinta hover:text-papel cursor-pointer"
-            >
-              Soy empresa
-              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </a>
-          </div>
-
-          {/* Stats strip */}
-          <div className="anim-hero-5 grid grid-cols-3 sm:grid-cols-3 gap-8 max-w-md border-t border-lino/40 pt-10">
-            {[
-              { num: '2',  label: 'Canales',    sub: 'Formación · Empresa' },
-              { num: '3',  label: 'Audiencias', sub: 'Part. · Emp. · Inst.' },
-              { num: '∞',  label: 'Potencial',  sub: 'Carrera en Retail' },
-            ].map((s) => (
-              <div key={s.label}>
-                <div
-                  className="font-display font-medium text-tinta leading-none tracking-[-0.04em]"
-                  style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
-                >
-                  {s.num}
-                </div>
-                <div className="font-mono text-[8px] text-acento uppercase tracking-[0.14em] mt-1.5 mb-0.5">
-                  {s.label}
-                </div>
-                <div className="font-mono text-[9px] text-cuero/70">{s.sub}</div>
-              </div>
+          {/* Links Newsreader grandes */}
+          <nav className="flex-1 flex flex-col justify-center px-6">
+            {navLinks.map((link, i) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setNavOpen(false)}
+                className={`group flex items-baseline gap-4 py-[1.1rem] border-b border-lino/50 transition-all duration-500 ${
+                  navOpen ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
+                }`}
+                style={{ transitionDelay: navOpen ? `${80 + i * 55}ms` : '0ms' }}
+              >
+                <span className="font-mono text-[9px] text-acento tracking-[0.14em] tabular-nums shrink-0">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="font-display text-[2rem] font-medium text-tinta leading-none tracking-[-0.025em] group-hover:text-acento transition-colors duration-200">
+                  {link.label}
+                </span>
+                <span className="ml-auto text-tinta/20 group-hover:text-acento group-hover:translate-x-1 transition-all duration-200 inline-block">
+                  →
+                </span>
+              </a>
             ))}
+          </nav>
+
+          {/* CTA bottom */}
+          <div className="px-6 py-6 border-t border-lino/60">
+            <a
+              href="#contacto"
+              onClick={() => setNavOpen(false)}
+              className="btn w-full font-sans text-[11px] font-medium text-papel bg-tinta py-4 uppercase tracking-[0.1em] text-center flex items-center justify-center gap-2 cursor-pointer min-h-[50px] hover:bg-acento hover:text-tinta"
+            >
+              Contactar ahora →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* ── HERO ──────────────────────────────────────────── */}
+      <section className="min-h-screen flex flex-col">
+
+        {/* Split layout: spine tinta + contenido */}
+        <div className="flex flex-1">
+
+
+          {/* Contenido hero */}
+          <div className="flex-1 relative flex flex-col justify-center px-8 md:px-14 pt-24 md:pt-24 pb-10 overflow-hidden">
+
+            {/* Ghost RETAIL */}
+            <div
+              aria-hidden
+              className="pointer-events-none select-none absolute right-[-3%] top-1/2 -translate-y-1/2 font-display font-medium leading-none text-tinta/[0.04]"
+              style={{ fontSize: 'clamp(9rem, 19vw, 18rem)', letterSpacing: '-0.04em' }}
+            >
+              RETAIL
+            </div>
+
+            <div className="relative z-10">
+
+              {/* Eyebrow */}
+              <div className="anim-hero-1 flex items-center gap-4 mb-10">
+                <div className="h-px w-10 bg-acento anim-line" />
+                <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.18em]">
+                  Formación · Retail · España
+                </span>
+              </div>
+
+              {/* H1 */}
+              <h1
+                className="anim-hero-2 font-display font-medium text-tinta tracking-[-0.025em] leading-[1.05] mb-10 max-w-[22ch]"
+                style={{ fontSize: 'clamp(2.8rem, 6vw, 5.5rem)' }}
+              >
+                Construimos la{' '}
+                <em className="italic text-acento">cantera de retail</em>{' '}
+                más grande de{' '}
+                <span className="relative inline-block">
+                  España.
+                  <span
+                    aria-hidden
+                    className="absolute left-0 bottom-1 h-px bg-acento/30 anim-line"
+                    style={{ right: 0 }}
+                  />
+                </span>
+              </h1>
+
+              {/* Sub */}
+              <p className="anim-hero-3 font-sans text-lg text-cuero leading-relaxed mb-12 max-w-[48ch]">
+                Conectamos talento con empresas del sector. Formación real, impacto real.
+              </p>
+
+              {/* CTAs */}
+              <div className="anim-hero-4 flex flex-col sm:flex-row gap-3 mb-16">
+                <a
+                  href="#programas"
+                  className="btn group inline-flex items-center justify-center gap-2 font-sans text-[11px] font-medium text-tinta bg-acento px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-tinta hover:text-papel cursor-pointer"
+                >
+                  Quiero formarme
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                </a>
+                <a
+                  href="#programas"
+                  className="btn group inline-flex items-center justify-center gap-2 font-sans text-[11px] font-medium text-tinta border border-tinta px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-tinta hover:text-papel cursor-pointer"
+                >
+                  Soy empresa
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                </a>
+              </div>
+
+              {/* Stats */}
+              <div className="anim-hero-5 grid grid-cols-3 gap-8 max-w-sm border-t border-lino/40 pt-8">
+                {[
+                  { num: '2',  label: 'Canales',    sub: 'Formación · Empresa' },
+                  { num: '3',  label: 'Audiencias', sub: 'Part. · Emp. · Inst.' },
+                  { num: '∞',  label: 'Potencial',  sub: 'Carrera en Retail' },
+                ].map((s) => (
+                  <div key={s.label}>
+                    <div
+                      className="font-display font-medium text-tinta leading-none tracking-[-0.04em]"
+                      style={{ fontSize: 'clamp(2rem, 3.5vw, 2.75rem)' }}
+                    >
+                      {s.num}
+                    </div>
+                    <div className="font-mono text-[8px] text-acento uppercase tracking-[0.14em] mt-1.5 mb-0.5">
+                      {s.label}
+                    </div>
+                    <div className="font-mono text-[9px] text-cuero/70">{s.sub}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Marquee strip */}
-        <div className="relative z-10 border-t border-lino/40 py-3 overflow-hidden bg-papel/80">
+        <div className="border-t border-lino/40 py-3 overflow-hidden bg-papel/80">
           <div className="flex whitespace-nowrap anim-marquee">
             {[0, 1].map((i) => (
               <div key={i} className="flex items-center shrink-0">
@@ -493,72 +579,6 @@ export default function Home() {
                     <span className="text-acento/30">·</span>
                   </span>
                 ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── QUIÉNES SOMOS ─────────────────────────────────── */}
-      <section id="quienes" className="bg-tinta py-28 md:py-36 scroll-mt-24">
-        <div className="max-w-6xl mx-auto px-6 md:px-12">
-
-          {/* Header */}
-          <div className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <div data-reveal>
-              <span className="block font-mono text-[9px] text-acento uppercase tracking-[0.16em] mb-4">
-                El equipo
-              </span>
-              <h2
-                className="font-display font-medium text-papel leading-[1.05] tracking-[-0.02em]"
-                style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
-              >
-                Quiénes somos
-              </h2>
-            </div>
-            <p
-              data-reveal
-              data-delay="2"
-              className="font-sans text-sm text-papel/40 max-w-[34ch] leading-relaxed md:text-right"
-            >
-              Tres personas unidas por la convicción de que el Retail necesita una nueva mirada.
-            </p>
-          </div>
-
-          {/* Cards */}
-          <div className="grid md:grid-cols-3 gap-px bg-papel/8">
-            {founders.map((founder, i) => (
-              <div
-                key={founder.name}
-                data-reveal
-                data-delay={String(i + 1)}
-                className="bg-tinta p-8 md:p-10 hover:bg-papel/[0.04] hover:-translate-y-1 transition duration-300 group cursor-default"
-              >
-                <div
-                  className="font-display font-medium text-papel/[0.07] leading-none tracking-[-0.04em] mb-6 select-none group-hover:text-acento/20 transition-colors duration-500"
-                  style={{ fontSize: '4.5rem' }}
-                >
-                  {founder.num}
-                </div>
-                <div className="w-20 h-20 rounded-full overflow-hidden mb-5 ring-1 ring-papel/10">
-                  <Image
-                    src={founder.photo}
-                    alt={founder.name}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="font-display text-2xl font-medium text-papel tracking-[-0.01em] mb-1">
-                  {founder.name}
-                </h3>
-                <div className="font-mono text-[9px] text-acento uppercase tracking-[0.14em] mb-5">
-                  {founder.role}
-                </div>
-                <p className="font-sans text-sm text-papel/50 leading-relaxed">
-                  {founder.description}
-                </p>
-                <div className="mt-8 h-px bg-papel/10 group-hover:bg-acento/25 transition-colors duration-500" />
               </div>
             ))}
           </div>
@@ -663,6 +683,93 @@ export default function Home() {
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── QUIÉNES SOMOS ─────────────────────────────────── */}
+      <section id="quienes" className="bg-tinta pt-28 md:pt-36 pb-16 md:pb-20 scroll-mt-24">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
+
+          {/* Header */}
+          <div className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <div data-reveal>
+              <span className="block font-mono text-[9px] text-acento uppercase tracking-[0.16em] mb-4">
+                El equipo
+              </span>
+              <h2
+                className="font-display font-medium text-papel leading-[1.05] tracking-[-0.02em]"
+                style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
+              >
+                Quiénes somos
+              </h2>
+            </div>
+            <p
+              data-reveal
+              data-delay="2"
+              className="font-sans text-sm text-papel/40 max-w-[34ch] leading-relaxed md:text-right"
+            >
+              Tres personas unidas por la convicción de que el Retail necesita una nueva mirada.
+            </p>
+          </div>
+
+          {/* Cards */}
+          <div className="grid md:grid-cols-3 gap-px bg-papel/8">
+            {founders.map((founder, i) => (
+              <div
+                key={founder.name}
+                data-reveal
+                data-delay={String(i + 1)}
+                className="bg-tinta p-8 md:p-10 hover:bg-papel/[0.04] hover:-translate-y-1 transition duration-300 group cursor-default"
+              >
+                <div
+                  className="font-display font-medium text-papel/[0.07] leading-none tracking-[-0.04em] mb-6 select-none group-hover:text-acento/20 transition-colors duration-500"
+                  style={{ fontSize: '4.5rem' }}
+                >
+                  {founder.num}
+                </div>
+                <div className="w-20 h-20 rounded-full overflow-hidden mb-5 ring-1 ring-papel/10">
+                  <Image
+                    src={founder.photo}
+                    alt={founder.name}
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="font-display text-2xl font-medium text-papel tracking-[-0.01em] mb-1">
+                  {founder.name}
+                </h3>
+                <div className="font-mono text-[9px] text-acento uppercase tracking-[0.14em] mb-5">
+                  {founder.role}
+                </div>
+                <p className="font-sans text-sm text-papel/50 leading-relaxed">
+                  {founder.description}
+                </p>
+                <div className="mt-8 h-px bg-papel/10 group-hover:bg-acento/25 transition-colors duration-500" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRE-CONTACTO ──────────────────────────────────── */}
+      <section className="bg-tinta py-10 md:py-14">
+        <div className="max-w-[720px] mx-auto px-6 text-center" data-reveal>
+          <div className="w-12 h-0.5 bg-acento mx-auto mb-10" aria-hidden="true" />
+          <h2
+            className="font-display font-medium text-papel leading-[1.05] tracking-[-0.02em] mb-10"
+            style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}
+          >
+            Conectamos talento con empresas{' '}
+            <em className="italic text-acento">del sector.</em>
+          </h2>
+          <a
+            href="#contacto"
+            className="btn group inline-flex items-center gap-2 font-sans text-[11px] font-medium text-tinta bg-acento px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-papel cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acento"
+          >
+            Hablemos
+            <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </a>
         </div>
       </section>
 
@@ -895,6 +1002,18 @@ export default function Home() {
                       YouTube — La Trastienda Retail
                       <span className="transition-transform duration-300 group-hover/yt:translate-x-1 inline-block">→</span>
                     </a>
+                    <a
+                      href="https://www.instagram.com/latrastienda.retail/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/ig inline-flex items-center gap-2 font-sans text-sm text-tinta hover:text-acento transition-colors duration-200"
+                    >
+                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+                      </svg>
+                      Instagram — La Trastienda Retail
+                      <span className="transition-transform duration-300 group-hover/ig:translate-x-1 inline-block">→</span>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -1001,6 +1120,17 @@ export default function Home() {
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              </a>
+              <a
+                href="https://www.instagram.com/latrastienda.retail/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram de La Trastienda"
+                className="text-papel/25 hover:text-papel/60 transition-colors duration-200"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
                 </svg>
               </a>
             </div>

@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { Newsreader, Space_Grotesk, IBM_Plex_Mono } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import CookieConsent from '@/components/CookieConsent'
+import LinkedInInsightTag from '@/components/LinkedInInsightTag'
+import PostHogProvider from '@/components/PostHogProvider'
+import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 
 const newsreader = Newsreader({
@@ -41,8 +44,12 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="es" className={`${newsreader.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable}`}>
         <body className="antialiased">
-          {children}
+          <PostHogProvider>
+            {children}
+          </PostHogProvider>
           <CookieConsent />
+          <LinkedInInsightTag />
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>

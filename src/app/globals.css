@@ -122,6 +122,23 @@ body {
   }
 }
 
+/* ── LTT Consulting intro keyframes ────────────────────── */
+@keyframes lttBarGrow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+@keyframes lttLetterIn {
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes lttSubIn {
+  from { opacity: 0; letter-spacing: 0.5em; transform: translateX(0.3em); }
+  to   { opacity: 0.62; letter-spacing: 0.22em; transform: translateX(0); }
+}
+@keyframes lttSweep {
+  from { transform: skewX(-12deg) translateX(-200%); }
+  to   { transform: skewX(-12deg) translateX(900%); }
+}
+
 /* ── Focus rings ───────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--color-acento);

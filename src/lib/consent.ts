@@ -17,3 +17,8 @@ export function clearConsent(): void {
   localStorage.removeItem(KEY)
   window.dispatchEvent(new Event(CONSENT_EVENT))
 }
+
+export function getMarketingConsent(): boolean {
+  if (typeof window === 'undefined') return false
+  return getConsent() === 'all'
+}

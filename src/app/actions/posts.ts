@@ -1,7 +1,7 @@
 'use server'
 
-import { auth, currentUser } from '@clerk/nextjs/server'
 import { createServerClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/admin'
 
 function slugify(text: string): string {
   return text
@@ -49,11 +49,11 @@ function isValidHttpUrl(url: string): boolean {
 }
 
 export async function createPost(formData: FormData): Promise<CreatePostResult> {
-  const { userId } = await auth()
-  if (!userId) return { success: false, error: 'No autorizado' }
-  const user = await currentUser()
-  const role = (user?.publicMetadata as { role?: string } | undefined)?.role
-  if (role !== 'admin') return { success: false, error: 'No autorizado' }
+  try {
+    await requireAdmin()
+  } catch {
+    return { success: false, error: 'No autorizado' }
+  }
 
   const content = (formData.get('content') as string | null)?.trim() ?? ''
   const linkedinUrl = (formData.get('linkedin_url') as string | null)?.trim() ?? ''

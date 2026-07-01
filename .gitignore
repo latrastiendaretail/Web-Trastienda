@@ -41,3 +41,15 @@ next-env.d.ts
 # Python
 __pycache__/
 *.pyc
+
+.vercel
+.env*
+!.env.example
+
+# clerk configuration (can include secrets)
+/.clerk/
+
+certificates
+
+# markdown files not published to GitHub
+*.md

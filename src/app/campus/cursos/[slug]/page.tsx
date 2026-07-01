@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { createServerClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import CertificateCTA from '@/components/campus/CertificateCTA'
+import BuyButton from '@/components/campus/BuyButton'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -27,7 +29,7 @@ export default async function CoursePage({ params }: Props) {
 
   const { data: course } = await supabase
     .from('courses')
-    .select('id, title, slug, tagline, description, duration_minutes, status, format, start_date, max_students, features')
+    .select('id, title, slug, tagline, description, duration_minutes, status, format, start_date, max_students, features, price_cents, stripe_price_id')
     .eq('slug', slug)
     .single()
 
@@ -46,10 +48,11 @@ export default async function CoursePage({ params }: Props) {
   const features = (course.features as CourseFeature[] | null) ?? []
   const emailSubject = encodeURIComponent(`Interés en ${course.title}`)
 
-  // Enrollment check: if logged in, verify access
+  // Enrollment check: service client bypasses RLS (userId already verified by Clerk)
   let isEnrolled = false
   if (userId) {
-    const { data: enrollment } = await supabase
+    const serviceClient = createServiceClient()
+    const { data: enrollment } = await serviceClient
       .from('enrollments')
       .select('id')
       .eq('user_id', userId)
@@ -181,7 +184,7 @@ export default async function CoursePage({ params }: Props) {
           <div className="space-y-3">
             {modules.map((mod) => {
               const label = mod.is_bonus ? '★' : String(mod.order_index)
-              const href = `/campus/cursos/${slug}/bloque/${mod.is_bonus ? 'bonus' : mod.order_index}`
+              const href = `/campus/cursos/${slug}/bloque/${mod.is_bonus ? 'bonus' : (mod.order_index ?? mod.id)}`
               // Locked: user is authenticated but not enrolled in this course
               const locked = !!userId && !isEnrolled
 
@@ -205,7 +208,10 @@ export default async function CoursePage({ params }: Props) {
                         {mod.is_bonus ? `Bonus Track — ${mod.title}` : mod.title}
                       </div>
                     </div>
-                    <span className="font-mono text-[11px] text-cuero/40 shrink-0">🔒</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-cuero/30 shrink-0">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
                   </div>
                 )
               }
@@ -243,20 +249,6 @@ export default async function CoursePage({ params }: Props) {
             })}
           </div>
 
-          {/* Access gate message for authenticated non-enrolled users */}
-          {userId && !isEnrolled && (
-            <div className="mt-4 border border-lino/50 bg-blanco px-6 py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <p className="font-sans text-sm text-cuero">
-                No tienes acceso a este curso. Contacta con La Trastienda para solicitar acceso.
-              </p>
-              <a
-                href={`mailto:latrastienda.retail@gmail.com?subject=${encodeURIComponent(`Solicitud de acceso: ${course.title}`)}`}
-                className="font-mono text-[11px] font-medium text-papel bg-tinta px-5 min-h-[40px] flex items-center uppercase tracking-[0.08em] hover:bg-acento hover:text-tinta transition-colors duration-200 shrink-0"
-              >
-                Solicitar acceso →
-              </a>
-            </div>
-          )}
         </div>
       )}
 
@@ -266,6 +258,53 @@ export default async function CoursePage({ params }: Props) {
           <p className="font-sans text-sm text-cuero/60">
             Los bloques de este curso estarán disponibles próximamente.
           </p>
+        </div>
+      )}
+
+      {/* Access gate: logged-in, not enrolled */}
+      {userId && !isEnrolled && !isComingSoon && (
+        <div className="mb-10 border border-lino/50 bg-blanco px-6 py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          {course.price_cents != null && (course.price_cents === 0 || course.stripe_price_id) ? (
+            <>
+              <div>
+                <p className="font-sans text-sm font-medium text-tinta">Accede a este curso</p>
+                <p className="font-mono text-[10px] text-cuero mt-0.5">Pago único · acceso de por vida</p>
+              </div>
+              <BuyButton courseId={course.id} priceCents={course.price_cents} />
+            </>
+          ) : (
+            <>
+              <p className="font-sans text-sm text-cuero">
+                No tienes acceso a este curso. Contacta con La Trastienda para solicitar acceso.
+              </p>
+              <a
+                href={`mailto:latrastienda.retail@gmail.com?subject=${encodeURIComponent(`Solicitud de acceso: ${course.title}`)}`}
+                className="font-mono text-[11px] font-medium text-papel bg-tinta px-5 min-h-[40px] flex items-center uppercase tracking-[0.08em] hover:bg-acento hover:text-tinta transition-colors duration-200 shrink-0"
+              >
+                Solicitar acceso →
+              </a>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Price CTA for non-logged-in users on paid/free courses */}
+      {!userId && course.price_cents != null && (course.price_cents === 0 || course.stripe_price_id) && !isComingSoon && (
+        <div className="mb-10 border border-lino/50 bg-blanco px-6 py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <p className="font-sans text-sm font-medium text-tinta">
+              {course.price_cents === 0
+                ? 'Gratuito'
+                : (course.price_cents / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }) + ' · Pago único · acceso de por vida'}
+            </p>
+            <p className="font-mono text-[10px] text-cuero mt-0.5">Inicia sesión para acceder</p>
+          </div>
+          <a
+            href="/campus/login"
+            className="font-mono text-[11px] font-medium text-papel bg-tinta px-5 min-h-[40px] flex items-center uppercase tracking-[0.08em] hover:bg-acento hover:text-tinta transition-colors duration-200 shrink-0"
+          >
+            Iniciar sesión →
+          </a>
         </div>
       )}
 

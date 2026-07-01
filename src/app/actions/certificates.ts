@@ -1,5 +1,6 @@
 'use server'
 
+import { randomBytes } from 'node:crypto'
 import { auth } from '@clerk/nextjs/server'
 import { createServerClient } from '@/lib/supabase/server'
 
@@ -66,14 +67,8 @@ export async function getOrCreateCertificate(courseId: string): Promise<
     }
   }
 
-  // Generate unique code: LT · YYYY · NNNN
-  const { count: certCount } = await supabase
-    .from('certificates')
-    .select('*', { count: 'exact', head: true })
-
   const year = new Date().getFullYear()
-  const seq = String((certCount ?? 0) + 1).padStart(4, '0')
-  const code = `LT · ${year} · ${seq}`
+  const code = `LT · ${year} · ${randomBytes(4).toString('hex').toUpperCase()}`
 
   const { data: certificate, error } = await supabase
     .from('certificates')

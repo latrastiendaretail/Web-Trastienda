@@ -77,11 +77,12 @@ export default async function ProgresoPage() {
         {enrollments && enrollments.length > 0 ? (
           <div className="space-y-3">
             {enrollments.map((e) => {
-              const course = e.courses as { title: string; duration_minutes: number; status: string } | null
+              const course = e.courses as { title: string; duration_minutes: number; status: string; slug: string } | null
               return (
-                <div
+                <a
                   key={e.course_id}
-                  className="flex items-center justify-between bg-blanco border border-lino/50 px-6 py-4"
+                  href={course?.slug ? `/campus/cursos/${course.slug}` : '/campus/cursos'}
+                  className="flex items-center justify-between bg-blanco border border-lino/50 px-6 py-4 hover:border-tinta/30 transition-colors duration-200 cursor-pointer group"
                 >
                   <div>
                     <span className="block font-sans text-sm font-medium text-tinta">
@@ -91,10 +92,13 @@ export default async function ProgresoPage() {
                       Inscrito {new Date(e.enrolled_at).toLocaleDateString('es-ES')}
                     </span>
                   </div>
-                  <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.1em] border border-lino/60 px-2 py-1 shrink-0">
-                    En progreso
-                  </span>
-                </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.1em] border border-lino/60 px-2 py-1">
+                      En progreso
+                    </span>
+                    <span className="font-mono text-[13px] text-cuero/40 group-hover:text-tinta transition-colors">→</span>
+                  </div>
+                </a>
               )
             })}
           </div>

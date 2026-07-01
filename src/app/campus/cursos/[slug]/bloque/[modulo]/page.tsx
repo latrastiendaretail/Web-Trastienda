@@ -30,6 +30,17 @@ export default async function BloquePage({ params }: Props) {
 
   if (!course) notFound()
 
+  if (!userId) notFound()
+
+  const { data: enrollment } = await supabase
+    .from('enrollments')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('course_id', course.id)
+    .maybeSingle()
+
+  if (!enrollment) notFound()
+
   const isBonus = modulo === 'bonus'
   const orderIndex = isBonus ? null : parseInt(modulo, 10)
 

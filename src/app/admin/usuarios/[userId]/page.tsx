@@ -29,6 +29,7 @@ export default async function AdminUserDetailPage({ params }: Props) {
     { data: enrollments },
     { data: allModules },
     { data: moduleProgress },
+    { data: purchases },
   ] = await Promise.all([
     supabase
       .from('courses')
@@ -42,9 +43,15 @@ export default async function AdminUserDetailPage({ params }: Props) {
       .select('module_id, completed')
       .eq('user_id', userId)
       .eq('completed', true),
+    supabase
+      .from('purchases')
+      .select('course_id')
+      .eq('user_id', userId)
+      .eq('status', 'completed'),
   ])
 
   const enrolledCourseIds = new Set((enrollments ?? []).map((e) => e.course_id))
+  const paidCourseIds = new Set((purchases ?? []).map((p) => p.course_id))
   const completedModuleIds = new Set((moduleProgress ?? []).map((p) => p.module_id))
 
   const modulesByCourse = (allModules ?? []).reduce<
@@ -85,6 +92,7 @@ export default async function AdminUserDetailPage({ params }: Props) {
         <div className="space-y-3">
           {(courses ?? []).map((course) => {
             const enrolled = enrolledCourseIds.has(course.id)
+            const isPaid = paidCourseIds.has(course.id)
             const courseModules = modulesByCourse[course.id] ?? []
             const videoModules = courseModules.filter((m) => m.hasVideo)
             const completedCount = videoModules.filter((m) => completedModuleIds.has(m.id)).length
@@ -112,6 +120,11 @@ export default async function AdminUserDetailPage({ params }: Props) {
                         <span className="font-mono text-[9px] text-acento border border-acento/40 px-1.5 py-0.5 uppercase tracking-[0.08em]">
                           Con acceso
                         </span>
+                        {isPaid && (
+                          <span className="font-mono text-[9px] text-amber-700 border border-amber-400/60 px-1.5 py-0.5 uppercase tracking-[0.08em]">
+                            Pagado
+                          </span>
+                        )}
                         {totalCount > 0 && (
                           <span className="font-mono text-[10px] text-cuero">
                             {completedCount}/{totalCount} módulos completados
@@ -131,24 +144,30 @@ export default async function AdminUserDetailPage({ params }: Props) {
                   </div>
                 </div>
 
-                <form
-                  action={
-                    enrolled
-                      ? revokeCourse.bind(null, userId, course.id)
-                      : assignCourse.bind(null, userId, course.id)
-                  }
-                >
-                  <button
-                    type="submit"
-                    className={`font-mono text-[10px] uppercase tracking-[0.08em] px-5 min-h-[36px] shrink-0 transition-colors duration-200 ${
+                {enrolled && isPaid ? (
+                  <span className="font-mono text-[10px] text-cuero/40 uppercase tracking-[0.08em] px-5 min-h-[36px] shrink-0 flex items-center border border-lino/30">
+                    Acceso protegido
+                  </span>
+                ) : (
+                  <form
+                    action={
                       enrolled
-                        ? 'border border-lino/60 text-cuero hover:border-red-400 hover:text-red-500'
-                        : 'bg-tinta text-papel hover:bg-acento hover:text-tinta'
-                    }`}
+                        ? revokeCourse.bind(null, userId, course.id)
+                        : assignCourse.bind(null, userId, course.id)
+                    }
                   >
-                    {enrolled ? 'Quitar acceso' : 'Dar acceso'}
-                  </button>
-                </form>
+                    <button
+                      type="submit"
+                      className={`font-mono text-[10px] uppercase tracking-[0.08em] px-5 min-h-[36px] shrink-0 transition-colors duration-200 ${
+                        enrolled
+                          ? 'border border-lino/60 text-cuero hover:border-red-400 hover:text-red-500'
+                          : 'bg-tinta text-papel hover:bg-acento hover:text-tinta'
+                      }`}
+                    >
+                      {enrolled ? 'Quitar acceso' : 'Dar acceso'}
+                    </button>
+                  </form>
+                )}
               </div>
             )
           })}

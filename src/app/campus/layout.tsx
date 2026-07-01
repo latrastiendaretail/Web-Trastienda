@@ -11,6 +11,33 @@ const sidebarLinks = [
   { href: '/campus/progreso', label: 'Mi progreso' },
 ]
 
+function NavIcon({ href }: { href: string }) {
+  const cls = 'w-[15px] h-[15px] shrink-0'
+  if (href === '/campus')
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cls}>
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+    )
+  if (href === '/campus/cursos')
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cls}>
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+    )
+  if (href === '/campus/progreso')
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cls}>
+        <line x1="18" y1="20" x2="18" y2="10"/>
+        <line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+    )
+  return null
+}
+
 function Sidebar({
   currentPath,
   onClose,
@@ -54,12 +81,13 @@ function Sidebar({
               key={link.href}
               href={link.href}
               onClick={onClose}
-              className={`flex items-center px-3 min-h-[44px] font-mono text-[11px] uppercase tracking-[0.08em] transition-colors duration-200 cursor-pointer ${
+              className={`flex items-center gap-3 px-3 min-h-[44px] font-mono text-[11px] uppercase tracking-[0.08em] transition-colors duration-200 cursor-pointer ${
                 isActive
                   ? 'bg-papel/10 text-papel'
                   : 'text-papel/50 hover:text-papel hover:bg-papel/5'
               }`}
             >
+              <NavIcon href={link.href} />
               {link.label}
             </a>
           )
@@ -130,10 +158,14 @@ export default function CampusLayout({
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="font-mono text-[11px] text-tinta uppercase tracking-[0.08em] min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-tinta cursor-pointer"
             aria-label="Abrir menú"
           >
-            Menú
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
           </button>
         </header>
 

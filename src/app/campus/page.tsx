@@ -1,8 +1,10 @@
 import { createServerClient } from '@/lib/supabase/server'
 import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 
 export default async function CampusDashboard() {
   const { userId } = await auth()
+  if (!userId) redirect('/campus/login')
   const supabase = await createServerClient()
 
   const [{ count: enrolledCount }, { count: completedCount }, { data: recentCourses }] =
@@ -18,7 +20,7 @@ export default async function CampusDashboard() {
         .eq('completed', true),
       supabase
         .from('courses')
-        .select('id, title, status, duration_minutes')
+        .select('id, title, status, duration_minutes, slug')
         .eq('status', 'published')
         .order('order_index')
         .limit(3),
@@ -71,15 +73,19 @@ export default async function CampusDashboard() {
         {recentCourses && recentCourses.length > 0 ? (
           <div className="space-y-3">
             {recentCourses.map((course) => (
-              <div
+              <a
                 key={course.id}
-                className="flex items-center justify-between bg-blanco border border-lino/50 px-6 py-4"
+                href={`/campus/cursos/${course.slug}`}
+                className="flex items-center justify-between bg-blanco border border-lino/50 px-6 py-4 hover:border-tinta/30 transition-colors duration-200 cursor-pointer group"
               >
                 <span className="font-sans text-sm font-medium text-tinta">{course.title}</span>
-                <span className="font-mono text-[9px] text-acento uppercase tracking-[0.1em] border border-acento/40 px-2 py-1 shrink-0">
-                  Disponible
-                </span>
-              </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="font-mono text-[9px] text-acento uppercase tracking-[0.1em] border border-acento/40 px-2 py-1">
+                    Disponible
+                  </span>
+                  <span className="font-mono text-[13px] text-cuero/40 group-hover:text-tinta transition-colors">→</span>
+                </div>
+              </a>
             ))}
           </div>
         ) : (

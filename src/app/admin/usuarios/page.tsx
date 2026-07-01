@@ -1,7 +1,9 @@
 import { clerkClient } from '@clerk/nextjs/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { requireAdmin } from '@/lib/auth/admin'
 
 export default async function AdminUsuariosPage() {
+  await requireAdmin()
   const clerk = await clerkClient()
   const { data: users } = await clerk.users.getUserList({ limit: 200, orderBy: '-created_at' })
 

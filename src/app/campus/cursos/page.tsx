@@ -10,13 +10,16 @@ export default async function CursosPage() {
 
   const { data: courses } = await supabase
     .from('courses')
-    .select('id, category_id, title, slug, tagline, description, duration_minutes, status, order_index')
+    .select('id, category_id, title, slug, tagline, description, duration_minutes, status, order_index, price_cents')
     .in('status', ['published', 'coming_soon'])
     .order('order_index')
 
+  const statusOrder = { published: 0, coming_soon: 1, draft: 2 }
   const coursesByCategory = (categories ?? []).map((cat) => ({
     ...cat,
-    courses: (courses ?? []).filter((c) => c.category_id === cat.id),
+    courses: (courses ?? [])
+      .filter((c) => c.category_id === cat.id)
+      .sort((a, b) => (statusOrder[a.status] ?? 2) - (statusOrder[b.status] ?? 2)),
   }))
 
   return (
@@ -75,11 +78,20 @@ export default async function CursosPage() {
                             </span>
                           ) : null}
                         </div>
-                        <span className={`font-mono text-[9px] uppercase tracking-[0.1em] border px-2 py-1 shrink-0 ${
-                          isPublished ? 'text-acento border-acento/40' : 'text-cuero border-lino/60'
-                        }`}>
-                          {isPublished ? 'Disponible →' : isComingSoon ? 'Ver programa →' : 'Próximamente'}
-                        </span>
+                        <div className="flex items-center gap-3 shrink-0">
+                          {course.price_cents != null ? (
+                            <span className="font-mono text-[11px] font-medium text-tinta">
+                              {course.price_cents === 0
+                                ? 'Gratis'
+                                : (course.price_cents / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 })}
+                            </span>
+                          ) : null}
+                          <span className={`font-mono text-[9px] uppercase tracking-[0.1em] border px-2 py-1 ${
+                            isPublished ? 'text-acento border-acento/40' : 'text-cuero border-lino/60'
+                          }`}>
+                            {isPublished ? 'Disponible →' : isComingSoon ? 'Ver programa →' : 'Próximamente'}
+                          </span>
+                        </div>
                       </a>
                     )
                   })}
