@@ -30,9 +30,20 @@ const ibmPlexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'La Trastienda — Retail con propósito',
+  metadataBase: new URL('https://latrastiendaretail.es'),
+  title: {
+    default: 'La Trastienda — Retail con propósito',
+    template: '%s — La Trastienda',
+  },
   description:
     'Formamos y acompañamos a personas de -25/+50 años para que desarrollen su carrera en Retail. Conectamos talento con empresas del sector.',
+  openGraph: {
+    title: 'La Trastienda — Retail con propósito',
+    description:
+      'Formamos y acompañamos a personas de -25/+50 años para que desarrollen su carrera en Retail. Conectamos talento con empresas del sector.',
+    type: 'website',
+    locale: 'es_ES',
+  },
 }
 
 export default function RootLayout({

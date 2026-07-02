@@ -18,15 +18,15 @@ const navLinks = [
 ]
 
 const marqueeItems = [
-  'Formación Retail',
-  'Talento con propósito',
-  'Sector Comercio',
-  'Impacto social',
-  '−25 / +50',
-  'Conexión empresa-persona',
-  'Formación práctica',
-  'Orientación laboral',
-  'Crecimiento profesional',
+  'Consultoría de Ejecución Retail',
+  'Desarrollo de Talento',
+  'Liderazgo en el punto de venta',
+  'Formación para Managers',
+  'Rutinas y hábitos',
+  'Empleabilidad',
+  'Profesionalización del Retail',
+  'Workshops',
+  'Resultados reales',
 ]
 
 const founders = [
@@ -362,7 +362,7 @@ export default function Home() {
 
           {/* Links numerados — desktop */}
           <div className="hidden md:flex items-center gap-7 flex-1">
-            {navLinks.map((link, i) => (
+            {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
@@ -498,7 +498,7 @@ export default function Home() {
               <div className="anim-hero-1 flex items-center gap-4 mb-10">
                 <div className="h-px w-10 bg-acento anim-line" />
                 <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.18em]">
-                  Formación · Retail · España
+                  Consultoría · Formación · Talento · Retail España
                 </span>
               </div>
 
@@ -507,11 +507,9 @@ export default function Home() {
                 className="anim-hero-2 font-display font-medium text-tinta tracking-[-0.025em] leading-[1.05] mb-10 max-w-[22ch]"
                 style={{ fontSize: 'clamp(2.8rem, 6vw, 5.5rem)' }}
               >
-                Construimos la{' '}
-                <em className="italic text-acento">cantera de retail</em>{' '}
-                más grande de{' '}
+                Hacemos del retail un{' '}
                 <span className="relative inline-block">
-                  España.
+                  <em className="italic text-acento">motor de oportunidades.</em>
                   <span
                     aria-hidden
                     className="absolute left-0 bottom-1 h-px bg-acento/30 anim-line"
@@ -522,7 +520,9 @@ export default function Home() {
 
               {/* Sub */}
               <p className="anim-hero-3 font-sans text-lg text-cuero leading-relaxed mb-12 max-w-[48ch]">
-                Conectamos talento con empresas del sector. Formación real, impacto real.
+                Ayudamos a empresas de retail a convertir sus decisiones estratégicas en
+                comportamientos reales en el punto de venta: consultoría de ejecución,
+                formación de managers y desarrollo de talento.
               </p>
 
               {/* CTAs */}
@@ -531,14 +531,14 @@ export default function Home() {
                   href="#programas"
                   className="btn group inline-flex items-center justify-center gap-2 font-sans text-[11px] font-medium text-tinta bg-acento px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-tinta hover:text-papel cursor-pointer"
                 >
-                  Quiero formarme
+                  Soy empresa
                   <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </a>
                 <a
                   href="#programas"
                   className="btn group inline-flex items-center justify-center gap-2 font-sans text-[11px] font-medium text-tinta border border-tinta px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-tinta hover:text-papel cursor-pointer"
                 >
-                  Soy empresa
+                  Quiero formarme
                   <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </a>
               </div>
@@ -546,9 +546,9 @@ export default function Home() {
               {/* Stats */}
               <div className="anim-hero-5 grid grid-cols-3 gap-8 max-w-sm border-t border-lino/40 pt-8">
                 {[
-                  { num: '2',  label: 'Canales',    sub: 'Formación · Empresa' },
-                  { num: '3',  label: 'Audiencias', sub: 'Part. · Emp. · Inst.' },
-                  { num: '∞',  label: 'Potencial',  sub: 'Carrera en Retail' },
+                  { num: '5',  label: 'Fases',      sub: 'Observación → Resultados' },
+                  { num: '3',  label: 'Audiencias', sub: 'Emp. · Part. · Inst.' },
+                  { num: '∞',  label: 'Potencial',  sub: 'Ejecución en tienda' },
                 ].map((s) => (
                   <div key={s.label}>
                     <div
@@ -608,24 +608,24 @@ export default function Home() {
               className="bg-blanco border border-lino/50 p-10 md:p-12 hover:border-acento/40 hover:shadow-[0_4px_24px_rgba(26,23,20,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col group"
             >
               <div className="font-mono text-[9px] text-cuero uppercase tracking-[0.16em] mb-8">
-                Para particulares
+                Para profesionales
               </div>
               <h3
                 className="font-display font-medium text-tinta leading-[1.05] tracking-[-0.02em] mb-6"
                 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)' }}
               >
-                Formación <em>real</em> para el sector Retail
+                Formación <em>real</em> para crecer en Retail
               </h3>
               <p className="font-sans text-base text-cuero leading-relaxed mb-8">
-                Si tienes menos de 25 o más de 50 años y quieres crecer en el comercio,
-                estamos aquí. Formación práctica y gratuita, con conexión directa a
-                empresas que buscan talento.
+                Si quieres dar el salto a manager o mando intermedio, tenemos formación
+                práctica orientada a resultados: liderazgo, rutinas de tienda y
+                capacidad de ejecución.
               </p>
               <ul className="space-y-3 mb-10 flex-1">
                 {[
-                  'Formación práctica en sector Retail',
-                  'Conexión directa con empresas del sector',
-                  'Acompañamiento personalizado',
+                  'Formación práctica orientada a la ejecución',
+                  'Mentorías y sesiones 1:1',
+                  'Comunidad de profesionales del Retail',
                 ].map((item) => (
                   <li key={item} className="font-sans text-sm text-tinta flex items-start gap-3">
                     <span className="text-acento font-medium mt-0.5 shrink-0">—</span>
@@ -655,18 +655,18 @@ export default function Home() {
                 className="font-display font-medium text-papel leading-[1.05] tracking-[-0.02em] mb-6"
                 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)' }}
               >
-                Talento <em>formado</em> para tu equipo
+                Consultoría de <em>Ejecución</em> Retail
               </h3>
               <p className="font-sans text-base text-papel/60 leading-relaxed mb-8">
-                Accede a candidatos preformados en Retail: comprometidos, con experiencia
-                práctica y perfil de impacto social. También ofrecemos consultoría
-                especializada para tu operativa.
+                Ayudamos a empresas de retail a convertir sus decisiones estratégicas
+                en comportamientos reales en el punto de venta: managers, liderazgo,
+                rutinas y homogeneidad entre tiendas.
               </p>
               <ul className="space-y-3 mb-10 flex-1">
                 {[
-                  'Candidatos preseleccionados y formados',
-                  'Valor añadido RSC para tu empresa',
-                  'Consultoría Retail especializada',
+                  'Consultoría de Ejecución Retail',
+                  'Formación de managers y workshops',
+                  'Desarrollo de talento y Retail Analytics',
                 ].map((item) => (
                   <li key={item} className="font-sans text-sm text-papel/75 flex items-start gap-3">
                     <span className="text-acento font-medium mt-0.5 shrink-0">—</span>
@@ -760,8 +760,8 @@ export default function Home() {
             className="font-display font-medium text-papel leading-[1.05] tracking-[-0.02em] mb-10"
             style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}
           >
-            Conectamos talento con empresas{' '}
-            <em className="italic text-acento">del sector.</em>
+            Convertimos la estrategia en{' '}
+            <em className="italic text-acento">resultados reales.</em>
           </h2>
           <a
             href="#contacto"
@@ -962,8 +962,8 @@ export default function Home() {
                 Contacto
               </h2>
               <p className="font-sans text-lg text-cuero leading-relaxed mb-12 max-w-[42ch]">
-                Tanto si buscas formación para crecer en Retail, como si quieres
-                incorporar talento a tu empresa — estamos aquí.
+                Tanto si buscas consultoría para mejorar la ejecución de tu empresa,
+                como si quieres formarte para crecer en Retail — estamos aquí.
               </p>
               <div className="border-t border-lino/60 pt-8 space-y-6">
                 <div>
@@ -1065,7 +1065,7 @@ export default function Home() {
                 La Trastienda
               </span>
               <span className="block font-mono text-[9px] text-papel/40 uppercase tracking-[0.14em] mt-1">
-                Retail con propósito
+                Motor de oportunidades en el Retail
               </span>
             </div>
             <div className="flex flex-wrap gap-6">

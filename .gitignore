@@ -53,3 +53,6 @@ certificates
 
 # markdown files not published to GitHub
 *.md
+
+# private local files, never public
+/private/
