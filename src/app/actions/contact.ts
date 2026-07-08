@@ -43,25 +43,34 @@ export async function submitContact(formData: FormData): Promise<ContactResult> 
   if (!isValidEmail(email))   return { success: false, error: 'Introduce un email válido' }
   if (!message)               return { success: false, error: 'El mensaje es obligatorio' }
 
-  if (process.env.RESEND_API_KEY && process.env.CONTACT_EMAIL_TO) {
-    const resend = new Resend(process.env.RESEND_API_KEY)
-    await resend.emails.send({
-      from: 'Web La Trastienda <onboarding@resend.dev>',
-      to: [process.env.CONTACT_EMAIL_TO],
-      subject: `Contacto web — ${name} (${audience})`,
-      text: [
-        `Nuevo mensaje desde el formulario de contacto de latrastienda.es`,
-        '',
-        `Nombre:  ${name}`,
-        `Email:   ${email}`,
-        `Perfil:  ${audience}`,
-        '',
-        `Mensaje:`,
-        message,
-        '',
-        `Fecha: ${new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}`,
-      ].join('\n'),
-    })
+  if (!process.env.RESEND_API_KEY || !process.env.CONTACT_EMAIL_TO) {
+    console.error('submitContact: falta RESEND_API_KEY o CONTACT_EMAIL_TO en las variables de entorno')
+    return { success: false, error: 'El formulario no está disponible ahora mismo. Escríbenos a latrastienda.retail@gmail.com' }
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  const { error } = await resend.emails.send({
+    from: 'Web La Trastienda <onboarding@resend.dev>',
+    to: [process.env.CONTACT_EMAIL_TO],
+    replyTo: email,
+    subject: `Contacto web — ${name} (${audience})`,
+    text: [
+      `Nuevo mensaje desde el formulario de contacto de latrastienda.es`,
+      '',
+      `Nombre:  ${name}`,
+      `Email:   ${email}`,
+      `Perfil:  ${audience}`,
+      '',
+      `Mensaje:`,
+      message,
+      '',
+      `Fecha: ${new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}`,
+    ].join('\n'),
+  })
+
+  if (error) {
+    console.error('submitContact: Resend error', error)
+    return { success: false, error: 'No se pudo enviar el mensaje. Inténtalo de nuevo o escríbenos a latrastienda.retail@gmail.com' }
   }
 
   return { success: true }
