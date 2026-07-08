@@ -74,30 +74,6 @@ const reasons = [
   },
 ]
 
-const results = [
-  {
-    sector: 'Cadena de moda · red de tiendas',
-    metric: '+18',
-    unit: '%',
-    description: 'Conversión sobre tráfico tras rediseñar el método de venta y formar a la sala durante un trimestre.',
-    foot: 'Optimización comercial + Formación',
-  },
-  {
-    sector: 'Retail especializado',
-    metric: '+11',
-    unit: '%',
-    description: 'Ticket medio al implantar venta asistida y cierre, sin tocar el surtido ni el precio.',
-    foot: 'Formación de equipos',
-  },
-  {
-    sector: 'Grupo con encargados de tienda',
-    metric: '−30',
-    unit: '%',
-    description: 'Tiempo de incorporación de nuevo personal con un protocolo de onboarding estandarizado.',
-    foot: 'Mando intermedio + Onboarding',
-  },
-]
-
 function LttContactForm() {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
@@ -197,7 +173,6 @@ const navItems = [
   { href: '#problema', label: 'El problema' },
   { href: '#servicios', label: 'Servicios' },
   { href: '#porque', label: 'Por qué LTT' },
-  { href: '#resultados', label: 'Resultados' },
 ]
 
 export default function LttConsultingPage() {
@@ -626,32 +601,11 @@ export default function LttConsultingPage() {
           </div>
         </section>
 
-        {/* ============================== RESULTADOS ============================== */}
-        <section className="resultados sec-pad" id="resultados">
-          <div className="wrap">
-            <div className="sec-head">
-              <span className="kicker reveal"><span className="idx">04</span><span className="tick" /> Resultados</span>
-              <h2 className="title reveal d1">El trabajo se mide donde importa: <em>en la caja.</em></h2>
-            </div>
-            <div className="res-grid">
-              {results.map((r, i) => (
-                <article key={r.sector} className={`res-card reveal d${i}`}>
-                  <span className="res-sector">{r.sector}</span>
-                  <span className="res-metric">{r.metric}<span>{r.unit}</span></span>
-                  <p className="res-desc">{r.description}</p>
-                  <span className="res-foot">{r.foot}</span>
-                </article>
-              ))}
-            </div>
-            <span className="res-note reveal"><span className="tick" /> Casos reales anonimizados. Referencias con nombre disponibles bajo acuerdo.</span>
-          </div>
-        </section>
-
         {/* ============================== CONTACTO ============================== */}
         <section className="contacto sec-pad" id="contacto">
           <div className="wrap contacto-grid">
             <div className="reveal">
-              <span className="kicker"><span className="idx">05</span><span className="tick" /> Contacto</span>
+              <span className="kicker"><span className="idx">04</span><span className="tick" /> Contacto</span>
               <h2 className="title" style={{ marginTop: 22, marginBottom: 18 }}>Pongamos a rendir lo que <em>ya entra por la puerta.</em></h2>
               <p className="lede">Empezamos por un diagnóstico sobre el terreno de una de sus tiendas. Sin compromiso y con conclusiones concretas desde la primera visita.</p>
             </div>
