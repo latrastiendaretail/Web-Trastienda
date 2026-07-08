@@ -44,8 +44,10 @@ export default function CookieConsent() {
     requestAnimationFrame(() => requestAnimationFrame(() => setMounted(true)))
 
     const timer = setTimeout(() => {
+      if (getConsent()) return
       setMounted(false)
       setTimeout(() => {
+        if (getConsent()) return
         setPhase('modal')
         requestAnimationFrame(() => requestAnimationFrame(() => setMounted(true)))
       }, 300)

@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import LttIntroOverlay from './LttIntroOverlay'
+import { submitContact, type ContactResult } from '@/app/actions/contact'
 
 const services = [
   {
@@ -97,6 +98,67 @@ const results = [
   },
 ]
 
+function LttContactForm() {
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState('')
+  const [isPending, startTransition] = useTransition()
+  const formRef = useRef<HTMLFormElement>(null)
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (isPending) return
+    const fd = new FormData(e.currentTarget)
+    fd.set('audience', 'empresa')
+    startTransition(async () => {
+      const result: ContactResult = await submitContact(fd)
+      if (result.success) {
+        setStatus('success')
+        formRef.current?.reset()
+      } else {
+        setStatus('error')
+        setErrorMsg(result.error)
+      }
+    })
+  }
+
+  if (status === 'success') {
+    return (
+      <div className="contact-done reveal in">
+        <p className="contact-done-title">Solicitud enviada</p>
+        <p className="contact-done-sub">Te contactaremos para agendar el diagnóstico.</p>
+        <button type="button" className="btn-ghost" onClick={() => setStatus('idle')}>
+          Enviar otra solicitud →
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <form ref={formRef} className="contact-form" onSubmit={handleSubmit}>
+      <input type="text" name="website" className="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+      <div className="field">
+        <label htmlFor="ltt-name">Nombre</label>
+        <input id="ltt-name" name="name" type="text" required autoComplete="name" placeholder="Tu nombre" />
+      </div>
+      <div className="field">
+        <label htmlFor="ltt-email">Email</label>
+        <input id="ltt-email" name="email" type="email" required autoComplete="email" placeholder="tu@empresa.com" />
+      </div>
+      <div className="field">
+        <label htmlFor="ltt-message">Mensaje</label>
+        <textarea id="ltt-message" name="message" rows={4} required placeholder="Cuéntanos tu tienda o red de tiendas" />
+      </div>
+      {status === 'error' && <p role="alert" className="contact-error">{errorMsg}</p>}
+      <button type="submit" className="btn-primary contact-submit" disabled={isPending}>
+        {isPending ? 'Enviando...' : 'Solicitar diagnóstico'}
+        {!isPending && (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></svg>
+        )}
+      </button>
+    </form>
+  )
+}
+
 function useReveal() {
   const rootRef = useRef<HTMLDivElement>(null)
 
@@ -131,9 +193,17 @@ function useReveal() {
   return rootRef
 }
 
+const navItems = [
+  { href: '#problema', label: 'El problema' },
+  { href: '#servicios', label: 'Servicios' },
+  { href: '#porque', label: 'Por qué LTT' },
+  { href: '#resultados', label: 'Resultados' },
+]
+
 export default function LttConsultingPage() {
   const [introDone, setIntroDone] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const rootRef = useReveal()
 
   useEffect(() => {
@@ -142,6 +212,11 @@ export default function LttConsultingPage() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [menuOpen])
 
   return (
     <>
@@ -285,13 +360,27 @@ export default function LttConsultingPage() {
 
           .ltt .contacto { position: relative; overflow: hidden; }
           .ltt .contacto::before { content: ""; position: absolute; inset: 0; background: radial-gradient(70% 90% at 50% 0%, rgba(201,162,39,0.10), transparent 60%); pointer-events: none; }
-          .ltt .cta-box { position: relative; text-align: center; display: grid; gap: 30px; justify-items: center; padding-block: clamp(20px, 4vh, 50px); }
-          .ltt .cta-box h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(34px, 5.4vw, 68px); line-height: 1.04; letter-spacing: -0.025em; max-width: 18ch; text-wrap: balance; }
-          .ltt .cta-box h2 em { font-style: italic; color: var(--trigo); }
-          .ltt .cta-box .lede { text-align: center; max-width: 50ch; }
-          .ltt .cta-actions { display: flex; flex-wrap: wrap; gap: 16px 22px; justify-content: center; align-items: center; }
+          .ltt .contacto-grid { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 90px); align-items: start; }
           .ltt .cta-mail { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 14px; letter-spacing: 0.04em; color: var(--papel); border-bottom: 1px solid var(--papel-22); padding-bottom: 4px; transition: color 0.2s, border-color 0.2s; }
           .ltt .cta-mail:hover { color: var(--trigo); border-color: var(--trigo); }
+
+          .ltt .contact-form { display: grid; gap: 22px; background: var(--tinta-2); border: 1px solid var(--papel-12); border-radius: 6px; padding: clamp(26px, 3vw, 40px); }
+          .ltt .contact-form .hp { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+          .ltt .contact-form .field { display: grid; gap: 8px; }
+          .ltt .contact-form label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cuero); }
+          .ltt .contact-form input, .ltt .contact-form textarea { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--papel-22); color: var(--papel); font-family: var(--sans); font-size: 15px; padding: 10px 2px; resize: none; transition: border-color 0.2s; }
+          .ltt .contact-form input::placeholder, .ltt .contact-form textarea::placeholder { color: var(--papel-42); }
+          .ltt .contact-form input:focus, .ltt .contact-form textarea:focus { outline: none; border-color: var(--trigo); }
+          .ltt .contact-error { font-family: var(--mono); font-size: 12px; color: #e2836b; }
+          .ltt .contact-submit { justify-self: start; border: none; cursor: pointer; }
+          .ltt .contact-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+          .ltt .contact-done { display: grid; gap: 14px; background: var(--tinta-2); border: 1px solid var(--papel-12); border-radius: 6px; padding: clamp(30px, 4vw, 46px); justify-items: start; }
+          .ltt .contact-done-title { font-family: var(--serif); font-weight: 500; font-size: 26px; color: var(--papel); }
+          .ltt .contact-done-sub { font-size: 14.5px; color: var(--papel-60); }
+
+          @media (max-width: 880px) {
+            .ltt .contacto-grid { grid-template-columns: 1fr; }
+          }
 
           .ltt footer.site { background: var(--tinta); border-top: 1px solid var(--papel-12); padding-block: clamp(48px, 7vh, 80px); }
           .ltt .foot-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 40px; align-items: start; }
@@ -322,9 +411,28 @@ export default function LttConsultingPage() {
             .ltt .foot-grid { grid-template-columns: 1fr 1fr; }
             .ltt .foot-brand { grid-column: 1 / -1; }
           }
+          .ltt .burger { display: none; width: 44px; height: 44px; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; }
+          .ltt .burger span { display: block; width: 22px; height: 1px; background: var(--papel); transition: transform 0.25s var(--ease), opacity 0.25s var(--ease), width 0.25s var(--ease); }
+          .ltt .burger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+          .ltt .burger.open span:nth-child(2) { opacity: 0; width: 0; }
+          .ltt .burger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+          .ltt .mobile-menu { position: fixed; inset: 0; z-index: 60; background: var(--tinta-2); display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity 0.35s var(--ease); }
+          .ltt .mobile-menu.open { opacity: 1; pointer-events: auto; }
+          .ltt .mobile-menu-head { display: flex; align-items: center; justify-content: space-between; height: 76px; padding-inline: var(--gutter); border-bottom: 1px solid var(--papel-12); }
+          .ltt .mobile-menu-close { font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--papel-60); display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; }
+          .ltt .mobile-menu nav { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-inline: var(--gutter); gap: 4px; }
+          .ltt .mobile-menu nav a { font-family: var(--serif); font-size: clamp(28px, 8vw, 40px); font-weight: 500; color: var(--papel); padding-block: 16px; border-bottom: 1px solid var(--papel-12); }
+          .ltt .mobile-menu-cta { padding: 24px var(--gutter) clamp(32px, 6vh, 56px); }
+
           @media (max-width: 960px) {
             .ltt .nav-links { display: none; }
+            .ltt .burger { display: flex; }
             .ltt .hero-meta { gap: 24px 36px; }
+          }
+          @media (max-width: 640px) {
+            .ltt .hero { padding-top: 108px; padding-bottom: 56px; }
+            .ltt .sec-pad { padding-block: 56px; }
           }
           @media (max-width: 720px) {
             .ltt .svc-grid { grid-template-columns: 1fr; }
@@ -352,17 +460,50 @@ export default function LttConsultingPage() {
               </a>
             </div>
             <nav className="nav-links">
-              <a href="#problema">El problema</a>
-              <a href="#servicios">Servicios</a>
-              <a href="#porque">Por qué LTT</a>
-              <a href="#resultados">Resultados</a>
+              {navItems.map((item) => (
+                <a key={item.href} href={item.href}>{item.label}</a>
+              ))}
               <a className="nav-cta" href="#contacto">
                 Solicitar diagnóstico
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></svg>
               </a>
             </nav>
+            <button
+              type="button"
+              className={`burger${menuOpen ? ' open' : ''}`}
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-expanded={menuOpen}
+            >
+              <span /><span /><span />
+            </button>
           </div>
         </header>
+
+        {/* ============================== MENÚ MÓVIL ============================== */}
+        <div className={`mobile-menu${menuOpen ? ' open' : ''}`} aria-hidden={!menuOpen}>
+          <div className="mobile-menu-head">
+            <span className="lockup" style={{ ['--s' as string]: '24px' }}>
+              <span className="mark">LTT</span>
+              <span className="bar" />
+              <span className="sub">Consulting</span>
+            </span>
+            <button type="button" className="mobile-menu-close" onClick={() => setMenuOpen(false)} aria-label="Cerrar menú">
+              Cerrar ×
+            </button>
+          </div>
+          <nav>
+            {navItems.map((item) => (
+              <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</a>
+            ))}
+          </nav>
+          <div className="mobile-menu-cta">
+            <a className="btn-primary" href="#contacto" onClick={() => setMenuOpen(false)} style={{ width: '100%', justifyContent: 'center' }}>
+              Solicitar diagnóstico
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></svg>
+            </a>
+          </div>
+        </div>
 
         {/* ============================== HERO ============================== */}
         <span id="top" />
@@ -508,17 +649,14 @@ export default function LttConsultingPage() {
 
         {/* ============================== CONTACTO ============================== */}
         <section className="contacto sec-pad" id="contacto">
-          <div className="wrap">
-            <div className="cta-box">
-              <span className="kicker reveal"><span className="idx">05</span><span className="tick" /> Contacto</span>
-              <h2 className="reveal d1">Pongamos a rendir lo que <em>ya entra por la puerta.</em></h2>
-              <p className="lede reveal d2">Empezamos por un diagnóstico sobre el terreno de una de sus tiendas. Sin compromiso y con conclusiones concretas desde la primera visita.</p>
-              <div className="cta-actions reveal d3">
-                <a className="btn-primary" href="/#contacto">
-                  Solicitar diagnóstico
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></svg>
-                </a>
-              </div>
+          <div className="wrap contacto-grid">
+            <div className="reveal">
+              <span className="kicker"><span className="idx">05</span><span className="tick" /> Contacto</span>
+              <h2 className="title" style={{ marginTop: 22, marginBottom: 18 }}>Pongamos a rendir lo que <em>ya entra por la puerta.</em></h2>
+              <p className="lede">Empezamos por un diagnóstico sobre el terreno de una de sus tiendas. Sin compromiso y con conclusiones concretas desde la primera visita.</p>
+            </div>
+            <div className="reveal d1">
+              <LttContactForm />
             </div>
           </div>
         </section>

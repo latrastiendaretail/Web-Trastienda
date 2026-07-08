@@ -53,10 +53,10 @@ export default function PrivacidadPage() {
         </P>
         <div className="border border-lino/60 divide-y divide-lino/40">
           {[
-            ['Denominación social', '[DENOMINACIÓN SOCIAL]'],
-            ['CIF', '[CIF]'],
-            ['Domicilio', '[DOMICILIO SOCIAL]'],
-            ['Correo electrónico', '[EMAIL DE CONTACTO]'],
+            ['Denominación social', 'Asociación Española para el Desarrollo del Talento y la Empleabilidad en Retail (AEDTER)'],
+            ['CIF', 'G88929443'],
+            ['Domicilio', 'C/ Francesc Layret, 10-16, 1º P3, 08208 Sabadell (Barcelona)'],
+            ['Correo electrónico', 'latrastienda.retail@gmail.com'],
           ].map(([label, value]) => (
             <div key={label} className="grid grid-cols-2 px-5 py-3 gap-4">
               <span className="font-sans text-[11px] text-cuero uppercase tracking-[0.1em]">{label}</span>
@@ -183,7 +183,7 @@ export default function PrivacidadPage() {
           ))}
         </div>
         <P>
-          Para ejercer cualquiera de estos derechos, dirígete a <strong>[EMAIL DE CONTACTO]</strong>{' '}
+          Para ejercer cualquiera de estos derechos, dirígete a <strong>latrastienda.retail@gmail.com</strong>{' '}
           adjuntando copia de tu documento de identidad. Tienes derecho a presentar una reclamación
           ante la <strong>Agencia Española de Protección de Datos (AEPD)</strong>{' '}
           en <a href="https://www.aepd.es" className="text-acento hover:underline" target="_blank" rel="noopener noreferrer">www.aepd.es</a>.

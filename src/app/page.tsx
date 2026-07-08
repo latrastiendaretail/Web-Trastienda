@@ -10,11 +10,54 @@ import { submitContact, type ContactResult } from '@/app/actions/contact'
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const navLinks = [
+  { href: '#que-hacemos',    label: 'Qué hacemos' },
   { href: '#programas',      label: 'Programas' },
   { href: '#quienes',        label: 'Quiénes somos' },
   { href: '#campus',         label: 'Campus' },
   { href: '#podcast',        label: 'Podcast' },
   { href: '/ltt-consulting', label: 'LTT Consulting' },
+]
+
+const pillars = [
+  {
+    icon: <path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z" />,
+    title: 'Consultoría de Ejecución',
+    desc: 'Diagnóstico en tienda y rediseño del método comercial para convertir tráfico en ventas.',
+    href: '/ltt-consulting',
+  },
+  {
+    icon: (
+      <>
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </>
+    ),
+    title: 'Formación de Managers',
+    desc: 'Liderazgo y mando intermedio con casos reales de la propia tienda, no de manual.',
+    href: '#programas',
+  },
+  {
+    icon: <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4" />,
+    title: 'Desarrollo de Talento',
+    desc: 'Preparamos a personas para crecer en retail: de vendedor a manager, con criterio real.',
+    href: '#campus',
+  },
+  {
+    icon: <path d="M22 12h-4l-3 9L9 3l-3 9H2" />,
+    title: 'Resultados Medibles',
+    desc: 'Conversión, ticket medio y unidades por venta — trabajamos sobre indicadores, no intuiciones.',
+    href: '/ltt-consulting#resultados',
+  },
+]
+
+const roadmapSteps = [
+  { n: '01', label: 'Observación',  desc: 'Diagnóstico sobre el terreno, en tienda.' },
+  { n: '02', label: 'Diagnóstico',  desc: 'Identificamos la brecha entre tráfico y venta.' },
+  { n: '03', label: 'Formación',    desc: 'Equipos y mandos intermedios, con casos propios.' },
+  { n: '04', label: 'Ejecución',    desc: 'El método se instala en el día a día de la tienda.' },
+  { n: '05', label: 'Resultados',   desc: 'Conversión y ticket medio, medidos y sostenidos.' },
 ]
 
 const marqueeItems = [
@@ -31,7 +74,6 @@ const marqueeItems = [
 
 const founders = [
   {
-    num: '01',
     name: 'Javi',
     role: 'Ventas & Alianzas',
     description:
@@ -39,7 +81,6 @@ const founders = [
     photo: '/images/PerfilJavi.jpg',
   },
   {
-    num: '02',
     name: 'Yeray',
     role: 'Operaciones & Instituciones',
     description:
@@ -47,7 +88,6 @@ const founders = [
     photo: '/images/PerfilYeray.jpg',
   },
   {
-    num: '03',
     name: 'David',
     role: 'Tecnología & Identidad Visual',
     description:
@@ -286,6 +326,7 @@ function ContactForm() {
 export default function Home() {
   const [navOpen, setNavOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [expandedFounders, setExpandedFounders] = useState<Record<number, boolean>>({})
 
   useEffect(() => {
     ;(async () => {
@@ -337,11 +378,11 @@ export default function Home() {
             scrolled ? 'py-3' : 'py-5'
           }`}
         >
-          <a href="#" className="cursor-pointer block">
+          <a href="/" className="cursor-pointer block">
             <img
               src="/images/Logos/imagotipov2.svg"
               alt="La Trastienda"
-              className={`w-auto brightness-0 invert transition-all duration-500 ${scrolled ? 'h-7' : 'h-9'}`}
+              className="h-9 w-auto brightness-0 invert"
             />
           </a>
         </div>
@@ -356,7 +397,7 @@ export default function Home() {
           }`}
         >
           {/* Logo mobile */}
-          <a href="#" className="md:hidden cursor-pointer mr-auto">
+          <a href="/" className="md:hidden cursor-pointer mr-auto">
             <img src="/images/Logos/imagotipov2.svg" alt="La Trastienda" className="h-8 w-auto" />
           </a>
 
@@ -474,14 +515,14 @@ export default function Home() {
       </div>
 
       {/* ── HERO ──────────────────────────────────────────── */}
-      <section className="min-h-screen flex flex-col">
+      <section className="min-h-[100svh] md:min-h-screen flex flex-col">
 
         {/* Split layout: spine tinta + contenido */}
         <div className="flex flex-1">
 
 
           {/* Contenido hero */}
-          <div className="flex-1 relative flex flex-col justify-center px-8 md:px-14 pt-24 md:pt-24 pb-10 overflow-hidden">
+          <div className="flex-1 relative flex flex-col justify-center px-6 md:px-14 pt-20 md:pt-24 pb-8 md:pb-10 overflow-hidden">
 
             {/* Ghost RETAIL */}
             <div
@@ -495,7 +536,7 @@ export default function Home() {
             <div className="relative z-10">
 
               {/* Eyebrow */}
-              <div className="anim-hero-1 flex items-center gap-4 mb-10">
+              <div className="anim-hero-1 flex items-center gap-4 mb-6 md:mb-10">
                 <div className="h-px w-10 bg-acento anim-line" />
                 <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.18em]">
                   Consultoría · Formación · Talento · Retail España
@@ -504,7 +545,7 @@ export default function Home() {
 
               {/* H1 */}
               <h1
-                className="anim-hero-2 font-display font-medium text-tinta tracking-[-0.025em] leading-[1.05] mb-10 max-w-[22ch]"
+                className="anim-hero-2 font-display font-medium text-tinta tracking-[-0.025em] leading-[1.05] mb-6 md:mb-10 max-w-[22ch]"
                 style={{ fontSize: 'clamp(2.8rem, 6vw, 5.5rem)' }}
               >
                 Hacemos del retail un{' '}
@@ -519,51 +560,30 @@ export default function Home() {
               </h1>
 
               {/* Sub */}
-              <p className="anim-hero-3 font-sans text-lg text-cuero leading-relaxed mb-12 max-w-[48ch]">
+              <p className="anim-hero-3 font-sans text-base md:text-lg text-cuero leading-relaxed mb-8 md:mb-12 max-w-[48ch]">
                 Ayudamos a empresas de retail a convertir sus decisiones estratégicas en
                 comportamientos reales en el punto de venta: consultoría de ejecución,
                 formación de managers y desarrollo de talento.
               </p>
 
               {/* CTAs */}
-              <div className="anim-hero-4 flex flex-col sm:flex-row gap-3 mb-16">
+              <div className="anim-hero-4 flex flex-col sm:flex-row gap-3 mb-10 md:mb-16">
                 <a
                   href="#programas"
-                  className="btn group inline-flex items-center justify-center gap-2 font-sans text-[11px] font-medium text-tinta bg-acento px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-tinta hover:text-papel cursor-pointer"
+                  className="btn group w-full sm:w-auto inline-flex items-center justify-center gap-2 font-sans text-[11px] font-medium text-tinta bg-acento px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-tinta hover:text-papel cursor-pointer"
                 >
                   Soy empresa
                   <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </a>
                 <a
                   href="#programas"
-                  className="btn group inline-flex items-center justify-center gap-2 font-sans text-[11px] font-medium text-tinta border border-tinta px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-tinta hover:text-papel cursor-pointer"
+                  className="btn group w-full sm:w-auto inline-flex items-center justify-center gap-2 font-sans text-[11px] font-medium text-tinta border border-tinta px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-tinta hover:text-papel cursor-pointer"
                 >
                   Quiero formarme
                   <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </a>
               </div>
 
-              {/* Stats */}
-              <div className="anim-hero-5 grid grid-cols-3 gap-8 max-w-sm border-t border-lino/40 pt-8">
-                {[
-                  { num: '5',  label: 'Fases',      sub: 'Observación → Resultados' },
-                  { num: '3',  label: 'Audiencias', sub: 'Emp. · Part. · Inst.' },
-                  { num: '∞',  label: 'Potencial',  sub: 'Ejecución en tienda' },
-                ].map((s) => (
-                  <div key={s.label}>
-                    <div
-                      className="font-display font-medium text-tinta leading-none tracking-[-0.04em]"
-                      style={{ fontSize: 'clamp(2rem, 3.5vw, 2.75rem)' }}
-                    >
-                      {s.num}
-                    </div>
-                    <div className="font-mono text-[8px] text-acento uppercase tracking-[0.14em] mt-1.5 mb-0.5">
-                      {s.label}
-                    </div>
-                    <div className="font-mono text-[9px] text-cuero/70">{s.sub}</div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
@@ -585,8 +605,138 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── QUÉ HACEMOS ───────────────────────────────────── */}
+      <section id="que-hacemos" className="py-16 md:py-28 lg:py-36 bg-blanco border-t border-lino/40 scroll-mt-24">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
+          <div className="mb-16 max-w-[62ch]" data-reveal>
+            <span className="block font-mono text-[9px] text-cuero uppercase tracking-[0.16em] mb-4">
+              Qué hacemos
+            </span>
+            <h2
+              className="font-display font-medium text-tinta leading-[1.05] tracking-[-0.02em] mb-6"
+              style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
+            >
+              Consultoría y formación, <em className="italic text-acento">desde la misma tienda.</em>
+            </h2>
+            <p className="font-sans text-base text-cuero leading-relaxed">
+              LTT Consulting interviene en la operación de empresas de retail; el resto del
+              equipo forma a las personas que la hacen funcionar. Dos caminos que nacen del
+              mismo oficio: décadas de retail vivido detrás del mostrador.
+            </p>
+          </div>
+
+          {/* Pilares con iconos — carrusel horizontal en mobile, grid en tablet+ */}
+          <div className="sm:hidden -mx-6 px-6 mb-20 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {pillars.map((p) => (
+              <a
+                key={p.title}
+                href={p.href}
+                className="group shrink-0 w-[76%] snap-start bg-blanco border border-lino/50 p-6 flex flex-col gap-4"
+              >
+                <svg
+                  className="w-7 h-7 text-acento shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  {p.icon}
+                </svg>
+                <h3 className="font-display text-base font-medium text-tinta tracking-[-0.01em]">
+                  {p.title}
+                </h3>
+                <p className="font-sans text-sm text-cuero leading-relaxed line-clamp-3">{p.desc}</p>
+                <span className="font-mono text-[9px] text-tinta uppercase tracking-[0.1em] inline-flex items-center gap-2">
+                  Saber más <span>→</span>
+                </span>
+              </a>
+            ))}
+          </div>
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-lino/40 mb-20">
+            {pillars.map((p, i) => (
+              <a
+                key={p.title}
+                href={p.href}
+                data-reveal
+                data-delay={String(i + 1)}
+                className="group bg-blanco p-8 flex flex-col gap-5 hover:bg-papel transition-colors duration-300"
+              >
+                <svg
+                  className="w-8 h-8 text-acento shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  {p.icon}
+                </svg>
+                <h3 className="font-display text-lg font-medium text-tinta tracking-[-0.01em]">
+                  {p.title}
+                </h3>
+                <p className="font-sans text-sm text-cuero leading-relaxed flex-1">{p.desc}</p>
+                <span className="font-mono text-[9px] text-tinta uppercase tracking-[0.1em] inline-flex items-center gap-2 group-hover:text-acento transition-colors duration-200">
+                  Saber más
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                </span>
+              </a>
+            ))}
+          </div>
+
+          {/* Hoja de ruta */}
+          <div data-reveal>
+            <span className="block font-mono text-[9px] text-cuero uppercase tracking-[0.16em] mb-8 sm:mb-10">
+              Nuestra hoja de ruta
+            </span>
+
+            {/* Mobile: stepper vertical compacto */}
+            <div className="sm:hidden flex flex-col">
+              {roadmapSteps.map((s, i) => (
+                <div key={s.n} className="flex gap-4">
+                  <div className="flex flex-col items-center shrink-0">
+                    <span className="w-8 h-8 rounded-full border border-acento/40 flex items-center justify-center font-mono text-[10px] text-acento tabular-nums shrink-0">
+                      {s.n}
+                    </span>
+                    {i < roadmapSteps.length - 1 && <span className="w-px flex-1 bg-lino my-1" />}
+                  </div>
+                  <div className="pb-6">
+                    <h4 className="font-display text-base font-medium text-tinta tracking-[-0.01em] mb-1">
+                      {s.label}
+                    </h4>
+                    <p className="font-sans text-xs text-cuero leading-relaxed">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Tablet+: divide horizontal original */}
+            <div className="hidden sm:flex sm:flex-row sm:divide-x divide-lino">
+              {roadmapSteps.map((s, i) => (
+                <div
+                  key={s.n}
+                  data-reveal
+                  data-delay={String(i + 1)}
+                  className="group flex-1 sm:px-7 first:sm:pl-0 last:sm:pr-0"
+                >
+                  <span className="block font-display text-[56px] md:text-[64px] leading-none tracking-[-0.03em] text-lino tabular-nums mb-4 transition-colors duration-500 group-hover:text-acento/40">
+                    {s.n}
+                  </span>
+                  <h4 className="font-display text-base font-medium text-tinta tracking-[-0.01em] mb-2">
+                    {s.label}
+                  </h4>
+                  <p className="font-sans text-xs text-cuero leading-relaxed max-w-[22ch]">{s.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── PROGRAMAS ─────────────────────────────────────── */}
-      <section id="programas" className="py-28 md:py-36 bg-papel scroll-mt-24">
+      <section id="programas" className="py-16 md:py-28 lg:py-36 bg-papel scroll-mt-24">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="mb-16" data-reveal>
             <span className="block font-mono text-[9px] text-cuero uppercase tracking-[0.16em] mb-4">
@@ -600,7 +750,77 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          {/* Mobile: carrusel horizontal */}
+          <div className="sm:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {/* Particulares */}
+            <div className="shrink-0 w-[86%] snap-start bg-blanco border border-lino/50 p-6 flex flex-col">
+              <div className="font-mono text-[9px] text-cuero uppercase tracking-[0.16em] mb-5">
+                Para profesionales
+              </div>
+              <h3 className="font-display text-2xl font-medium text-tinta leading-[1.05] tracking-[-0.02em] mb-4">
+                Formación <em>real</em> para crecer en Retail
+              </h3>
+              <p className="font-sans text-sm text-cuero leading-relaxed mb-6 line-clamp-3">
+                Si quieres dar el salto a manager o mando intermedio, tenemos formación
+                práctica orientada a resultados: liderazgo, rutinas de tienda y
+                capacidad de ejecución.
+              </p>
+              <ul className="space-y-2 mb-6 flex-1">
+                {[
+                  'Formación práctica orientada a la ejecución',
+                  'Mentorías y sesiones 1:1',
+                  'Comunidad de profesionales del Retail',
+                ].map((item) => (
+                  <li key={item} className="font-sans text-sm text-tinta flex items-start gap-3">
+                    <span className="text-acento font-medium mt-0.5 shrink-0">—</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="#contacto"
+                className="btn inline-flex items-center gap-2 self-start font-sans text-[11px] font-medium text-tinta uppercase tracking-[0.08em] border border-tinta px-6 min-h-[44px] cursor-pointer"
+              >
+                Quiero formarme →
+              </a>
+            </div>
+
+            {/* Empresas */}
+            <div className="shrink-0 w-[86%] snap-start bg-tinta p-6 flex flex-col">
+              <div className="font-mono text-[9px] text-acento uppercase tracking-[0.16em] mb-5">
+                Para empresas
+              </div>
+              <h3 className="font-display text-2xl font-medium text-papel leading-[1.05] tracking-[-0.02em] mb-4">
+                Consultoría de <em>Ejecución</em> Retail
+              </h3>
+              <p className="font-sans text-sm text-papel/60 leading-relaxed mb-6 line-clamp-3">
+                Ayudamos a empresas de retail a convertir sus decisiones estratégicas
+                en comportamientos reales en el punto de venta: managers, liderazgo,
+                rutinas y homogeneidad entre tiendas.
+              </p>
+              <ul className="space-y-2 mb-6 flex-1">
+                {[
+                  'Consultoría de Ejecución Retail',
+                  'Formación de managers y workshops',
+                  'Desarrollo de talento y Retail Analytics',
+                ].map((item) => (
+                  <li key={item} className="font-sans text-sm text-papel/75 flex items-start gap-3">
+                    <span className="text-acento font-medium mt-0.5 shrink-0">—</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="#contacto"
+                className="btn inline-flex items-center gap-2 self-start font-sans text-[11px] font-medium text-papel uppercase tracking-[0.08em] border border-papel/30 px-6 min-h-[44px] cursor-pointer"
+              >
+                Hablar con el equipo →
+              </a>
+            </div>
+          </div>
+
+          {/* Tablet+: grid original */}
+          <div className="hidden sm:grid md:grid-cols-2 gap-6">
             {/* Particulares */}
             <div
               data-reveal
@@ -687,7 +907,7 @@ export default function Home() {
       </section>
 
       {/* ── QUIÉNES SOMOS ─────────────────────────────────── */}
-      <section id="quienes" className="bg-tinta pt-28 md:pt-36 pb-16 md:pb-20 scroll-mt-24">
+      <section id="quienes" className="bg-tinta pt-16 md:pt-28 lg:pt-36 pb-16 md:pb-20 scroll-mt-24">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
 
           {/* Header */}
@@ -712,8 +932,47 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Cards */}
-          <div className="grid md:grid-cols-3 gap-px bg-papel/8">
+          {/* Mobile: carrusel horizontal */}
+          <div className="sm:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {founders.map((founder, i) => (
+              <div key={founder.name} className="shrink-0 w-[80%] snap-start bg-papel/[0.03] border border-papel/10 p-6">
+                <div className="w-16 h-16 rounded-full overflow-hidden mb-4 ring-1 ring-papel/10">
+                  <Image
+                    src={founder.photo}
+                    alt={founder.name}
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="font-display text-xl font-medium text-papel tracking-[-0.01em] mb-1">
+                  {founder.name}
+                </h3>
+                <div className="font-mono text-[9px] text-acento uppercase tracking-[0.14em] mb-4">
+                  {founder.role}
+                </div>
+                <p
+                  className={`font-sans text-sm text-papel/60 leading-relaxed ${
+                    expandedFounders[i] ? '' : 'line-clamp-4'
+                  }`}
+                >
+                  {founder.description}
+                </p>
+                {!expandedFounders[i] && (
+                  <button
+                    type="button"
+                    onClick={() => setExpandedFounders((prev) => ({ ...prev, [i]: true }))}
+                    className="mt-2 self-start font-mono text-[9px] text-acento uppercase tracking-[0.1em] cursor-pointer"
+                  >
+                    Leer más →
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Tablet+: grid original */}
+          <div className="hidden sm:grid md:grid-cols-3 gap-px bg-papel/8">
             {founders.map((founder, i) => (
               <div
                 key={founder.name}
@@ -721,12 +980,6 @@ export default function Home() {
                 data-delay={String(i + 1)}
                 className="bg-tinta p-8 md:p-10 hover:bg-papel/[0.04] hover:-translate-y-1 transition duration-300 group cursor-default"
               >
-                <div
-                  className="font-display font-medium text-papel/[0.07] leading-none tracking-[-0.04em] mb-6 select-none group-hover:text-acento/20 transition-colors duration-500"
-                  style={{ fontSize: '4.5rem' }}
-                >
-                  {founder.num}
-                </div>
                 <div className="w-20 h-20 rounded-full overflow-hidden mb-5 ring-1 ring-papel/10">
                   <Image
                     src={founder.photo}
@@ -742,7 +995,7 @@ export default function Home() {
                 <div className="font-mono text-[9px] text-acento uppercase tracking-[0.14em] mb-5">
                   {founder.role}
                 </div>
-                <p className="font-sans text-sm text-papel/50 leading-relaxed">
+                <p className="font-sans text-sm text-papel/60 leading-relaxed">
                   {founder.description}
                 </p>
                 <div className="mt-8 h-px bg-papel/10 group-hover:bg-acento/25 transition-colors duration-500" />
@@ -774,7 +1027,7 @@ export default function Home() {
       </section>
 
       {/* ── CAMPUS ────────────────────────────────────────── */}
-      <section id="campus" className="py-28 md:py-36 bg-blanco border-t border-lino/40 scroll-mt-24">
+      <section id="campus" className="py-16 md:py-28 lg:py-36 bg-blanco border-t border-lino/40 scroll-mt-24">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
 
           {/* Header */}
@@ -872,7 +1125,7 @@ export default function Home() {
       </section>
 
       {/* ── PODCAST ───────────────────────────────────────── */}
-      <section id="podcast" className="py-28 md:py-36 bg-tinta scroll-mt-24">
+      <section id="podcast" className="py-16 md:py-28 lg:py-36 bg-tinta scroll-mt-24">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
 
           <div className="mb-16" data-reveal>
@@ -891,7 +1144,40 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Mobile: carrusel horizontal */}
+          <div className="sm:hidden -mx-6 px-6 flex gap-5 overflow-x-auto snap-x snap-mandatory pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {podcasts.map((p) => (
+              <div key={p.episode} className="shrink-0 w-[78%] snap-start flex flex-col group">
+                <div className="aspect-video w-full overflow-hidden">
+                  {p.videoId ? (
+                    <YoutubeConsentGate videoId={p.videoId} title={p.title} thumbnail={p.thumbnail ?? undefined} />
+                  ) : (
+                    <div className="w-full h-full border border-papel/10 flex flex-col items-center justify-center gap-3 bg-papel/[0.03]">
+                      <div className="w-8 h-px bg-papel/20" />
+                      <span className="font-mono text-[9px] text-papel/25 uppercase tracking-[0.18em]">
+                        En producción
+                      </span>
+                      <div className="w-8 h-px bg-papel/20" />
+                    </div>
+                  )}
+                </div>
+                <div className="pt-4 pb-4 border-b border-papel/10 flex items-baseline gap-3">
+                  <span className="font-mono text-[10px] text-acento tabular-nums shrink-0">{p.episode}</span>
+                  <div>
+                    <h3 className={`font-display text-base font-medium leading-snug tracking-[-0.01em] ${p.videoId ? 'text-papel' : 'text-papel/20'}`}>
+                      {p.title}
+                    </h3>
+                    {p.guest && (
+                      <p className="font-mono text-[10px] text-papel/40 mt-1 tracking-[0.04em]">{p.guest}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tablet+: grid original */}
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {podcasts.map((p, i) => (
               <div
                 key={p.episode}
@@ -947,7 +1233,7 @@ export default function Home() {
       {/* ── CONTACTO ──────────────────────────────────────── */}
       <section
         id="contacto"
-        className="py-28 md:py-36 bg-papel border-t border-lino/40 scroll-mt-24"
+        className="py-16 md:py-28 lg:py-36 bg-papel border-t border-lino/40 scroll-mt-24"
       >
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="grid md:grid-cols-2 gap-16 md:gap-24">

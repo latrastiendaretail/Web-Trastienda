@@ -36,10 +36,10 @@ export default function AvisoLegalPage() {
         </P>
         <div className="border border-lino/60 divide-y divide-lino/40">
           {[
-            ['Denominación social', '[DENOMINACIÓN SOCIAL]'],
-            ['CIF', '[CIF]'],
-            ['Domicilio social', '[DOMICILIO SOCIAL]'],
-            ['Correo electrónico', '[EMAIL DE CONTACTO]'],
+            ['Denominación social', 'Asociación Española para el Desarrollo del Talento y la Empleabilidad en Retail (AEDTER)'],
+            ['CIF', 'G88929443'],
+            ['Domicilio social', 'C/ Francesc Layret, 10-16, 1º P3, 08208 Sabadell (Barcelona)'],
+            ['Correo electrónico', 'latrastienda.retail@gmail.com'],
             ['Actividad', 'Formación y orientación laboral en el sector del comercio minorista'],
           ].map(([label, value]) => (
             <div key={label} className="grid grid-cols-2 px-5 py-3 gap-4">
@@ -54,7 +54,7 @@ export default function AvisoLegalPage() {
         <P>
           El presente Aviso Legal regula el acceso y uso del sitio web <strong>latrastienda.com</strong>{' '}
           (en adelante, «el Sitio Web») y del Campus digital accesible desde el mismo, titularidad de
-          [DENOMINACIÓN SOCIAL].
+          Asociación Española para el Desarrollo del Talento y la Empleabilidad en Retail (AEDTER).
         </P>
         <P>
           La Trastienda es una iniciativa de impacto social en el sector del comercio minorista cuyo
@@ -68,7 +68,7 @@ export default function AvisoLegalPage() {
         <P>
           Todos los contenidos del Sitio Web —incluyendo, sin carácter limitativo, textos, fotografías,
           gráficos, imágenes, vídeos, logotipos, iconos, diseño gráfico y código fuente— son propiedad
-          de [DENOMINACIÓN SOCIAL] o de terceros que han autorizado su uso, y están protegidos por las
+          de Asociación Española para el Desarrollo del Talento y la Empleabilidad en Retail (AEDTER) o de terceros que han autorizado su uso, y están protegidos por las
           leyes españolas e internacionales de propiedad intelectual e industrial.
         </P>
         <P>
@@ -81,13 +81,13 @@ export default function AvisoLegalPage() {
 
       <Section title="4. Exclusión de garantías y responsabilidad">
         <P>
-          [DENOMINACIÓN SOCIAL] no garantiza la disponibilidad y continuidad ininterrumpida del Sitio
+          Asociación Española para el Desarrollo del Talento y la Empleabilidad en Retail (AEDTER) no garantiza la disponibilidad y continuidad ininterrumpida del Sitio
           Web, ni que sus contenidos estén actualizados en todo momento. En la medida en que lo permita
           la legislación aplicable, queda excluida toda responsabilidad por daños y perjuicios de
           cualquier naturaleza derivados de la imposibilidad de acceso o del uso del Sitio Web.
         </P>
         <P>
-          El Sitio Web puede contener enlaces a páginas de terceros. [DENOMINACIÓN SOCIAL] no asume
+          El Sitio Web puede contener enlaces a páginas de terceros. Asociación Española para el Desarrollo del Talento y la Empleabilidad en Retail (AEDTER) no asume
           responsabilidad alguna sobre los contenidos, servicios, productos o cualquier otra
           información que figure en dichos sitios de terceros.
         </P>
@@ -95,7 +95,7 @@ export default function AvisoLegalPage() {
 
       <Section title="5. Modificaciones y actualizaciones">
         <P>
-          [DENOMINACIÓN SOCIAL] se reserva el derecho a modificar el presente Aviso Legal en
+          Asociación Española para el Desarrollo del Talento y la Empleabilidad en Retail (AEDTER) se reserva el derecho a modificar el presente Aviso Legal en
           cualquier momento. Las modificaciones serán efectivas desde su publicación en el Sitio Web.
           El uso continuado del Sitio Web tras la publicación de cambios implicará su aceptación.
         </P>
@@ -103,7 +103,7 @@ export default function AvisoLegalPage() {
 
       <Section title="6. Ley aplicable y jurisdicción">
         <P>
-          Las relaciones entre [DENOMINACIÓN SOCIAL] y los usuarios del Sitio Web se rigen por la
+          Las relaciones entre Asociación Española para el Desarrollo del Talento y la Empleabilidad en Retail (AEDTER) y los usuarios del Sitio Web se rigen por la
           legislación española vigente. Para la resolución de cualquier controversia derivada o
           relacionada con el uso del Sitio Web, las partes se someten, con renuncia expresa a
           cualquier otro fuero, a los Juzgados y Tribunales del domicilio del usuario cuando

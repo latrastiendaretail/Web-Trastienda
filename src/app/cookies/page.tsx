@@ -180,7 +180,7 @@ export default function CookiesPage() {
         <P>
           Podemos actualizar esta Política de Cookies si añadimos nuevas funcionalidades o
           integraciones de terceros. Te recomendamos revisarla periódicamente. Si tienes dudas,
-          contáctanos en <strong>[EMAIL DE CONTACTO]</strong>.
+          contáctanos en <strong>latrastienda.retail@gmail.com</strong>.
         </P>
       </Section>
 

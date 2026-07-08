@@ -35,8 +35,9 @@ export default function TerminosPage() {
         <P>
           Los presentes Términos y Condiciones (en adelante, «Términos») regulan el acceso y uso
           del sitio web <strong>latrastienda.com</strong> y del Campus digital de La Trastienda
-          (en adelante, «los Servicios»), cuya titularidad corresponde a [DENOMINACIÓN SOCIAL],
-          con CIF [CIF] y domicilio en [DOMICILIO SOCIAL].
+          (en adelante, «los Servicios»), cuya titularidad corresponde a Asociación Española para
+          el Desarrollo del Talento y la Empleabilidad en Retail (AEDTER), con CIF G88929443 y
+          domicilio en C/ Francesc Layret, 10-16, 1º P3, 08208 Sabadell (Barcelona).
         </P>
         <P>
           El acceso o uso de cualquiera de los Servicios implica la aceptación plena y sin reservas
@@ -91,7 +92,8 @@ export default function TerminosPage() {
       <Section title="4. Propiedad intelectual">
         <P>
           Todos los contenidos disponibles en los Servicios —incluyendo materiales formativos,
-          vídeos, textos, diseño gráfico, logotipos y código— son propiedad de [DENOMINACIÓN SOCIAL]
+          vídeos, textos, diseño gráfico, logotipos y código— son propiedad de Asociación Española
+          para el Desarrollo del Talento y la Empleabilidad en Retail (AEDTER)
           o de terceros que han licenciado su uso, y están protegidos por la legislación española
           e internacional en materia de propiedad intelectual.
         </P>
@@ -140,7 +142,7 @@ export default function TerminosPage() {
         </P>
         <P>
           Si tienes cualquier duda sobre estos Términos, puedes contactar con nosotros en{' '}
-          <strong>[EMAIL DE CONTACTO]</strong>.
+          <strong>latrastienda.retail@gmail.com</strong>.
         </P>
       </Section>
 
