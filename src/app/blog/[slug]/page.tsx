@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createServerClient } from '@/lib/supabase/server'
+import { BlogHeader } from '@/components/blog/BlogHeader'
 
 export const dynamic = 'force-dynamic'
 
@@ -82,7 +83,7 @@ function renderContent(content: string) {
 
     if (trimmed.startsWith('### ')) {
       return (
-        <h3 key={i} className="font-display text-xl font-medium mt-10 mb-4" style={{ color: 'var(--color-tinta)' }}>
+        <h3 key={i} className="font-display text-xl md:text-2xl font-medium mt-10 mb-4" style={{ color: 'var(--color-tinta)' }}>
           {renderInline(trimmed.slice(4))}
         </h3>
       )
@@ -147,11 +148,13 @@ export default async function BlogPostPage({ params }: Props) {
         }}
       />
       <main className="min-h-screen" style={{ backgroundColor: 'var(--color-papel)' }}>
+        <BlogHeader />
+
         {/* Back */}
-        <div className="max-w-4xl mx-auto px-6 pt-10">
+        <div className="max-w-[700px] mx-auto px-6 pt-10">
           <Link
             href="/blog"
-            className="font-sans text-sm transition-colors"
+            className="font-mono text-xs uppercase tracking-[0.14em] transition-colors cursor-pointer"
             style={{ color: 'var(--color-cuero)' }}
           >
             ← Blog
@@ -159,37 +162,37 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
 
         {/* Header */}
-        <header className="max-w-4xl mx-auto px-6 pt-10 pb-12 border-b" style={{ borderColor: 'var(--color-lino)' }}>
+        <header className="max-w-[700px] mx-auto px-6 pt-8 pb-12">
           {post.published_at && (
             <time
               dateTime={post.published_at}
-              className="font-mono text-xs tracking-widest uppercase block mb-6"
+              className="font-mono text-xs uppercase tracking-[0.14em] block mb-6"
               style={{ color: 'var(--color-cuero)' }}
             >
               {formatDate(post.published_at)}
             </time>
           )}
           <h1
-            className="font-display text-4xl md:text-5xl font-medium leading-tight"
+            className="font-display text-3xl md:text-4xl font-medium leading-[1.15]"
             style={{ color: 'var(--color-tinta)' }}
           >
             {post.title}
           </h1>
           {post.excerpt && (
-            <p className="font-sans text-xl mt-4 leading-relaxed" style={{ color: 'var(--color-cuero)' }}>
+            <p className="font-sans text-lg md:text-xl mt-5 leading-relaxed" style={{ color: 'var(--color-cuero)' }}>
               {post.excerpt}
             </p>
           )}
         </header>
 
         {/* Content */}
-        <article className="max-w-2xl mx-auto px-6 py-14">
-          {renderContent(post.content)}
+        <article className="max-w-[700px] mx-auto px-6 pb-14 border-t" style={{ borderColor: 'var(--color-lino)' }}>
+          <div className="pt-10">{renderContent(post.content)}</div>
         </article>
 
         {/* Footer del post */}
         {post.linkedin_url && (
-          <div className="max-w-2xl mx-auto px-6 pb-16">
+          <div className="max-w-[700px] mx-auto px-6 pb-16">
             <div className="border-t pt-8" style={{ borderColor: 'var(--color-lino)' }}>
               <a
                 href={post.linkedin_url}
