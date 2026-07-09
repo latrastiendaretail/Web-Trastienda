@@ -16,6 +16,7 @@ const navLinks = [
   { href: '#campus',         label: 'Campus' },
   { href: '#podcast',        label: 'Podcast' },
   { href: '/ltt-consulting', label: 'LTT Consulting' },
+  { href: '/blog',           label: 'Blog' },
 ]
 
 const pillars = [
