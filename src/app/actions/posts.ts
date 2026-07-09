@@ -57,16 +57,21 @@ export async function createPost(formData: FormData): Promise<CreatePostResult> 
 
   const content = (formData.get('content') as string | null)?.trim() ?? ''
   const linkedinUrl = (formData.get('linkedin_url') as string | null)?.trim() ?? ''
+  const titleOverride = (formData.get('title') as string | null)?.trim() ?? ''
+  const slugOverride = (formData.get('slug') as string | null)?.trim() ?? ''
+  const excerptOverride = (formData.get('excerpt') as string | null)?.trim() ?? ''
+  const coverImage = (formData.get('cover_image') as string | null)?.trim() ?? ''
 
   if (!content) return { success: false, error: 'El contenido es obligatorio' }
   if (linkedinUrl && !isValidHttpUrl(linkedinUrl)) return { success: false, error: 'URL de LinkedIn no válida' }
+  if (coverImage && !isValidHttpUrl(coverImage)) return { success: false, error: 'URL de portada no válida' }
 
-  const title = extractTitle(content)
+  const title = titleOverride || extractTitle(content)
   if (!title) return { success: false, error: 'No se pudo extraer el título (primera línea vacía)' }
 
   const supabase = await createServerClient()
-  const slug = await uniqueSlug(slugify(title), supabase)
-  const excerpt = extractExcerpt(content)
+  const slug = await uniqueSlug(slugOverride ? slugify(slugOverride) : slugify(title), supabase)
+  const excerpt = excerptOverride || extractExcerpt(content)
 
   const { error } = await supabase.from('posts').insert({
     title,
@@ -74,6 +79,7 @@ export async function createPost(formData: FormData): Promise<CreatePostResult> 
     content,
     excerpt,
     linkedin_url: linkedinUrl || null,
+    cover_image: coverImage || null,
     status: 'published',
     published_at: new Date().toISOString(),
   })

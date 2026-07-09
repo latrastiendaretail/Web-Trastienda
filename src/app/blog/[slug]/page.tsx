@@ -49,14 +49,60 @@ function formatDate(dateString: string) {
   })
 }
 
+function renderInline(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = []
+  const linkPattern = /\[([^\]]+)\]\(([^)]+)\)/g
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+  let key = 0
+
+  while ((match = linkPattern.exec(text)) !== null) {
+    if (match.index > lastIndex) parts.push(text.slice(lastIndex, match.index))
+    const isInternal = match[2].startsWith('/')
+    parts.push(
+      <a
+        key={key++}
+        href={match[2]}
+        {...(!isInternal && { target: '_blank', rel: 'noopener noreferrer' })}
+        className="underline hover:no-underline"
+        style={{ color: 'var(--color-acento)' }}
+      >
+        {match[1]}
+      </a>,
+    )
+    lastIndex = linkPattern.lastIndex
+  }
+  if (lastIndex < text.length) parts.push(text.slice(lastIndex))
+  return parts
+}
+
 function renderContent(content: string) {
-  return content.split('\n\n').map((paragraph, i) => (
-    <p key={i} className="font-sans text-lg leading-relaxed mb-6" style={{ color: 'var(--color-tinta)' }}>
-      {paragraph.split('\n').map((line, j, arr) => (
-        j < arr.length - 1 ? [line, <br key={j} />] : line
-      ))}
-    </p>
-  ))
+  return content.split('\n\n').map((block, i) => {
+    const trimmed = block.trim()
+
+    if (trimmed.startsWith('### ')) {
+      return (
+        <h3 key={i} className="font-display text-xl font-medium mt-10 mb-4" style={{ color: 'var(--color-tinta)' }}>
+          {renderInline(trimmed.slice(4))}
+        </h3>
+      )
+    }
+    if (trimmed.startsWith('## ')) {
+      return (
+        <h2 key={i} className="font-display text-2xl md:text-3xl font-medium mt-12 mb-5" style={{ color: 'var(--color-tinta)' }}>
+          {renderInline(trimmed.slice(3))}
+        </h2>
+      )
+    }
+
+    return (
+      <p key={i} className="font-sans text-lg leading-relaxed mb-6" style={{ color: 'var(--color-tinta)' }}>
+        {block.split('\n').map((line, j, arr) => (
+          j < arr.length - 1 ? [...renderInline(line), <br key={`br${j}`} />] : renderInline(line)
+        ))}
+      </p>
+    )
+  })
 }
 
 export default async function BlogPostPage({ params }: Props) {
