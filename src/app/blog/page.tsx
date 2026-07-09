@@ -3,11 +3,13 @@ import Link from 'next/link'
 import { createServerClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
-  title: 'Blog — La Trastienda',
+  title: 'Blog',
   description: 'Reflexiones, aprendizajes y perspectivas sobre el sector retail, la formación y el impacto social. Por el equipo de La Trastienda.',
+  alternates: { canonical: '/blog' },
   openGraph: {
     title: 'Blog — La Trastienda',
     description: 'Reflexiones sobre retail, formación e impacto social.',
+    url: '/blog',
     type: 'website',
   },
 }

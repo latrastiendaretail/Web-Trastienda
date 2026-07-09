@@ -29,20 +29,40 @@ const ibmPlexMono = IBM_Plex_Mono({
   display: 'swap',
 })
 
+const SITE_DESCRIPTION =
+  'Consultoría de ejecución y formación para retail: ayudamos a empresas a convertir sus decisiones estratégicas en resultados reales en el punto de venta.'
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://latrastiendaretail.es'),
   title: {
     default: 'La Trastienda — Retail con propósito',
     template: '%s — La Trastienda',
   },
-  description:
-    'Formamos y acompañamos a personas de -25/+50 años para que desarrollen su carrera en Retail. Conectamos talento con empresas del sector.',
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'La Trastienda — Retail con propósito',
-    description:
-      'Formamos y acompañamos a personas de -25/+50 años para que desarrollen su carrera en Retail. Conectamos talento con empresas del sector.',
+    description: SITE_DESCRIPTION,
+    url: '/',
+    siteName: 'La Trastienda',
     type: 'website',
     locale: 'es_ES',
+    images: [
+      {
+        url: '/images/Logos/imagotipov2.png',
+        width: 1200,
+        height: 630,
+        alt: 'La Trastienda',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'La Trastienda — Retail con propósito',
+    description: SITE_DESCRIPTION,
+    images: ['/images/Logos/imagotipov2.png'],
   },
 }
 

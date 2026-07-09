@@ -19,14 +19,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .eq('status', 'published')
     .single()
 
-  if (!post) return { title: 'Post no encontrado — La Trastienda' }
+  if (!post) return { title: 'Post no encontrado' }
 
   return {
-    title: `${post.title} — La Trastienda`,
+    title: post.title,
     description: post.excerpt ?? undefined,
+    alternates: { canonical: `/blog/${slug}` },
     openGraph: {
       title: post.title,
       description: post.excerpt ?? undefined,
+      url: `/blog/${slug}`,
       type: 'article',
       publishedTime: post.published_at ?? undefined,
       images: post.cover_image ? [{ url: post.cover_image }] : undefined,
