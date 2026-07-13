@@ -19,6 +19,8 @@ const navLinks = [
   { href: '/blog',           label: 'Blog' },
 ]
 
+// Oculto temporalmente (bloques de "Qué hacemos") — se conservan por si se reactivan
+/*
 const pillars = [
   {
     icon: <path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z" />,
@@ -52,13 +54,15 @@ const pillars = [
     href: '/ltt-consulting#porque',
   },
 ]
+*/
 
 const roadmapSteps = [
   { n: '01', label: 'Observación',  desc: 'Diagnóstico sobre el terreno, en tienda.' },
   { n: '02', label: 'Diagnóstico',  desc: 'Identificamos la brecha entre tráfico y venta.' },
   { n: '03', label: 'Formación',    desc: 'Equipos y mandos intermedios, con casos propios.' },
   { n: '04', label: 'Ejecución',    desc: 'El método se instala en el día a día de la tienda.' },
-  { n: '05', label: 'Resultados',   desc: 'Conversión y ticket medio, medidos y sostenidos.' },
+  { n: '05', label: 'Acompañamiento', desc: 'Seguimos junto al equipo para que el cambio se consolide.' },
+  { n: '06', label: 'Resultados',   desc: 'Conversión y ticket medio, medidos y sostenidos.' },
 ]
 
 const marqueeItems = [
@@ -617,74 +621,14 @@ export default function Home() {
               className="font-display font-medium text-tinta leading-[1.05] tracking-[-0.02em] mb-6"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
             >
-              Consultoría y formación, <em className="italic text-acento">desde la misma tienda.</em>
+              Mejoramos el resultado <em className="italic text-acento">de tus tiendas.</em>
             </h2>
             <p className="font-sans text-base text-cuero leading-relaxed">
-              LTT Consulting interviene en la operación de empresas de retail; el resto del
-              equipo forma a las personas que la hacen funcionar. Dos caminos que nacen del
-              mismo oficio: décadas de retail vivido detrás del mostrador.
+              Implantamos <strong className="font-semibold text-tinta underline decoration-acento/40 underline-offset-4">sistemas de trabajo, hábitos y rutinas</strong> que
+              aumentan el rendimiento de los equipos y mejoran los KPIs del negocio.
+              No nos quedamos en las recomendaciones: <strong className="font-semibold text-tinta underline decoration-acento/40 underline-offset-4">trabajamos con tu equipo hasta
+              que los cambios forman parte del día a día</strong>.
             </p>
-          </div>
-
-          {/* Pilares con iconos — carrusel horizontal en mobile, grid en tablet+ */}
-          <div className="sm:hidden -mx-6 px-6 mb-20 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {pillars.map((p) => (
-              <a
-                key={p.title}
-                href={p.href}
-                className="group shrink-0 w-[76%] snap-start bg-blanco border border-lino/50 p-6 flex flex-col gap-4"
-              >
-                <svg
-                  className="w-7 h-7 text-acento shrink-0"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {p.icon}
-                </svg>
-                <h3 className="font-display text-base font-medium text-tinta tracking-[-0.01em]">
-                  {p.title}
-                </h3>
-                <p className="font-sans text-sm text-cuero leading-relaxed line-clamp-3">{p.desc}</p>
-                <span className="font-mono text-[9px] text-tinta uppercase tracking-[0.1em] inline-flex items-center gap-2">
-                  Saber más <span>→</span>
-                </span>
-              </a>
-            ))}
-          </div>
-          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-lino/40 mb-20">
-            {pillars.map((p, i) => (
-              <a
-                key={p.title}
-                href={p.href}
-                data-reveal
-                data-delay={String(i + 1)}
-                className="group bg-blanco p-8 flex flex-col gap-5 hover:bg-papel transition-colors duration-300"
-              >
-                <svg
-                  className="w-8 h-8 text-acento shrink-0"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {p.icon}
-                </svg>
-                <h3 className="font-display text-lg font-medium text-tinta tracking-[-0.01em]">
-                  {p.title}
-                </h3>
-                <p className="font-sans text-sm text-cuero leading-relaxed flex-1">{p.desc}</p>
-                <span className="font-mono text-[9px] text-tinta uppercase tracking-[0.1em] inline-flex items-center gap-2 group-hover:text-acento transition-colors duration-200">
-                  Saber más
-                  <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-                </span>
-              </a>
-            ))}
           </div>
 
           {/* Hoja de ruta */}
@@ -707,7 +651,7 @@ export default function Home() {
                     <h4 className="font-display text-base font-medium text-tinta tracking-[-0.01em] mb-1">
                       {s.label}
                     </h4>
-                    <p className="font-sans text-xs text-cuero leading-relaxed">{s.desc}</p>
+                    {/* {s.desc} — oculto temporalmente */}
                   </div>
                 </div>
               ))}
@@ -728,7 +672,7 @@ export default function Home() {
                   <h4 className="font-display text-base font-medium text-tinta tracking-[-0.01em] mb-2">
                     {s.label}
                   </h4>
-                  <p className="font-sans text-xs text-cuero leading-relaxed max-w-[22ch]">{s.desc}</p>
+                  {/* <p className="font-sans text-xs text-cuero leading-relaxed max-w-[22ch]">{s.desc}</p> — oculto temporalmente */}
                 </div>
               ))}
             </div>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LTT Consulting · Intro (integrable)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     LTT Consulting — intro web
+     Cómo integrar:
+       1. Copia el bloque <style> .ltt-* y el markup .ltt-stage.
+       2. Llama a lttIntroPlay() cuando quieras lanzarla
+          (por defecto arranca sola al cargar las fuentes).
+       3. Para elegir el final, cambia la clase del .ltt-lockup:
+          "ltt-fade"  (fundido · por defecto)
+          "ltt-wipe"  (cortina · barrido izq→der)
+          "ltt-rise"  (ascenso · sube desde máscara)
+     ============================================================ */
+  :root {
+    --ltt-papel:  #F4EFE6;
+    --ltt-tinta:  #1A1714;
+    --ltt-trigo:  #C9A227;
+    --ltt-ease:     cubic-bezier(0.22, 1, 0.36, 1);
+    --ltt-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--ltt-tinta); overflow: hidden; }
+
+  .ltt-stage {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    background:
+      radial-gradient(120% 90% at 50% 46%, rgba(201,162,39,0.05), transparent 60%),
+      radial-gradient(140% 120% at 50% 50%, transparent 55%, rgba(0,0,0,0.45));
+  }
+
+  .ltt-lockup {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    font-size: clamp(46px, 9.5vw, 132px);
+    line-height: 1;
+    opacity: 0;
+    transform: translateY(0.14em);
+    transition: opacity 0.55s var(--ltt-ease), transform 0.55s var(--ltt-ease);
+  }
+  .ltt-lockup.ltt-in { opacity: 1; transform: none; }
+
+  .ltt-letter {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    min-width: 0;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ltt-papel);
+    transition: width 0.6s var(--ltt-ease), opacity 0.4s ease;
+  }
+
+  /* la cola (barra + Consulting) va absoluta → LTT nunca se desplaza */
+  .ltt-tail {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    padding-left: 0.42em;
+    white-space: nowrap;
+  }
+  .ltt-bar {
+    width: 0.05em;
+    height: 0.72em;
+    background: var(--ltt-trigo);
+    flex-shrink: 0;
+    transform: scaleY(0);
+    transform-origin: center;
+  }
+  .ltt-subwrap { overflow: hidden; margin-left: 0.42em; }
+  .ltt-sub {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+    font-size: 0.165em;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ltt-papel);
+  }
+
+  .ltt-sweep {
+    position: absolute;
+    top: -20%; left: -30%;
+    width: 26%; height: 140%;
+    background: linear-gradient(100deg, transparent, rgba(244,239,230,0.10), transparent);
+    transform: skewX(-12deg) translateX(-260%);
+    pointer-events: none;
+    opacity: 0;
+  }
+  .ltt-go-sweep .ltt-sweep { animation: ltt-sweep 0.9s linear forwards; }
+  @keyframes ltt-sweep {
+    0%   { opacity: 0; transform: skewX(-12deg) translateX(-260%); }
+    15%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { opacity: 0; transform: skewX(-12deg) translateX(1100%); }
+  }
+
+  /* FINAL · Fundido */
+  .ltt-fade .ltt-bar { transition: transform 0.5s var(--ltt-ease-out); }
+  .ltt-fade.ltt-reveal .ltt-bar { transform: scaleY(1); }
+  .ltt-fade .ltt-sub { opacity: 0; transform: translateY(0.24em); transition: opacity 0.5s ease, transform 0.6s var(--ltt-ease-out); }
+  .ltt-fade.ltt-reveal .ltt-sub { opacity: 0.62; transform: translateY(0); }
+
+  /* FINAL · Cortina */
+  .ltt-wipe .ltt-bar { transform-origin: bottom; transition: transform 0.45s var(--ltt-ease-out); }
+  .ltt-wipe.ltt-reveal .ltt-bar { transform: scaleY(1); }
+  .ltt-wipe .ltt-sub { opacity: 0.62; clip-path: inset(0 100% 0 0); transition: clip-path 0.62s var(--ltt-ease-out); }
+  .ltt-wipe.ltt-reveal .ltt-sub { clip-path: inset(0 0 0 0); }
+
+  /* FINAL · Ascenso */
+  .ltt-rise .ltt-bar { transform-origin: center; transition: transform 0.5s var(--ltt-ease-out); }
+  .ltt-rise.ltt-reveal .ltt-bar { transform: scaleY(1); }
+  .ltt-rise .ltt-sub { opacity: 0.62; transform: translateY(115%); transition: transform 0.66s var(--ltt-ease-out); }
+  .ltt-rise.ltt-reveal .ltt-sub { transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ltt-lockup, .ltt-letter, .ltt-bar, .ltt-sub { transition: none !important; }
+    .ltt-sweep { display: none; }
+  }
+</style>
+</head>
+<body>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#1A1714"/><text x="34" y="58" font-family="Space Grotesk, sans-serif" font-size="26" font-weight="600" fill="#F4EFE6" text-anchor="end">LTT</text><rect x="38" y="38" width="2.4" height="24" fill="#C9A227"/><text x="45" y="52" font-family="monospace" font-size="6.5" letter-spacing="1.2" fill="#F4EFE6" fill-opacity="0.62">CONS</text></svg></template>
+<div class="ltt-stage">
+  <!-- Cambia "ltt-fade" por "ltt-wipe" o "ltt-rise" para otro final -->
+  <div class="ltt-lockup ltt-fade" id="lttLockup">
+    <span class="ltt-letter" data-keep>L</span>
+    <span class="ltt-letter">A</span>
+    <span class="ltt-letter" data-keep>T</span>
+    <span class="ltt-letter">R</span>
+    <span class="ltt-letter">A</span>
+    <span class="ltt-letter">S</span>
+    <span class="ltt-letter" data-keep>T</span>
+    <span class="ltt-letter">I</span>
+    <span class="ltt-letter">E</span>
+    <span class="ltt-letter">N</span>
+    <span class="ltt-letter">D</span>
+    <span class="ltt-letter">A</span>
+    <span class="ltt-tail">
+      <span class="ltt-bar"></span>
+      <span class="ltt-subwrap"><span class="ltt-sub">Consulting</span></span>
+    </span>
+    <span class="ltt-sweep"></span>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const lockup  = document.getElementById('lttLockup');
+    const letters = [...lockup.querySelectorAll('.ltt-letter')];
+    const reduce  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let timers = [];
+
+    function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+    function measure() {
+      letters.forEach(l => { l.style.width = ''; l.style.opacity = ''; });
+      letters.forEach(l => { l.dataset.w = l.getBoundingClientRect().width; });
+    }
+    function setStart() {
+      letters.forEach(l => { l.style.width = l.dataset.w + 'px'; l.style.opacity = '1'; });
+      lockup.classList.remove('ltt-reveal', 'ltt-go-sweep');
+    }
+
+    function play() {
+      clearTimers();
+      measure();
+      lockup.classList.remove('ltt-in');
+      setStart();
+      void lockup.offsetWidth;
+      lockup.classList.add('ltt-in');
+
+      if (reduce) {
+        letters.forEach(l => { if (!l.hasAttribute('data-keep')) { l.style.width = '0px'; l.style.opacity = '0'; } });
+        lockup.classList.add('ltt-reveal');
+        return;
+      }
+      // 1 — LATRASTIENDA → LTT (colapso horizontal)
+      timers.push(setTimeout(() => {
+        letters.forEach(l => { if (!l.hasAttribute('data-keep')) { l.style.width = '0px'; l.style.opacity = '0'; } });
+      }, 780));
+      // 2 — aparece la cola (barra + Consulting) + barrido de luz
+      timers.push(setTimeout(() => {
+        lockup.classList.add('ltt-reveal', 'ltt-go-sweep');
+      }, 1480));
+    }
+
+    // expón el disparador para integrarlo donde quieras
+    window.lttIntroPlay = play;
+
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(play);
+    else window.addEventListener('load', play);
+  })();
+</script>
+</body>
+</html>
