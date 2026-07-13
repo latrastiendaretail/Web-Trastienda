@@ -1,6 +1,10 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
+import Image from 'next/image'
 import Link from 'next/link'
+import sharp from 'sharp'
 import { createServerClient } from '@/lib/supabase/server'
 import { BlogHeader } from '@/components/blog/BlogHeader'
 
@@ -8,6 +12,25 @@ export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{ slug: string }>
+}
+
+// Google trunca el <title> de SERP a ~60 caracteres; el H1 y og:title se quedan completos.
+function truncateForSerp(title: string, max = 60): string {
+  if (title.length <= max) return title
+  return title.slice(0, max - 1).trimEnd() + '…'
+}
+
+async function getLocalImageDimensions(coverImage: string): Promise<{ width: number; height: number } | null> {
+  if (!coverImage.startsWith('/')) return null
+  try {
+    const filePath = path.join(process.cwd(), 'public', coverImage)
+    const buffer = await readFile(filePath)
+    const { width, height } = await sharp(buffer).metadata()
+    if (!width || !height) return null
+    return { width, height }
+  } catch {
+    return null
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -22,8 +45,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!post) return { title: 'Post no encontrado' }
 
+  const dimensions = post.cover_image ? await getLocalImageDimensions(post.cover_image) : null
+
   return {
-    title: post.title,
+    title: truncateForSerp(post.title),
     description: post.excerpt ?? undefined,
     alternates: { canonical: `/blog/${slug}` },
     openGraph: {
@@ -32,7 +57,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `/blog/${slug}`,
       type: 'article',
       publishedTime: post.published_at ?? undefined,
-      images: post.cover_image ? [{ url: post.cover_image }] : undefined,
+      images: post.cover_image
+        ? [{ url: post.cover_image, ...(dimensions ?? {}) }]
+        : undefined,
     },
     twitter: {
       card: 'summary_large_image',
@@ -118,6 +145,14 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) notFound()
 
+  const { data: relatedPosts } = await supabase
+    .from('posts')
+    .select('title, slug, excerpt')
+    .eq('status', 'published')
+    .neq('slug', slug)
+    .order('published_at', { ascending: false })
+    .limit(2)
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -136,12 +171,30 @@ export default async function BlogPostPage({ params }: Props) {
     ...(post.cover_image && { image: post.cover_image }),
   }
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Blog', item: 'https://latrastiendaretail.es/blog' },
+      { '@type': 'ListItem', position: 2, name: post.title, item: `https://latrastiendaretail.es/blog/${slug}` },
+    ],
+  }
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLd)
+            .replace(/</g, '\\u003c')
+            .replace(/>/g, '\\u003e')
+            .replace(/\//g, '\\u002f'),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbLd)
             .replace(/</g, '\\u003c')
             .replace(/>/g, '\\u003e')
             .replace(/\//g, '\\u002f'),
@@ -185,14 +238,38 @@ export default async function BlogPostPage({ params }: Props) {
           )}
         </header>
 
+        {post.cover_image && (
+          <div className="max-w-[700px] mx-auto px-6 pb-12">
+            <div className="relative w-full aspect-[16/9]">
+              <Image
+                src={post.cover_image}
+                alt={post.title}
+                fill
+                sizes="700px"
+                className="object-contain"
+                priority
+              />
+            </div>
+          </div>
+        )}
+
         {/* Content */}
         <article className="max-w-[700px] mx-auto px-6 pb-14 border-t" style={{ borderColor: 'var(--color-lino)' }}>
           <div className="pt-10">{renderContent(post.content)}</div>
+
+          <div className="mt-4 pt-8 border-t" style={{ borderColor: 'var(--color-lino)' }}>
+            <p className="font-sans text-base leading-relaxed" style={{ color: 'var(--color-cuero)' }}>
+              ¿Quieres llevar esto a tu punto de venta?{' '}
+              <Link href="/ltt-consulting" className="underline hover:no-underline font-medium" style={{ color: 'var(--color-acento)' }}>
+                Conoce LTT Consulting →
+              </Link>
+            </p>
+          </div>
         </article>
 
         {/* Footer del post */}
         {post.linkedin_url && (
-          <div className="max-w-[700px] mx-auto px-6 pb-16">
+          <div className="max-w-[700px] mx-auto px-6 pb-10">
             <div className="border-t pt-8" style={{ borderColor: 'var(--color-lino)' }}>
               <a
                 href={post.linkedin_url}
@@ -203,6 +280,38 @@ export default async function BlogPostPage({ params }: Props) {
               >
                 Ver post original en LinkedIn →
               </a>
+            </div>
+          </div>
+        )}
+
+        {/* Related posts */}
+        {relatedPosts && relatedPosts.length > 0 && (
+          <div className="max-w-[700px] mx-auto px-6 pb-16">
+            <div className="border-t pt-8" style={{ borderColor: 'var(--color-lino)' }}>
+              <p className="font-mono text-xs uppercase tracking-[0.14em] mb-5" style={{ color: 'var(--color-cuero)' }}>
+                Sigue leyendo
+              </p>
+              <div className="flex flex-col gap-5">
+                {relatedPosts.map((related) => (
+                  <Link
+                    key={related.slug}
+                    href={`/blog/${related.slug}`}
+                    className="group block cursor-pointer"
+                  >
+                    <h3
+                      className="font-display text-lg font-medium leading-snug transition-colors"
+                      style={{ color: 'var(--color-tinta)' }}
+                    >
+                      {related.title} <span style={{ color: 'var(--color-acento)' }}>→</span>
+                    </h3>
+                    {related.excerpt && (
+                      <p className="font-sans text-sm mt-1 leading-relaxed line-clamp-1" style={{ color: 'var(--color-cuero)' }}>
+                        {related.excerpt}
+                      </p>
+                    )}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         )}
