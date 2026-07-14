@@ -4,6 +4,29 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import LttIntroOverlay from './LttIntroOverlay'
 import { submitContact, type ContactResult } from '@/app/actions/contact'
 
+const problems = [
+  {
+    title: 'El equipo atiende, pero no vende',
+    description:
+      'Personal correcto y amable que despacha en lugar de acompañar la venta. Falta método comercial, no actitud.',
+  },
+  {
+    title: 'El mando intermedio no manda',
+    description:
+      'Encargados que apagan fuegos en vez de dirigir el rendimiento de su tienda y de su gente.',
+  },
+  {
+    title: 'Se mide la caja, no la conversión',
+    description:
+      'Sin datos de qué pasa entre la puerta y el ticket, las decisiones se toman a ciegas.',
+  },
+  {
+    title: 'Cada tienda va a su aire',
+    description:
+      'Sin un método común, cada tienda vende distinto según quién esté ese día. Cero homogeneidad entre puntos de venta.',
+  },
+]
+
 const services = [
   {
     n: 'S—01',
@@ -56,9 +79,9 @@ const services = [
 const reasons = [
   {
     icon: <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4" />,
-    title: 'Criterio de tienda, no de teoría',
+    title: 'Hemos dirigido, no solo aconsejado',
     description:
-      'Cada recomendación nace de haber estado al otro lado del mostrador. Sabemos qué aguanta una sala real y qué se cae el primer sábado con afluencia.',
+      '30 años dirigiendo tiendas reales. No nos quedamos únicamente en el documento — entramos al barro, dentro de la operación, hasta que el cambio se sostiene.',
   },
   {
     icon: <path d="M22 12h-4l-3 9L9 3l-3 9H2" />,
@@ -126,7 +149,7 @@ function LttContactForm() {
       </div>
       {status === 'error' && <p role="alert" className="contact-error">{errorMsg}</p>}
       <button type="submit" className="btn-primary contact-submit" disabled={isPending}>
-        {isPending ? 'Enviando...' : 'Solicitar diagnóstico'}
+        {isPending ? 'Enviando...' : 'Solicitar diagnóstico gratuito'}
         {!isPending && (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></svg>
         )}
@@ -179,7 +202,15 @@ export default function LttConsultingPage() {
   const [introDone, setIntroDone] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [activeProblem, setActiveProblem] = useState(0)
   const rootRef = useReveal()
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setActiveProblem((i) => (i + 1) % problems.length)
+    }, 5000)
+    return () => clearInterval(t)
+  }, [activeProblem])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -287,14 +318,22 @@ export default function LttConsultingPage() {
 
           .ltt .problema { background: var(--tinta); }
           .ltt .problema .body { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(40px, 6vw, 90px); align-items: start; margin-top: 56px; }
-          .ltt .problema .statement { font-family: var(--serif); font-weight: 400; font-size: clamp(23px, 2.6vw, 33px); line-height: 1.32; letter-spacing: -0.01em; color: var(--papel); }
-          .ltt .problema .statement em { font-style: italic; color: var(--trigo); }
+          .ltt .problema-active { display: grid; gap: 22px; }
+          .ltt .problema .statement { font-family: var(--serif); font-weight: 500; font-size: clamp(23px, 2.6vw, 33px); line-height: 1.28; letter-spacing: -0.01em; color: var(--papel); margin-bottom: 12px; }
+          .ltt .statement-desc { font-size: 15px; color: var(--papel-60); line-height: 1.6; max-width: 46ch; }
+          .ltt .problema-fade { animation: lttFade 0.5s var(--ease); }
+          @keyframes lttFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+          @media (prefers-reduced-motion: reduce) { .ltt .problema-fade { animation: none; } }
           .ltt .gap-list { display: grid; gap: 2px; }
-          .ltt .gap-item { display: grid; grid-template-columns: auto 1fr; gap: 20px; padding: 22px 0; border-top: 1px solid var(--papel-12); }
+          .ltt .gap-item { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center; padding: 22px 0; border-top: 1px solid var(--papel-12); width: 100%; background: none; border-left: none; border-right: none; border-bottom: none; text-align: left; font-family: inherit; cursor: pointer; transition: opacity 0.2s; }
           .ltt .gap-item:last-child { border-bottom: 1px solid var(--papel-12); }
-          .ltt .gap-item .num { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; color: var(--trigo); padding-top: 4px; }
-          .ltt .gap-item h4 { font-family: var(--sans); font-weight: 600; font-size: 17px; margin-bottom: 5px; }
-          .ltt .gap-item p { font-size: 14.5px; color: var(--papel-60); line-height: 1.55; }
+          .ltt .gap-item .num { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; color: var(--cuero); transition: color 0.2s; }
+          .ltt .gap-item h4 { font-family: var(--sans); font-weight: 600; font-size: 17px; color: var(--papel-60); transition: color 0.2s; }
+          .ltt .gap-item:hover .num, .ltt .gap-item:hover h4 { color: var(--papel); }
+          .ltt .gap-item.active { opacity: 1; }
+          .ltt .gap-item.active .num { color: var(--trigo); }
+          .ltt .gap-item.active h4 { color: var(--papel); }
+          .ltt .gap-item:not(.active) { opacity: 0.72; }
 
           .ltt .servicios { background: var(--tinta-2); border-block: 1px solid var(--papel-07); }
           .ltt .svc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; margin-top: 56px; background: var(--papel-12); border: 1px solid var(--papel-12); }
@@ -487,7 +526,7 @@ export default function LttConsultingPage() {
             <div className="reveal">
               <span className="hero-eyebrow"><span className="dot" /> Consultoría retail · una división de La Trastienda</span>
             </div>
-            <h1 className="reveal d1">El potencial ya entra por la puerta. Nosotros lo <em>convertimos en ventas.</em></h1>
+            <h1 className="reveal d1">Hacemos que tus tiendas <em>vendan más.</em></h1>
             <p className="hero-sub reveal d2">LTT Consulting interviene en tiendas con afluencia que rinden por debajo de su potencial. Optimización comercial, equipos y mando intermedio — con criterio de tienda, no de manual.</p>
             <div className="hero-cta-row reveal d3">
               <a className="btn-primary" href="#contacto">
@@ -499,8 +538,8 @@ export default function LttConsultingPage() {
 
             <div className="hero-meta reveal d4">
               <div className="item">
-                <span className="n"><em>20+</em></span>
-                <span className="l">Años de retail vivido en tienda</span>
+                <span className="n"><em>30</em></span>
+                <span className="l">Años dirigiendo tiendas en primera línea</span>
               </div>
               <div className="item">
                 <span className="n">Operación</span>
@@ -519,32 +558,27 @@ export default function LttConsultingPage() {
           <div className="wrap">
             <div className="sec-head">
               <span className="kicker reveal"><span className="idx">01</span><span className="tick" /> El problema</span>
-              <h2 className="title reveal d1">Entra gente. Pero el tráfico no se convierte en <em>ventas.</em></h2>
+              <h2 className="title reveal d1">Cuatro fugas silenciosas que frenan la <em>conversión.</em></h2>
             </div>
             <div className="body">
-              <p className="statement reveal d1">La mayoría de las tiendas no tienen un problema de afluencia. Tienen un problema de <em>conversión.</em> El cliente entra, mira y se va — y nadie en la sala sabe exactamente por qué. El potencial está ahí, intacto, cada día que abren la persiana.</p>
+              <div className="problema-active reveal d1">
+                <div key={activeProblem} className="problema-fade">
+                  <h3 className="statement">{problems[activeProblem].title}</h3>
+                  <p className="statement-desc">{problems[activeProblem].description}</p>
+                </div>
+              </div>
               <div className="gap-list reveal d2">
-                <div className="gap-item">
-                  <span className="num">01</span>
-                  <div>
-                    <h4>El equipo atiende, pero no vende</h4>
-                    <p>Personal correcto y amable que despacha en lugar de acompañar la venta. Falta método comercial, no actitud.</p>
-                  </div>
-                </div>
-                <div className="gap-item">
-                  <span className="num">02</span>
-                  <div>
-                    <h4>El mando intermedio no manda</h4>
-                    <p>Encargados que apagan fuegos en vez de dirigir el rendimiento de su tienda y de su gente.</p>
-                  </div>
-                </div>
-                <div className="gap-item">
-                  <span className="num">03</span>
-                  <div>
-                    <h4>Se mide la caja, no la conversión</h4>
-                    <p>Sin datos de qué pasa entre la puerta y el ticket, las decisiones se toman a ciegas.</p>
-                  </div>
-                </div>
+                {problems.map((p, i) => (
+                  <button
+                    key={p.title}
+                    type="button"
+                    className={`gap-item${i === activeProblem ? ' active' : ''}`}
+                    onClick={() => setActiveProblem(i)}
+                  >
+                    <span className="num">{String(i + 1).padStart(2, '0')}</span>
+                    <h4>{p.title}</h4>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -583,7 +617,7 @@ export default function LttConsultingPage() {
             </div>
             <div className="body">
               <div className="reveal">
-                <p className="porque-quote">Décadas de retail <span className="hl">vivido</span> detrás. <span className="nl">No un PowerPoint.</span></p>
+                <p className="porque-quote">30 años <span className="hl">dirigiendo</span> tiendas. <span className="nl">No nos quedamos en el documento — entramos al barro.</span></p>
                 <p className="porque-sign">LTT Consulting · brazo profesional de La Trastienda</p>
               </div>
               <div className="reasons">
@@ -606,8 +640,8 @@ export default function LttConsultingPage() {
           <div className="wrap contacto-grid">
             <div className="reveal">
               <span className="kicker"><span className="idx">04</span><span className="tick" /> Contacto</span>
-              <h2 className="title" style={{ marginTop: 22, marginBottom: 18 }}>Pongamos a rendir lo que <em>ya entra por la puerta.</em></h2>
-              <p className="lede">Empezamos por un diagnóstico sobre el terreno de una de sus tiendas. Sin compromiso y con conclusiones concretas desde la primera visita.</p>
+              <h2 className="title" style={{ marginTop: 22, marginBottom: 18 }}>Solicita tu <em>diagnóstico gratuito.</em></h2>
+              <p className="lede">Cuéntanos tu tienda o red de tiendas y agendamos una reunión sin compromiso.</p>
             </div>
             <div className="reveal d1">
               <LttContactForm />

@@ -66,7 +66,7 @@ const roadmapSteps = [
 ]
 
 const marqueeItems = [
-  'Consultoría de Ejecución Retail',
+  'Método de Ejecución en Tienda',
   'Desarrollo de Talento',
   'Liderazgo en el punto de venta',
   'Formación para Managers',
@@ -544,7 +544,7 @@ export default function Home() {
               <div className="anim-hero-1 flex items-center gap-4 mb-6 md:mb-10">
                 <div className="h-px w-10 bg-acento anim-line" />
                 <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.18em]">
-                  Consultoría · Formación · Talento · Retail España
+                  Ejecución en tienda · Formación · Talento · Retail España
                 </span>
               </div>
 
@@ -566,9 +566,9 @@ export default function Home() {
 
               {/* Sub */}
               <p className="anim-hero-3 font-sans text-base md:text-lg text-cuero leading-relaxed mb-8 md:mb-12 max-w-[48ch]">
-                Ayudamos a empresas de retail a convertir sus decisiones estratégicas en
-                comportamientos reales en el punto de venta: consultoría de ejecución,
-                formación de managers y desarrollo de talento.
+                Conectamos <strong className="font-semibold text-tinta underline decoration-acento decoration-2 underline-offset-4">empresas, profesionales e instituciones</strong> para
+                fortalecer el <strong className="font-semibold text-acento">talento y la empleabilidad</strong> en
+                las tiendas.
               </p>
 
               {/* CTAs */}
@@ -585,6 +585,13 @@ export default function Home() {
                   className="btn group w-full sm:w-auto inline-flex items-center justify-center gap-2 font-sans text-[11px] font-medium text-tinta border border-tinta px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-tinta hover:text-papel cursor-pointer"
                 >
                   Quiero formarme
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                </a>
+                <a
+                  href="#programas"
+                  className="btn group w-full sm:w-auto inline-flex items-center justify-center gap-2 font-sans text-[11px] font-medium text-cuero border border-lino px-8 min-h-[48px] uppercase tracking-[0.08em] hover:border-tinta hover:text-tinta cursor-pointer"
+                >
+                  Soy institución
                   <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </a>
               </div>
@@ -621,7 +628,7 @@ export default function Home() {
               className="font-display font-medium text-tinta leading-[1.05] tracking-[-0.02em] mb-6"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
             >
-              Mejoramos el resultado <em className="italic text-acento">de tus tiendas.</em>
+              Mejoramos el resultado de <em className="italic text-acento">tus tiendas.</em>
             </h2>
             <p className="font-sans text-base text-cuero leading-relaxed">
               Implantamos <strong className="font-semibold text-tinta underline decoration-acento/40 underline-offset-4">sistemas de trabajo, hábitos y rutinas</strong> que
@@ -700,7 +707,7 @@ export default function Home() {
             {/* Particulares */}
             <div className="shrink-0 w-[86%] snap-start bg-blanco border border-lino/50 p-6 flex flex-col">
               <div className="font-mono text-[9px] text-cuero uppercase tracking-[0.16em] mb-5">
-                Para profesionales
+                Soy Profesional
               </div>
               <h3 className="font-display text-2xl font-medium text-tinta leading-[1.05] tracking-[-0.02em] mb-4">
                 Formación <em>real</em> para crecer en Retail
@@ -723,29 +730,29 @@ export default function Home() {
                 ))}
               </ul>
               <a
-                href="#contacto"
+                href="#campus"
                 className="btn inline-flex items-center gap-2 self-start font-sans text-[11px] font-medium text-tinta uppercase tracking-[0.08em] border border-tinta px-6 min-h-[44px] cursor-pointer"
               >
-                Quiero formarme →
+                Ver Campus →
               </a>
             </div>
 
             {/* Empresas */}
             <div className="shrink-0 w-[86%] snap-start bg-tinta p-6 flex flex-col">
               <div className="font-mono text-[9px] text-acento uppercase tracking-[0.16em] mb-5">
-                Para empresas
+                Soy Empresa
               </div>
               <h3 className="font-display text-2xl font-medium text-papel leading-[1.05] tracking-[-0.02em] mb-4">
-                Consultoría de <em>Ejecución</em> Retail
+                Método de <em>Ejecución</em> en Tienda
               </h3>
               <p className="font-sans text-sm text-papel/60 leading-relaxed mb-6 line-clamp-3">
-                Ayudamos a empresas de retail a convertir sus decisiones estratégicas
-                en comportamientos reales en el punto de venta: managers, liderazgo,
-                rutinas y homogeneidad entre tiendas.
+                Ponemos el foco en tus store managers: liderazgo real de tienda,
+                rutinas que se sostienen en el tiempo y resultados homogéneos
+                entre puntos de venta.
               </p>
               <ul className="space-y-2 mb-6 flex-1">
                 {[
-                  'Consultoría de Ejecución Retail',
+                  'Método de Ejecución en Tienda',
                   'Formación de managers y workshops',
                   'Desarrollo de talento y Retail Analytics',
                 ].map((item) => (
@@ -756,16 +763,48 @@ export default function Home() {
                 ))}
               </ul>
               <a
-                href="#contacto"
+                href="#que-hacemos"
                 className="btn inline-flex items-center gap-2 self-start font-sans text-[11px] font-medium text-papel uppercase tracking-[0.08em] border border-papel/30 px-6 min-h-[44px] cursor-pointer"
               >
-                Hablar con el equipo →
+                Ver método →
+              </a>
+            </div>
+
+            {/* Instituciones */}
+            <div className="shrink-0 w-[86%] snap-start bg-blanco border border-lino/50 p-6 flex flex-col">
+              <div className="font-mono text-[9px] text-cuero uppercase tracking-[0.16em] mb-5">
+                Soy Institución
+              </div>
+              <h3 className="font-display text-2xl font-medium text-tinta leading-[1.05] tracking-[-0.02em] mb-4">
+                Alianzas con <em>centros y asociaciones</em>
+              </h3>
+              <p className="font-sans text-sm text-cuero leading-relaxed mb-6 line-clamp-3">
+                Trabajamos con centros de FP, cámaras de comercio y asociaciones
+                sectoriales para acercar el retail real a sus alumnos y asociados.
+              </p>
+              <ul className="space-y-2 mb-6 flex-1">
+                {[
+                  'Convenios de prácticas con centros de FP',
+                  'Colaboración con cámaras de comercio',
+                  'Formación a medida para asociaciones',
+                ].map((item) => (
+                  <li key={item} className="font-sans text-sm text-tinta flex items-start gap-3">
+                    <span className="text-acento font-medium mt-0.5 shrink-0">—</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="#instituciones"
+                className="btn inline-flex items-center gap-2 self-start font-sans text-[11px] font-medium text-tinta uppercase tracking-[0.08em] border border-tinta px-6 min-h-[44px] cursor-pointer"
+              >
+                Ver programa →
               </a>
             </div>
           </div>
 
           {/* Tablet+: grid original */}
-          <div className="hidden sm:grid md:grid-cols-2 gap-6">
+          <div className="hidden sm:grid md:grid-cols-3 gap-6">
             {/* Particulares */}
             <div
               data-reveal
@@ -773,7 +812,7 @@ export default function Home() {
               className="bg-blanco border border-lino/50 p-10 md:p-12 hover:border-acento/40 hover:shadow-[0_4px_24px_rgba(26,23,20,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col group"
             >
               <div className="font-mono text-[9px] text-cuero uppercase tracking-[0.16em] mb-8">
-                Para profesionales
+                Soy Profesional
               </div>
               <h3
                 className="font-display font-medium text-tinta leading-[1.05] tracking-[-0.02em] mb-6"
@@ -799,10 +838,10 @@ export default function Home() {
                 ))}
               </ul>
               <a
-                href="#contacto"
+                href="#campus"
                 className="btn group/btn inline-flex items-center gap-2 self-start font-sans text-[11px] font-medium text-tinta uppercase tracking-[0.08em] border border-tinta px-6 min-h-[44px] hover:bg-tinta hover:text-papel cursor-pointer"
               >
-                Quiero formarme
+                Ver Campus
                 <span className="transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
               </a>
             </div>
@@ -814,22 +853,22 @@ export default function Home() {
               className="bg-tinta p-10 md:p-12 flex flex-col group ring-1 ring-transparent hover:ring-acento/20 hover:-translate-y-1 transition-all duration-300"
             >
               <div className="font-mono text-[9px] text-acento uppercase tracking-[0.16em] mb-8">
-                Para empresas
+                Soy Empresa
               </div>
               <h3
                 className="font-display font-medium text-papel leading-[1.05] tracking-[-0.02em] mb-6"
                 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)' }}
               >
-                Consultoría de <em>Ejecución</em> Retail
+                Método de <em>Ejecución</em> en Tienda
               </h3>
               <p className="font-sans text-base text-papel/60 leading-relaxed mb-8">
-                Ayudamos a empresas de retail a convertir sus decisiones estratégicas
-                en comportamientos reales en el punto de venta: managers, liderazgo,
-                rutinas y homogeneidad entre tiendas.
+                Ponemos el foco en tus store managers: liderazgo real de tienda,
+                rutinas que se sostienen en el tiempo y resultados homogéneos
+                entre puntos de venta.
               </p>
               <ul className="space-y-3 mb-10 flex-1">
                 {[
-                  'Consultoría de Ejecución Retail',
+                  'Método de Ejecución en Tienda',
                   'Formación de managers y workshops',
                   'Desarrollo de talento y Retail Analytics',
                 ].map((item) => (
@@ -840,14 +879,114 @@ export default function Home() {
                 ))}
               </ul>
               <a
-                href="#contacto"
+                href="#que-hacemos"
                 className="btn group/btn inline-flex items-center gap-2 self-start font-sans text-[11px] font-medium text-papel uppercase tracking-[0.08em] border border-papel/30 px-6 min-h-[44px] hover:bg-acento hover:text-tinta hover:border-acento cursor-pointer"
               >
-                Hablar con el equipo
+                Ver método
+                <span className="transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
+              </a>
+            </div>
+
+            {/* Instituciones */}
+            <div
+              data-reveal
+              data-delay="3"
+              className="bg-blanco border border-lino/50 p-10 md:p-12 hover:border-acento/40 hover:shadow-[0_4px_24px_rgba(26,23,20,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+            >
+              <div className="font-mono text-[9px] text-cuero uppercase tracking-[0.16em] mb-8">
+                Soy Institución
+              </div>
+              <h3
+                className="font-display font-medium text-tinta leading-[1.05] tracking-[-0.02em] mb-6"
+                style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)' }}
+              >
+                Alianzas con <em>centros y asociaciones</em>
+              </h3>
+              <p className="font-sans text-base text-cuero leading-relaxed mb-8">
+                Trabajamos con centros de FP, cámaras de comercio y asociaciones
+                sectoriales para acercar el retail real a sus alumnos y asociados.
+              </p>
+              <ul className="space-y-3 mb-10 flex-1">
+                {[
+                  'Convenios de prácticas con centros de FP',
+                  'Colaboración con cámaras de comercio',
+                  'Formación a medida para asociaciones',
+                ].map((item) => (
+                  <li key={item} className="font-sans text-sm text-tinta flex items-start gap-3">
+                    <span className="text-acento font-medium mt-0.5 shrink-0">—</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="#instituciones"
+                className="btn group/btn inline-flex items-center gap-2 self-start font-sans text-[11px] font-medium text-tinta uppercase tracking-[0.08em] border border-tinta px-6 min-h-[44px] hover:bg-tinta hover:text-papel cursor-pointer"
+              >
+                Ver programa
                 <span className="transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── INSTITUCIONES ─────────────────────────────────── */}
+      <section id="instituciones" className="py-16 md:py-28 lg:py-36 bg-tinta scroll-mt-24">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
+          <div className="mb-16 max-w-[62ch]" data-reveal>
+            <span className="block font-mono text-[9px] text-acento uppercase tracking-[0.16em] mb-4">
+              Para instituciones
+            </span>
+            <h2
+              className="font-display font-medium text-papel leading-[1.05] tracking-[-0.02em] mb-6"
+              style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
+            >
+              Alianzas con centros y asociaciones
+            </h2>
+            <p className="font-sans text-base text-papel/60 leading-relaxed">
+              Sabemos que a los centros de FP les cuesta conseguir prácticas y convenios
+              reales con empresas de retail. Tendemos ese puente con centros educativos,
+              cámaras de comercio y asociaciones sectoriales.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                title: 'Centros educativos y FP',
+                desc: 'Convenios de prácticas con empresas de retail reales, para que tus alumnos hagan prácticas de verdad.',
+              },
+              {
+                title: 'Cámaras de comercio',
+                desc: 'Programas formativos y jornadas para las empresas asociadas a tu cámara.',
+              },
+              {
+                title: 'Asociaciones sectoriales',
+                desc: 'Contenido y formación a medida para los socios de tu asociación.',
+              },
+            ].map((item, i) => (
+              <div
+                key={item.title}
+                data-reveal
+                data-delay={String(i + 1)}
+                className="border border-papel/15 p-8 hover:border-acento/40 transition-colors duration-300"
+              >
+                <h3 className="font-display text-xl font-medium text-papel mb-3">
+                  {item.title}
+                </h3>
+                <p className="font-sans text-sm text-papel/60 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <a
+            data-reveal
+            href="#contacto"
+            className="btn group/btn mt-12 inline-flex items-center gap-2 font-sans text-[11px] font-medium text-tinta bg-acento px-8 min-h-[48px] uppercase tracking-[0.08em] hover:bg-papel cursor-pointer"
+          >
+            Hablar con el equipo
+            <span className="transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
+          </a>
         </div>
       </section>
 
@@ -1193,7 +1332,7 @@ export default function Home() {
                 Contacto
               </h2>
               <p className="font-sans text-lg text-cuero leading-relaxed mb-12 max-w-[42ch]">
-                Tanto si buscas consultoría para mejorar la ejecución de tu empresa,
+                Tanto si buscas un programa para mejorar la ejecución de tu empresa,
                 como si quieres formarte para crecer en Retail — estamos aquí.
               </p>
               <div className="border-t border-lino/60 pt-8 space-y-6">

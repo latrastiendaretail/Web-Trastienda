@@ -121,6 +121,12 @@ export default function CampusLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const currentPath = usePathname()
 
+  // Login (y cualquier ruta pública futura) no lleva sidebar ni "cerrar sesión":
+  // todavía no hay sesión que cerrar.
+  if (currentPath === '/campus/login') {
+    return <>{children}</>
+  }
+
   return (
     <div className="min-h-screen bg-papel flex">
       {/* Desktop sidebar */}

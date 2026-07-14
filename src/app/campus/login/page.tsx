@@ -4,6 +4,7 @@ import { useSignIn } from '@clerk/nextjs/legacy'
 import { useAuth } from '@clerk/nextjs'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect, Suspense } from 'react'
+import Image from 'next/image'
 
 function LoginForm() {
   const { isLoaded, signIn, setActive } = useSignIn()
@@ -64,8 +65,8 @@ function LoginForm() {
 
   return (
     <div className="w-full max-w-sm">
-      {/* Logo */}
-      <a href="/" className="block mb-12 cursor-pointer">
+      {/* Logo (solo mobile/tablet, desktop ya lo muestra el panel izq) */}
+      <a href="/" className="block mb-12 cursor-pointer lg:hidden">
         <span className="block font-display text-2xl font-medium text-tinta tracking-tight leading-none">
           La Trastienda
         </span>
@@ -174,12 +175,68 @@ function LoginForm() {
   )
 }
 
+const features = [
+  {
+    title: 'Formación práctica en Retail',
+    desc: 'Cursos diseñados por profesionales del sector, sin relleno teórico.',
+  },
+  {
+    title: 'A tu ritmo',
+    desc: 'Vídeos y módulos disponibles cuando quieras, desde cualquier dispositivo.',
+  },
+  {
+    title: 'Certificado al terminar',
+    desc: 'Acredita lo aprendido con un certificado descargable por curso.',
+  },
+]
+
 export default function CampusLoginPage() {
   return (
-    <main className="min-h-screen bg-papel flex flex-col items-center justify-center px-6">
-      <Suspense>
-        <LoginForm />
-      </Suspense>
+    <main className="min-h-screen bg-papel flex">
+      {/* Presentación del producto */}
+      <div className="hidden lg:flex lg:w-1/2 bg-tinta flex-col justify-between px-14 py-14 xl:px-20">
+        <a href="/" className="block cursor-pointer">
+          <Image
+            src="/images/Logos/imagotipov2.svg"
+            alt="La Trastienda"
+            width={130}
+            height={44}
+            className="object-contain brightness-0 invert"
+            priority
+          />
+        </a>
+
+        <div className="max-w-[38ch]">
+          <span className="block font-sans text-[10px] text-acento uppercase tracking-[0.16em] mb-4">
+            Campus
+          </span>
+          <h1 className="font-display text-[clamp(2rem,3vw,2.75rem)] font-medium text-papel leading-[1.15] tracking-[-0.02em] mb-6">
+            La formación de Retail que tu equipo necesita.
+          </h1>
+          <ul className="space-y-5">
+            {features.map((f) => (
+              <li key={f.title} className="flex gap-3">
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-acento shrink-0" aria-hidden />
+                <div>
+                  <p className="font-sans text-sm font-medium text-papel">{f.title}</p>
+                  <p className="font-sans text-sm text-papel/50 leading-relaxed">{f.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p className="font-mono text-[10px] text-papel/30 uppercase tracking-[0.1em]">
+          La Trastienda © {new Date().getFullYear()}
+        </p>
+      </div>
+
+      {/* Formulario */}
+      <div className="flex flex-1 flex-col items-center justify-center px-6">
+        <Suspense>
+          <LoginForm />
+        </Suspense>
+      </div>
     </main>
   )
 }
