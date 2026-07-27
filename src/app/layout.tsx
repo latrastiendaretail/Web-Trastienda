@@ -66,6 +66,16 @@ export const metadata: Metadata = {
   },
 }
 
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'La Trastienda Retail',
+  alternateName: 'La Trastienda',
+  url: 'https://latrastiendaretail.es',
+  logo: 'https://latrastiendaretail.es/images/Logos/imagotipov2.png',
+  description: SITE_DESCRIPTION,
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -75,6 +85,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="es" className={`${newsreader.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable}`}>
         <body className="antialiased">
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+          />
           <PostHogProvider>
             {children}
           </PostHogProvider>
