@@ -72,7 +72,7 @@ const organizationJsonLd = {
   name: 'La Trastienda Retail',
   alternateName: 'La Trastienda',
   url: 'https://latrastiendaretail.es',
-  logo: 'https://latrastiendaretail.es/images/Logos/imagotipov2.png',
+  logo: 'https://latrastiendaretail.es/images/Logos/logo.png',
   description: SITE_DESCRIPTION,
 }
 
