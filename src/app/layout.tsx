@@ -74,6 +74,11 @@ const organizationJsonLd = {
   url: 'https://latrastiendaretail.es',
   logo: 'https://latrastiendaretail.es/images/Logos/logo.png',
   description: SITE_DESCRIPTION,
+  sameAs: [
+    'https://www.linkedin.com/company/la-trastienda',
+    'https://www.youtube.com/@LaTrastiendaRetail',
+    'https://www.instagram.com/latrastienda.retail/',
+  ],
 }
 
 export default function RootLayout({
