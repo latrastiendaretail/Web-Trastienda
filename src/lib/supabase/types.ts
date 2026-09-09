@@ -38,6 +38,7 @@ export type Database = {
           price_cents: number | null
           stripe_product_id: string | null
           stripe_price_id: string | null
+          upsell_1to1: boolean
           created_at: string
           updated_at: string
         }
@@ -58,6 +59,7 @@ export type Database = {
           price_cents?: number | null
           stripe_product_id?: string | null
           stripe_price_id?: string | null
+          upsell_1to1?: boolean
         }
         Update: Partial<Database['public']['Tables']['courses']['Insert']>
         Relationships: []
@@ -257,6 +259,8 @@ export type Database = {
           currency: string
           status: 'pending' | 'completed' | 'refunded'
           customer_email: string | null
+          access_email_sent_at: string | null
+          kpi_1to1_email_sent_at: string | null
           created_at: string
         }
         Insert: {
@@ -268,10 +272,14 @@ export type Database = {
           currency?: string
           status?: 'pending' | 'completed' | 'refunded'
           customer_email?: string | null
+          access_email_sent_at?: string | null
+          kpi_1to1_email_sent_at?: string | null
         }
         Update: {
           status?: 'pending' | 'completed' | 'refunded'
           stripe_payment_intent_id?: string | null
+          access_email_sent_at?: string | null
+          kpi_1to1_email_sent_at?: string | null
         }
         Relationships: [
           {
@@ -281,6 +289,39 @@ export type Database = {
             referencedColumns: ['id']
           }
         ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          id: string
+          email: string
+          status: 'pending' | 'subscribed' | 'unsubscribed'
+          consent_source: string
+          consent_text: string
+          consent_ip: string | null
+          stripe_session_id: string | null
+          confirm_token: string
+          unsubscribe_token: string
+          confirmed_at: string | null
+          unsubscribed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          email: string
+          status?: 'pending' | 'subscribed' | 'unsubscribed'
+          consent_source?: string
+          consent_text: string
+          consent_ip?: string | null
+          stripe_session_id?: string | null
+          confirm_token?: string
+          unsubscribe_token?: string
+          confirmed_at?: string | null
+          unsubscribed_at?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['newsletter_subscribers']['Insert']> & {
+          updated_at?: string
+        }
+        Relationships: []
       }
       certificates: {
         Row: {

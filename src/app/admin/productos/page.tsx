@@ -1,6 +1,6 @@
 import { requireAdmin } from '@/lib/auth/admin'
 import { createServiceClient } from '@/lib/supabase/service'
-import { setCoursePrice, removeCoursePrice, setCourseStatus } from '@/app/actions/products'
+import { setCoursePrice, removeCoursePrice, setCourseStatus, setCourseUpsell1to1 } from '@/app/actions/products'
 
 export default async function AdminProductosPage() {
   await requireAdmin()
@@ -8,7 +8,7 @@ export default async function AdminProductosPage() {
   const supabase = createServiceClient()
   const { data: courses } = await supabase
     .from('courses')
-    .select('id, title, slug, status, price_cents, stripe_price_id')
+    .select('id, title, slug, status, price_cents, stripe_price_id, upsell_1to1')
     .order('order_index')
 
   return (
@@ -68,6 +68,20 @@ export default async function AdminProductosPage() {
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap shrink-0">
+                  {/* Upsell 1:1 (correo diferido sesión KPIs) */}
+                  <form action={setCourseUpsell1to1.bind(null, course.id, !course.upsell_1to1)}>
+                    <button
+                      type="submit"
+                      className={`font-mono text-[10px] uppercase tracking-[0.08em] px-4 min-h-[36px] border transition-colors duration-200 shrink-0 ${
+                        course.upsell_1to1
+                          ? 'border-acento/60 text-acento'
+                          : 'border-lino/60 text-cuero hover:border-tinta hover:text-tinta'
+                      }`}
+                    >
+                      {course.upsell_1to1 ? '1:1 KPIs ✓' : '+ 1:1 KPIs'}
+                    </button>
+                  </form>
+
                   {/* Status toggle */}
                   {course.status !== 'draft' && (
                     <form
@@ -142,7 +156,9 @@ export default async function AdminProductosPage() {
           </code>
         </p>
         <p className="font-sans text-[11px] text-cuero/60 mt-1">
-          Evento a escuchar: <code className="font-mono">checkout.session.completed</code>
+          Eventos: <code className="font-mono">checkout.session.completed</code>,{' '}
+          <code className="font-mono">checkout.session.async_payment_succeeded</code>,{' '}
+          <code className="font-mono">charge.refunded</code>
         </p>
       </div>
     </div>

@@ -16,6 +16,13 @@ export async function setCourseStatus(
   revalidatePath('/campus/cursos')
 }
 
+export async function setCourseUpsell1to1(courseId: string, value: boolean): Promise<void> {
+  await requireAdmin()
+  const supabase = createServiceClient()
+  await supabase.from('courses').update({ upsell_1to1: value }).eq('id', courseId)
+  revalidatePath('/admin/productos')
+}
+
 export async function setCoursePrice(courseId: string, priceEuros: number): Promise<void> {
   await requireAdmin()
 

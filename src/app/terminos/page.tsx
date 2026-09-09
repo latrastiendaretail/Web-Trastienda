@@ -117,7 +117,46 @@ export default function TerminosPage() {
         </ul>
       </Section>
 
-      <Section title="6. Modificaciones de los Términos">
+      <Section title="6. Compra de cursos y pagos">
+        <P>
+          El precio de cada curso es el indicado en su ficha en el momento de la compra, impuestos
+          incluidos. El pago se realiza a través de <strong>Stripe</strong> como proveedor de
+          servicios de pago. Una vez confirmado el pago, el acceso al curso se activa de forma
+          automática y recibirás un correo de confirmación con el detalle de la compra. Stripe emite
+          el justificante o factura correspondiente.
+        </P>
+        <P>
+          Salvo que la normativa de consumo aplicable disponga otra cosa, al tratarse de contenido
+          digital de acceso inmediato, al completar la compra solicitas y aceptas el inicio de la
+          prestación, por lo que el derecho de desistimiento no resulta aplicable una vez se ha
+          facilitado el acceso al contenido.
+        </P>
+        <ul className="space-y-2">
+          <Li>
+            <strong>Pago aplazado (Klarna).</strong> Si eliges fraccionar el pago, la financiación
+            es concedida y gestionada por <strong>Klarna Bank AB</strong>, sujeta a su aprobación y
+            a sus propias condiciones. La Trastienda no interviene en la concesión del crédito ni
+            asume responsabilidad sobre la relación entre el usuario y Klarna. El acceso al curso
+            se activa igualmente al confirmarse el pago.
+          </Li>
+          <Li>
+            En caso de reembolso autorizado, La Trastienda podrá revocar el acceso al curso
+            asociado a esa compra.
+          </Li>
+        </ul>
+      </Section>
+
+      <Section title="7. Sesiones individuales (1:1)">
+        <P>
+          De forma complementaria a determinados cursos, La Trastienda puede ofrecer sesiones
+          individuales de acompañamiento. Su contratación es voluntaria, tiene precio independiente
+          del curso y se reserva a través de la herramienta de agenda indicada en cada caso. Los
+          códigos de descuento asociados son personales, tienen vigencia limitada y no son
+          canjeables por dinero.
+        </P>
+      </Section>
+
+      <Section title="8. Modificaciones de los Términos">
         <P>
           La Trastienda podrá modificar estos Términos en cualquier momento publicando la nueva versión
           en esta página. Si la modificación afecta de manera sustancial a los derechos del usuario,
@@ -126,14 +165,14 @@ export default function TerminosPage() {
         </P>
       </Section>
 
-      <Section title="7. Nulidad parcial">
+      <Section title="9. Nulidad parcial">
         <P>
           Si alguna cláusula de estos Términos fuera declarada nula o inaplicable, las restantes
           cláusulas mantendrán su plena vigencia y eficacia.
         </P>
       </Section>
 
-      <Section title="8. Ley aplicable y jurisdicción">
+      <Section title="10. Ley aplicable y jurisdicción">
         <P>
           Estos Términos se rigen por la legislación española. Para la resolución de cualquier
           controversia derivada de los Servicios, las partes se someten a los Juzgados y Tribunales

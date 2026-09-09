@@ -2,12 +2,181 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import type Stripe from 'stripe'
-import { Resend } from 'resend'
 import { stripe } from '@/lib/stripe'
 import { createServiceClient } from '@/lib/supabase/service'
+import { getResend, MAIL_FROM, MAIL_REPLY_TO, baseUrl } from '@/lib/email'
+import { renderCourseAccessEmail } from '@/emails/courseAccess'
+import { handleNewsletterSignup } from '@/lib/newsletter'
+import { NEWSLETTER_CONSENT_TEXT } from '@/lib/legal'
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+const CAMPUS_UNSUB = 'mailto:latrastienda.retail@gmail.com?subject=Baja%20de%20avisos%20del%20campus'
+
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  card: 'Tarjeta',
+  klarna: 'Klarna (pago aplazado)',
+  sepa_debit: 'Domiciliación SEPA',
+  link: 'Link',
+  paypal: 'PayPal',
+  bizum: 'Bizum',
+}
+
+async function resolvePaymentMethod(paymentIntentId: string | null): Promise<string> {
+  if (!paymentIntentId) return 'Tarjeta'
+  try {
+    const pi = await stripe.paymentIntents.retrieve(paymentIntentId, { expand: ['latest_charge'] })
+    const charge = pi.latest_charge as Stripe.Charge | null
+    const type = charge?.payment_method_details?.type
+    if (!type) return 'Tarjeta'
+    return PAYMENT_METHOD_LABELS[type] ?? type.charAt(0).toUpperCase() + type.slice(1)
+  } catch {
+    return 'Tarjeta'
+  }
+}
+
+async function grantCourseAccess(session: Stripe.Checkout.Session): Promise<NextResponse> {
+  const userId = session.metadata?.user_id
+  const courseId = session.metadata?.course_id
+
+  if (!userId || !courseId) {
+    return NextResponse.json({ error: 'Missing metadata' }, { status: 400 })
+  }
+
+  // Sólo conceder acceso si el pago está confirmado (Klarna/aplazados pueden llegar sin pagar)
+  if (session.payment_status !== 'paid') {
+    return NextResponse.json({ received: true, pending_payment: true })
+  }
+
+  const supabase = createServiceClient()
+  const paymentIntentId = (session.payment_intent as string) ?? null
+
+  // Registrar la compra — ignorar duplicado (entrega idempotente del webhook)
+  const { error: purchaseError } = await supabase.from('purchases').insert({
+    user_id: userId,
+    course_id: courseId,
+    stripe_session_id: session.id,
+    stripe_payment_intent_id: paymentIntentId,
+    amount_cents: session.amount_total ?? 0,
+    currency: session.currency ?? 'eur',
+    status: 'completed',
+    customer_email: session.customer_details?.email ?? null,
+  })
+
+  if (purchaseError && purchaseError.code !== '23505') {
+    console.error('[stripe webhook] purchase insert error', purchaseError)
+    return NextResponse.json({ error: 'DB error' }, { status: 500 })
+  }
+
+  // Conceder matrícula si no existe
+  const { data: existingEnrollment } = await supabase
+    .from('enrollments')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('course_id', courseId)
+    .maybeSingle()
+
+  if (!existingEnrollment) {
+    const { error: enrollError } = await supabase
+      .from('enrollments')
+      .insert({ user_id: userId, course_id: courseId })
+    if (enrollError) {
+      console.error('[stripe webhook] enrollment insert error', enrollError)
+      return NextResponse.json({ error: 'Enrollment error' }, { status: 500 })
+    }
+  }
+
+  // Alta en newsletter (doble opt-in) si marcó la casilla en el checkout
+  if (session.metadata?.newsletter_opt_in === 'true' && session.customer_details?.email) {
+    await handleNewsletterSignup({
+      email: session.customer_details.email,
+      consentText: session.metadata.newsletter_consent_text || NEWSLETTER_CONSENT_TEXT,
+      consentSource: 'checkout',
+      stripeSessionId: session.id,
+    }).catch((err) => console.error('[stripe webhook] newsletter error', err))
+  }
+
+  // Email de acceso — sólo una vez (dedupe con access_email_sent_at)
+  const customerEmail = session.customer_details?.email
+  const resend = getResend()
+  if (customerEmail && resend) {
+    const { data: purchaseRow } = await supabase
+      .from('purchases')
+      .select('id, access_email_sent_at')
+      .eq('stripe_session_id', session.id)
+      .maybeSingle()
+
+    if (purchaseRow && !purchaseRow.access_email_sent_at) {
+      const { data: course } = await supabase
+        .from('courses')
+        .select('title, slug')
+        .eq('id', courseId)
+        .single()
+
+      if (course) {
+        const { count: moduleCount } = await supabase
+          .from('modules')
+          .select('*', { count: 'exact', head: true })
+          .eq('course_id', courseId)
+
+        const amount = ((session.amount_total ?? 0) / 100).toLocaleString('es-ES', {
+          style: 'currency',
+          currency: (session.currency ?? 'eur').toUpperCase(),
+        })
+
+        const { subject, html } = renderCourseAccessEmail({
+          firstName: session.customer_details?.name?.split(' ')[0] ?? '',
+          courseTitle: course.title,
+          courseUrl: `${baseUrl()}/campus/cursos/${course.slug}`,
+          moduleCount: moduleCount ?? 0,
+          amount,
+          date: new Date().toLocaleDateString('es-ES', { timeZone: 'Europe/Madrid' }),
+          paymentMethod: await resolvePaymentMethod(paymentIntentId),
+          unsubscribeUrl: CAMPUS_UNSUB,
+        })
+
+        const { error: sendError } = await resend.emails
+          .send({ from: MAIL_FROM, replyTo: MAIL_REPLY_TO, to: [customerEmail], subject, html })
+          .then((r) => ({ error: r.error }))
+          .catch((err) => ({ error: err }))
+
+        if (!sendError) {
+          await supabase
+            .from('purchases')
+            .update({ access_email_sent_at: new Date().toISOString() })
+            .eq('id', purchaseRow.id)
+        } else {
+          console.error('[stripe webhook] email error', sendError)
+        }
+      }
+    }
+  }
+
+  return NextResponse.json({ received: true })
+}
+
+async function revokeOnRefund(charge: Stripe.Charge): Promise<void> {
+  const paymentIntentId = typeof charge.payment_intent === 'string' ? charge.payment_intent : null
+  if (!paymentIntentId) return
+
+  const supabase = createServiceClient()
+  const { data: purchase } = await supabase
+    .from('purchases')
+    .select('id, user_id, course_id')
+    .eq('stripe_payment_intent_id', paymentIntentId)
+    .maybeSingle()
+
+  if (!purchase) return
+
+  await supabase.from('purchases').update({ status: 'refunded' }).eq('id', purchase.id)
+  await supabase
+    .from('enrollments')
+    .delete()
+    .eq('user_id', purchase.user_id)
+    .eq('course_id', purchase.course_id)
+
+  console.info('[stripe webhook] refund → acceso revocado', {
+    user: purchase.user_id,
+    course: purchase.course_id,
+  })
 }
 
 export async function POST(req: NextRequest) {
@@ -31,141 +200,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session
-    const userId = session.metadata?.user_id
-    const courseId = session.metadata?.course_id
+  switch (event.type) {
+    case 'checkout.session.completed':
+    case 'checkout.session.async_payment_succeeded':
+      return grantCourseAccess(event.data.object as Stripe.Checkout.Session)
 
-    if (!userId || !courseId) {
-      return NextResponse.json({ error: 'Missing metadata' }, { status: 400 })
-    }
+    case 'charge.refunded':
+      await revokeOnRefund(event.data.object as Stripe.Charge).catch((err) =>
+        console.error('[stripe webhook] refund handler error', err),
+      )
+      return NextResponse.json({ received: true })
 
-    const supabase = createServiceClient()
-
-    // Record purchase — ignore duplicate (idempotent webhook delivery)
-    const { error: purchaseError } = await supabase.from('purchases').insert({
-      user_id: userId,
-      course_id: courseId,
-      stripe_session_id: session.id,
-      stripe_payment_intent_id: (session.payment_intent as string) ?? null,
-      amount_cents: session.amount_total ?? 0,
-      currency: session.currency ?? 'eur',
-      status: 'completed',
-      customer_email: session.customer_details?.email ?? null,
-    })
-
-    if (purchaseError && purchaseError.code !== '23505') {
-      console.error('[stripe webhook] purchase insert error', purchaseError)
-      return NextResponse.json({ error: 'DB error' }, { status: 500 })
-    }
-
-    // Grant enrollment if not already exists
-    const { data: existing } = await supabase
-      .from('enrollments')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('course_id', courseId)
-      .maybeSingle()
-
-    if (!existing) {
-      const { error: enrollError } = await supabase
-        .from('enrollments')
-        .insert({ user_id: userId, course_id: courseId })
-
-      if (enrollError) {
-        console.error('[stripe webhook] enrollment insert error', enrollError)
-        return NextResponse.json({ error: 'Enrollment error' }, { status: 500 })
-      }
-    }
-
-    // Send access confirmation email
-    const customerEmail = session.customer_details?.email
-    if (customerEmail && process.env.RESEND_API_KEY) {
-      const { data: course } = await supabase
-        .from('courses')
-        .select('title, slug')
-        .eq('id', courseId)
-        .single()
-
-      if (course) {
-        const { count: moduleCount } = await supabase
-          .from('modules')
-          .select('*', { count: 'exact', head: true })
-          .eq('course_id', courseId)
-
-        const resend = new Resend(process.env.RESEND_API_KEY)
-        const baseUrl = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000'
-        const firstName = escapeHtml(session.customer_details?.name?.split(' ')[0] ?? '')
-
-        await resend.emails.send({
-          from: 'La Trastienda <onboarding@resend.dev>',
-          replyTo: 'latrastienda.retail@gmail.com',
-          to: [customerEmail],
-          subject: `Ya tienes acceso a "${course.title}"`,
-          html: `
-            <!DOCTYPE html>
-            <html lang="es">
-            <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-            <body style="margin:0;padding:24px 0 40px;background:#ede8df;font-family:Georgia,'Times New Roman',serif">
-              <div style="max-width:520px;margin:0 auto;padding:0 20px">
-
-                <!-- Header -->
-                <div style="padding-bottom:18px;border-bottom:1px solid #cfc5b4;margin-bottom:28px">
-                  <p style="margin:0 0 4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.8px;color:#b5821a;text-transform:uppercase">Matr&iacute;cula confirmada</p>
-                  <p style="margin:0;font-size:20px;font-weight:700;color:#2a1a0a">La Trastienda</p>
-                </div>
-
-                <!-- Headline -->
-                <h1 style="margin:0 0 18px;font-size:32px;font-weight:700;color:#2a1a0a;line-height:1.25">
-                  Hola${firstName ? ` ${firstName},` : ','}<br>
-                  ya tienes <em style="color:#b5821a;font-style:italic">acceso.</em>
-                </h1>
-
-                <!-- Intro -->
-                <p style="margin:0 0 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#6b5540;line-height:1.7">
-                  Tu plaza est&aacute; confirmada y el campus ya es tuyo. Aprender&aacute;s a tu ritmo, desde donde quieras, con material pensado para el d&iacute;a a d&iacute;a del comercio. Cuando te apetezca, empieza por aqu&iacute;.
-                </p>
-
-                <!-- Course card -->
-                <div style="background:#ffffff;border:1px solid #ddd5c8;border-radius:8px;padding:24px;margin-bottom:24px">
-                  <p style="margin:0 0 10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.2px;color:#aaa;text-transform:uppercase">Tu curso${moduleCount ? ` &middot; ${moduleCount} m&oacute;dulos` : ''}</p>
-                  <p style="margin:0 0 22px;font-size:22px;font-weight:700;color:#2a1a0a;line-height:1.3">${course.title}</p>
-                  <a href="${baseUrl}/campus/cursos/${course.slug}"
-                     style="display:inline-block;background:#b5821a;color:#ffffff;padding:13px 26px;border-radius:6px;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase">
-                    Empezar ahora &rarr;
-                  </a>
-                </div>
-
-                <!-- Certificate note -->
-                <table style="width:100%;border-collapse:collapse;margin-bottom:32px">
-                  <tr>
-                    <td style="vertical-align:top;width:18px;color:#b5821a;font-size:13px;padding-top:3px">&#9670;</td>
-                    <td style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#6b5540;line-height:1.65">
-                      Al completar el curso recibir&aacute;s un <strong style="color:#2a1a0a">certificado acreditativo</strong> de La Trastienda, listo para sumar a tu curr&iacute;culum.
-                    </td>
-                  </tr>
-                </table>
-
-                <!-- Footer -->
-                <div style="border-top:1px solid #cfc5b4;padding-top:20px">
-                  <p style="margin:0 0 10px;font-style:italic;font-size:13px;color:#8a7a68">El comercio, desde dentro.</p>
-                  <p style="margin:0 0 4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;color:#aaa">
-                    Este correo es autom&aacute;tico &mdash; no respondas aqu&iacute;. &iquest;Dudas? Escr&iacute;benos a
-                    <a href="mailto:latrastienda.retail@gmail.com" style="color:#8a7a68;text-decoration:underline">latrastienda.retail@gmail.com</a>
-                  </p>
-                  <p style="margin:8px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;color:#bbb">
-                    <a href="mailto:latrastienda.retail@gmail.com?subject=Baja%20campus" style="color:#bbb;text-decoration:underline">Darte de baja</a>
-                  </p>
-                </div>
-
-              </div>
-            </body>
-            </html>
-          `,
-        }).catch(err => console.error('[stripe webhook] email error', err))
-      }
-    }
+    default:
+      return NextResponse.json({ received: true })
   }
-
-  return NextResponse.json({ received: true })
 }

@@ -88,6 +88,27 @@ export default function PrivacidadPage() {
           </ul>
         </SubSection>
 
+        <SubSection title="Compra de cursos">
+          <ul className="space-y-2">
+            <Li>Nombre, correo electrónico y dirección de facturación</Li>
+            <Li>Datos de la transacción (importe, fecha, método de pago) gestionados por Stripe</Li>
+            <Li>
+              En caso de pago aplazado, los datos que solicite Klarna para evaluar y conceder
+              la financiación, tratados por Klarna como responsable independiente
+            </Li>
+          </ul>
+        </SubSection>
+
+        <SubSection title="Newsletter">
+          <ul className="space-y-2">
+            <Li>Correo electrónico</Li>
+            <Li>
+              Prueba del consentimiento: texto aceptado, fecha y origen (checkout), conforme al
+              art. 7 RGPD
+            </Li>
+          </ul>
+        </SubSection>
+
         <SubSection title="Navegación en el sitio web">
           <ul className="space-y-2">
             <Li>
@@ -112,6 +133,9 @@ export default function PrivacidadPage() {
                 ['Atender tu solicitud de contacto', 'Interés legítimo del responsable (art. 6.1.f RGPD)'],
                 ['Gestionar tu acceso al Campus digital', 'Ejecución de una relación contractual/formativa (art. 6.1.b RGPD)'],
                 ['Registrar el progreso formativo', 'Ejecución de la relación formativa (art. 6.1.b RGPD)'],
+                ['Gestionar la compra de cursos, el cobro y la facturación', 'Ejecución de contrato (art. 6.1.b) y obligación legal fiscal y contable (art. 6.1.c RGPD)'],
+                ['Enviar la newsletter con comunicaciones comerciales', 'Consentimiento expreso, confirmado por doble opt-in (art. 6.1.a RGPD y art. 21 LSSI)'],
+                ['Informar a los alumnos de servicios propios similares a los contratados (p. ej. sesión 1:1)', 'Interés legítimo (art. 6.1.f RGPD y art. 21.2 LSSI). Puedes oponerte en cualquier momento'],
                 ['Comunicaciones sobre el servicio', 'Interés legítimo / consentimiento (art. 6.1.a y 6.1.f RGPD)'],
               ].map(([fin, base]) => (
                 <tr key={fin} className="hover:bg-tinta/[0.02] transition-colors">
@@ -144,6 +168,23 @@ export default function PrivacidadPage() {
             La interacción con los reproductores puede implicar la transmisión de datos a Google
             conforme a su propia política de privacidad.
           </Li>
+          <Li>
+            <strong>Stripe Payments Europe, Ltd.</strong> — procesamiento de pagos y emisión de
+            facturas. Actúa como encargado del tratamiento con garantías adecuadas conforme al RGPD.
+          </Li>
+          <Li>
+            <strong>Resend (Plus Five Five, Inc.)</strong> (EEUU) — envío de correos transaccionales
+            y de la newsletter por cuenta de La Trastienda, bajo Cláusulas Contractuales Tipo.
+          </Li>
+          <Li>
+            <strong>Cal.com, Inc.</strong> (EEUU) — reserva de las sesiones individuales 1:1, cuando
+            el usuario decide agendarlas.
+          </Li>
+          <Li>
+            <strong>Klarna Bank AB</strong> (Suecia) — si eliges pagar a plazos, Klarna trata tus
+            datos como <strong>responsable independiente</strong> para evaluar y conceder la
+            financiación, conforme a su propia política de privacidad.
+          </Li>
         </ul>
       </Section>
 
@@ -158,6 +199,14 @@ export default function PrivacidadPage() {
             <strong>Campus digital:</strong> los datos de acceso y progreso se conservan mientras
             mantengas una cuenta activa. Tras la baja, se eliminan en un plazo máximo de 6 meses,
             salvo obligación legal de conservación.
+          </Li>
+          <Li>
+            <strong>Compras y facturación:</strong> durante los plazos de prescripción fiscal y
+            contable aplicables (con carácter general, hasta 6 años).
+          </Li>
+          <Li>
+            <strong>Newsletter:</strong> hasta que retires el consentimiento o te des de baja. La
+            prueba del consentimiento y de la baja se conserva mientras pueda ser exigible.
           </Li>
         </ul>
       </Section>
@@ -187,6 +236,11 @@ export default function PrivacidadPage() {
           adjuntando copia de tu documento de identidad. Tienes derecho a presentar una reclamación
           ante la <strong>Agencia Española de Protección de Datos (AEPD)</strong>{' '}
           en <a href="https://www.aepd.es" className="text-acento hover:underline" target="_blank" rel="noopener noreferrer">www.aepd.es</a>.
+        </P>
+        <P>
+          Puedes <strong>darte de baja de la newsletter</strong> en cualquier momento desde el
+          enlace incluido en cada envío, sin coste y sin necesidad de justificación. También puedes
+          oponerte a las comunicaciones sobre servicios propios similares por el mismo medio.
         </P>
       </Section>
 

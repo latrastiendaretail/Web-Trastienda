@@ -2,12 +2,36 @@
 
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { Resend } from 'resend'
 import { stripe } from '@/lib/stripe'
 import { createServerClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { getResend, MAIL_FROM, MAIL_REPLY_TO, baseUrl } from '@/lib/email'
+import { renderCourseAccessEmail } from '@/emails/courseAccess'
+import { NEWSLETTER_CONSENT_TEXT } from '@/lib/legal'
 
-export async function createCheckoutSession(courseId: string): Promise<never> {
+const CAMPUS_UNSUB = 'mailto:latrastienda.retail@gmail.com?subject=Baja%20de%20avisos%20del%20campus'
+
+/** Metadata + opciones comunes a las sesiones de checkout. */
+function checkoutExtras(userId: string, courseId: string, newsletterOptIn: boolean) {
+  const metadata: Record<string, string> = {
+    user_id: userId,
+    course_id: courseId,
+    newsletter_opt_in: newsletterOptIn ? 'true' : 'false',
+  }
+  if (newsletterOptIn) metadata.newsletter_consent_text = NEWSLETTER_CONSENT_TEXT.slice(0, 480)
+  return {
+    metadata,
+    customer_creation: 'always' as const,
+    billing_address_collection: 'auto' as const,
+    invoice_creation: { enabled: true },
+    payment_intent_data: { metadata: { user_id: userId, course_id: courseId } },
+  }
+}
+
+export async function createCheckoutSession(
+  courseId: string,
+  newsletterOptIn = false,
+): Promise<never> {
   const { userId } = await auth()
   if (!userId) redirect('/campus/login')
 
@@ -39,30 +63,24 @@ export async function createCheckoutSession(courseId: string): Promise<never> {
   const user = await clerk.users.getUser(userId)
   const email = user.emailAddresses[0]?.emailAddress
 
-  const baseUrl = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000'
+  const base = baseUrl()
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: [{ price: course.stripe_price_id, quantity: 1 }],
     customer_email: email,
-    success_url: `${baseUrl}/compra/exito?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${baseUrl}/campus/cursos/${course.slug}`,
-    metadata: {
-      user_id: userId,
-      course_id: courseId,
-    },
-    payment_intent_data: {
-      metadata: {
-        user_id: userId,
-        course_id: courseId,
-      },
-    },
+    success_url: `${base}/compra/exito?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${base}/campus/cursos/${course.slug}`,
+    ...checkoutExtras(userId, courseId, newsletterOptIn),
   })
 
   redirect(session.url!)
 }
 
-export async function createEmbeddedCheckoutSession(courseId: string): Promise<{ clientSecret: string }> {
+export async function createEmbeddedCheckoutSession(
+  courseId: string,
+  newsletterOptIn = false,
+): Promise<{ clientSecret: string }> {
   const { userId } = await auth()
   if (!userId) redirect('/campus/login')
 
@@ -92,16 +110,15 @@ export async function createEmbeddedCheckoutSession(courseId: string): Promise<{
   const user = await clerk.users.getUser(userId)
   const email = user.emailAddresses[0]?.emailAddress
 
-  const baseUrl = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000'
+  const base = baseUrl()
 
   const session = await stripe.checkout.sessions.create({
     ui_mode: 'embedded_page',
     mode: 'payment',
     line_items: [{ price: course.stripe_price_id, quantity: 1 }],
     customer_email: email,
-    return_url: `${baseUrl}/compra/exito?session_id={CHECKOUT_SESSION_ID}`,
-    metadata: { user_id: userId, course_id: courseId },
-    payment_intent_data: { metadata: { user_id: userId, course_id: courseId } },
+    return_url: `${base}/compra/exito?session_id={CHECKOUT_SESSION_ID}`,
+    ...checkoutExtras(userId, courseId, newsletterOptIn),
   })
 
   return { clientSecret: session.client_secret! }
@@ -136,42 +153,50 @@ export async function enrollFree(courseId: string): Promise<never> {
   const clerk = await clerkClient()
   const user = await clerk.users.getUser(userId)
   const email = user.emailAddresses[0]?.emailAddress ?? null
+  const firstName = user.firstName ?? ''
 
-  await supabase.from('purchases').insert({
-    user_id: userId,
-    course_id: courseId,
-    stripe_session_id: `free_${userId}_${courseId}`,
-    amount_cents: 0,
-    currency: 'eur',
-    status: 'completed',
-    customer_email: email,
-  }).select().maybeSingle()
+  await supabase
+    .from('purchases')
+    .insert({
+      user_id: userId,
+      course_id: courseId,
+      stripe_session_id: `free_${userId}_${courseId}`,
+      amount_cents: 0,
+      currency: 'eur',
+      status: 'completed',
+      customer_email: email,
+      access_email_sent_at: email ? new Date().toISOString() : null,
+    })
+    .select()
+    .maybeSingle()
 
   await supabase.from('enrollments').insert({ user_id: userId, course_id: courseId })
 
-  if (email && process.env.RESEND_API_KEY) {
-    const resend = new Resend(process.env.RESEND_API_KEY)
-    const baseUrl = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000'
-    const safeTitle = course.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-    await resend.emails.send({
-      from: 'La Trastienda <onboarding@resend.dev>',
-      to: [email],
-      subject: `Ya tienes acceso a "${safeTitle}"`,
-      html: `
-        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#111">
-          <h2 style="margin-bottom:8px">Tu acceso está listo</h2>
-          <p style="color:#444;margin-bottom:24px">
-            Ya puedes acceder a <strong>${safeTitle}</strong>. Entra con tu cuenta y empieza cuando quieras.
-          </p>
-          <a href="${baseUrl}/campus/cursos/${course.slug}"
-             style="display:inline-block;background:#111;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600">
-            Ir al curso →
-          </a>
-          <p style="color:#888;font-size:12px;margin-top:32px">La Trastienda · Formación en Retail</p>
-        </div>
-      `,
-    }).catch(err => console.error('[enrollFree] email error', err))
+  if (email) {
+    const { count: moduleCount } = await supabase
+      .from('modules')
+      .select('*', { count: 'exact', head: true })
+      .eq('course_id', courseId)
+
+    const resend = getResend()
+    if (resend) {
+      const { subject, html } = renderCourseAccessEmail({
+        firstName,
+        courseTitle: course.title,
+        courseUrl: `${baseUrl()}/campus/cursos/${course.slug}`,
+        moduleCount: moduleCount ?? 0,
+        amount: 'Gratuito',
+        date: new Date().toLocaleDateString('es-ES', { timeZone: 'Europe/Madrid' }),
+        paymentMethod: '—',
+        unsubscribeUrl: CAMPUS_UNSUB,
+      })
+      await resend.emails
+        .send({ from: MAIL_FROM, replyTo: MAIL_REPLY_TO, to: [email], subject, html })
+        .catch((err) => console.error('[enrollFree] email error', err))
+    }
   }
 
-  redirect(`/compra/exito?course_slug=${course.slug}&course_title=${encodeURIComponent(course.title)}&email=${encodeURIComponent(email ?? '')}`)
+  redirect(
+    `/compra/exito?course_slug=${course.slug}&course_title=${encodeURIComponent(course.title)}&email=${encodeURIComponent(email ?? '')}`,
+  )
 }
