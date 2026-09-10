@@ -3,7 +3,6 @@
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { stripe } from '@/lib/stripe'
-import { createServerClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { getResend, MAIL_FROM, MAIL_REPLY_TO, baseUrl } from '@/lib/email'
 import { renderCourseAccessEmail } from '@/emails/courseAccess'
@@ -35,7 +34,7 @@ export async function createCheckoutSession(
   const { userId } = await auth()
   if (!userId) redirect('/campus/login')
 
-  const supabase = await createServerClient()
+  const supabase = createServiceClient()
 
   const { data: course } = await supabase
     .from('courses')
@@ -84,7 +83,7 @@ export async function createEmbeddedCheckoutSession(
   const { userId } = await auth()
   if (!userId) redirect('/campus/login')
 
-  const supabase = await createServerClient()
+  const supabase = createServiceClient()
 
   const { data: course } = await supabase
     .from('courses')
@@ -196,7 +195,5 @@ export async function enrollFree(courseId: string): Promise<never> {
     }
   }
 
-  redirect(
-    `/compra/exito?course_slug=${course.slug}&course_title=${encodeURIComponent(course.title)}&email=${encodeURIComponent(email ?? '')}`,
-  )
+  redirect(`/compra/exito?course_slug=${encodeURIComponent(course.slug)}`)
 }

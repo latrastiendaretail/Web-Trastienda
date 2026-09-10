@@ -1,9 +1,11 @@
-import { createServerClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { createServiceClient } from '@/lib/supabase/service'
 import { auth } from '@clerk/nextjs/server'
 
 export default async function ProgresoPage() {
   const { userId } = await auth()
-  const supabase = await createServerClient()
+  if (!userId) redirect('/campus/login')
+  const supabase = createServiceClient()
 
   const [
     { count: enrolledCount },

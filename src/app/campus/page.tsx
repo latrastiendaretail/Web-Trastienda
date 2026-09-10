@@ -1,11 +1,11 @@
-import { createServerClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 
 export default async function CampusDashboard() {
   const { userId } = await auth()
   if (!userId) redirect('/campus/login')
-  const supabase = await createServerClient()
+  const supabase = createServiceClient()
 
   const [{ count: enrolledCount }, { count: completedCount }, { data: recentCourses }] =
     await Promise.all([

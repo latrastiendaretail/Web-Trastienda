@@ -33,15 +33,26 @@ export async function submitContact(formData: FormData): Promise<ContactResult> 
   const honeypot = (formData.get('website') as string) ?? ''
   if (honeypot.length > 0) return { success: true }
 
-  const name    = (formData.get('name')     as string | null)?.trim() ?? ''
-  const email   = (formData.get('email')    as string | null)?.trim().toLowerCase() ?? ''
-  const message = (formData.get('message')  as string | null)?.trim() ?? ''
-  const audience = (formData.get('audience') as string | null)?.trim() ?? 'no especificado'
+  // Quita saltos de línea para que no acaben en la cabecera Subject
+  const oneLine = (s: string) => s.replace(/[\r\n]+/g, ' ').trim()
+
+  const name    = oneLine((formData.get('name') as string | null) ?? '').slice(0, 100)
+  const email   = ((formData.get('email') as string | null)?.trim().toLowerCase() ?? '').slice(0, 254)
+  const message = ((formData.get('message') as string | null)?.trim() ?? '').slice(0, 5000)
+  const audienceRaw = oneLine((formData.get('audience') as string | null) ?? '')
+
+  const ALLOWED_AUDIENCES = [
+    'particular', 'empresa', 'institucion', 'no especificado',
+  ]
+  const audience = ALLOWED_AUDIENCES.includes(audienceRaw.toLowerCase())
+    ? audienceRaw.toLowerCase()
+    : 'no especificado'
 
   if (!name)                  return { success: false, error: 'El nombre es obligatorio' }
   if (!email)                 return { success: false, error: 'El email es obligatorio' }
   if (!isValidEmail(email))   return { success: false, error: 'Introduce un email válido' }
   if (!message)               return { success: false, error: 'El mensaje es obligatorio' }
+  if (message.length < 5)     return { success: false, error: 'El mensaje es demasiado corto' }
 
   if (!process.env.RESEND_API_KEY || !process.env.CONTACT_EMAIL_TO) {
     console.error('submitContact: falta RESEND_API_KEY o CONTACT_EMAIL_TO en las variables de entorno')

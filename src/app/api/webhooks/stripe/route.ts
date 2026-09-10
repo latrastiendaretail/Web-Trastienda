@@ -153,8 +153,14 @@ async function grantCourseAccess(session: Stripe.Checkout.Session): Promise<Next
   return NextResponse.json({ received: true })
 }
 
-async function revokeOnRefund(charge: Stripe.Charge): Promise<void> {
-  const paymentIntentId = typeof charge.payment_intent === 'string' ? charge.payment_intent : null
+/**
+ * Revoca el acceso a un curso: matrícula, certificado y marca la compra.
+ * Se dispara en reembolso total y en disputa/contracargo.
+ */
+async function revokeAccessByPaymentIntent(
+  paymentIntentId: string | null,
+  reason: 'refunded' | 'disputed',
+): Promise<void> {
   if (!paymentIntentId) return
 
   const supabase = createServiceClient()
@@ -166,22 +172,38 @@ async function revokeOnRefund(charge: Stripe.Charge): Promise<void> {
 
   if (!purchase) return
 
-  await supabase.from('purchases').update({ status: 'refunded' }).eq('id', purchase.id)
+  await supabase
+    .from('purchases')
+    .update({ status: 'refunded' })
+    .eq('id', purchase.id)
+
   await supabase
     .from('enrollments')
     .delete()
     .eq('user_id', purchase.user_id)
     .eq('course_id', purchase.course_id)
 
-  console.info('[stripe webhook] refund → acceso revocado', {
+  await supabase
+    .from('certificates')
+    .delete()
+    .eq('user_id', purchase.user_id)
+    .eq('course_id', purchase.course_id)
+
+  console.info(`[stripe webhook] ${reason} → acceso revocado`, {
     user: purchase.user_id,
     course: purchase.course_id,
   })
 }
 
+const MAX_WEBHOOK_BYTES = 1_000_000 // 1 MB — los eventos de Stripe son muy pequeños
+
 export async function POST(req: NextRequest) {
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')
+
+  if (body.length > MAX_WEBHOOK_BYTES) {
+    return NextResponse.json({ error: 'Payload too large' }, { status: 413 })
+  }
 
   if (!sig) {
     return NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 })
@@ -205,11 +227,26 @@ export async function POST(req: NextRequest) {
     case 'checkout.session.async_payment_succeeded':
       return grantCourseAccess(event.data.object as Stripe.Checkout.Session)
 
-    case 'charge.refunded':
-      await revokeOnRefund(event.data.object as Stripe.Charge).catch((err) =>
-        console.error('[stripe webhook] refund handler error', err),
+    case 'charge.refunded': {
+      const charge = event.data.object as Stripe.Charge
+      // Solo revocar en reembolso total, no parcial.
+      if (charge.amount_refunded >= charge.amount) {
+        const pi = typeof charge.payment_intent === 'string' ? charge.payment_intent : null
+        await revokeAccessByPaymentIntent(pi, 'refunded').catch((err) =>
+          console.error('[stripe webhook] refund handler error', err),
+        )
+      }
+      return NextResponse.json({ received: true })
+    }
+
+    case 'charge.dispute.created': {
+      const dispute = event.data.object as Stripe.Dispute
+      const pi = typeof dispute.payment_intent === 'string' ? dispute.payment_intent : null
+      await revokeAccessByPaymentIntent(pi, 'disputed').catch((err) =>
+        console.error('[stripe webhook] dispute handler error', err),
       )
       return NextResponse.json({ received: true })
+    }
 
     default:
       return NextResponse.json({ received: true })

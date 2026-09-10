@@ -1,46 +1,75 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import { auth } from '@clerk/nextjs/server'
 import { stripe } from '@/lib/stripe'
 import { createServiceClient } from '@/lib/supabase/service'
 
+// Contiene datos de compra en la URL: nunca indexar.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
+
 interface Props {
-  searchParams: Promise<{ session_id?: string; course_slug?: string; course_title?: string; email?: string }>
+  searchParams: Promise<{ session_id?: string; course_slug?: string }>
 }
 
 export default async function CompraExitoPage({ searchParams }: Props) {
-  const { session_id, course_slug, course_title, email: freeEmail } = await searchParams
+  const { session_id, course_slug } = await searchParams
+  const { userId } = await auth()
 
   let courseName = ''
   let courseSlug = ''
   let customerEmail = ''
 
   if (course_slug) {
-    // Free enrollment flow
-    courseName = course_title ? decodeURIComponent(course_title) : ''
-    courseSlug = course_slug
-    customerEmail = freeEmail ? decodeURIComponent(freeEmail) : ''
+    // Flujo de curso gratuito: la matrícula ya la creó `enrollFree`.
+    // Aquí solo confirmamos leyendo el estado real, sin fiarnos de la URL.
+    const supabase = createServiceClient()
+    const { data: course } = await supabase
+      .from('courses')
+      .select('id, title, slug')
+      .eq('slug', course_slug)
+      .maybeSingle()
+    if (!course) redirect('/campus')
+
+    if (userId) {
+      const { data: enrollment } = await supabase
+        .from('enrollments')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('course_id', course.id)
+        .maybeSingle()
+      if (!enrollment) redirect(`/campus/cursos/${course.slug}`)
+    }
+    courseName = course.title
+    courseSlug = course.slug
   } else if (session_id) {
-    // Paid Stripe flow
+    // Flujo de pago Stripe. La concesión de acceso la hace SOLO el webhook
+    // (firmado, idempotente). Esta página únicamente muestra el estado.
+    let session: Awaited<ReturnType<typeof stripe.checkout.sessions.retrieve>> | null = null
     try {
-      const session = await stripe.checkout.sessions.retrieve(session_id)
-      if (session.payment_status !== 'paid') redirect('/campus')
-      customerEmail = session.customer_details?.email ?? ''
-      const courseId = session.metadata?.course_id
-      const userId = session.metadata?.user_id
-      if (courseId) {
-        const supabase = createServiceClient()
-        const [{ data: course }] = await Promise.all([
-          supabase.from('courses').select('title, slug').eq('id', courseId).single(),
-          userId
-            ? supabase
-                .from('enrollments')
-                .upsert({ user_id: userId, course_id: courseId }, { onConflict: 'user_id,course_id', ignoreDuplicates: true })
-            : Promise.resolve(),
-        ])
-        courseName = course?.title ?? ''
-        courseSlug = course?.slug ?? ''
-      }
+      session = await stripe.checkout.sessions.retrieve(session_id)
     } catch {
       redirect('/campus')
+    }
+    if (!session || session.payment_status !== 'paid') redirect('/campus')
+
+    // El comprador solo puede ver su propia sesión.
+    if (userId && session.metadata?.user_id && session.metadata.user_id !== userId) {
+      redirect('/campus')
+    }
+
+    customerEmail = session.customer_details?.email ?? ''
+    const courseId = session.metadata?.course_id
+    if (courseId) {
+      const supabase = createServiceClient()
+      const { data: course } = await supabase
+        .from('courses')
+        .select('title, slug')
+        .eq('id', courseId)
+        .maybeSingle()
+      courseName = course?.title ?? ''
+      courseSlug = course?.slug ?? ''
     }
   } else {
     redirect('/campus')

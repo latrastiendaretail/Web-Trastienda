@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
-import { createServerClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import CertificateCTA from '@/components/campus/CertificateCTA'
 import BuyButton from '@/components/campus/BuyButton'
@@ -25,7 +24,7 @@ function formatMonthYear(dateStr: string | null): string {
 export default async function CoursePage({ params }: Props) {
   const { slug } = await params
   const { userId } = await auth()
-  const supabase = await createServerClient()
+  const supabase = createServiceClient()
 
   const { data: course } = await supabase
     .from('courses')
@@ -51,8 +50,7 @@ export default async function CoursePage({ params }: Props) {
   // Enrollment check: service client bypasses RLS (userId already verified by Clerk)
   let isEnrolled = false
   if (userId) {
-    const serviceClient = createServiceClient()
-    const { data: enrollment } = await serviceClient
+    const { data: enrollment } = await supabase
       .from('enrollments')
       .select('id')
       .eq('user_id', userId)

@@ -19,7 +19,12 @@ if (!secretKey) {
 const stripe = new Stripe(secretKey)
 const endpointUrl = `${url.replace(/\/$/, '')}/api/webhooks/stripe`
 
-const events = ['checkout.session.completed']
+const events = [
+  'checkout.session.completed',
+  'checkout.session.async_payment_succeeded',
+  'charge.refunded',
+  'charge.dispute.created',
+]
 
 const { data: existing } = await stripe.webhookEndpoints.list({ limit: 100 })
 const current = existing.find((e) => e.url === endpointUrl)

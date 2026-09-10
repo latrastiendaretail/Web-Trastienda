@@ -4,7 +4,12 @@ const securityHeaders = [
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=()',
+  },
+  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+  { key: 'X-Permitted-Cross-Domain-Policies', value: 'none' },
   {
     key: 'Strict-Transport-Security',
     value: 'max-age=63072000; includeSubDomains; preload',
@@ -18,8 +23,13 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com https://*.clerk.accounts.dev",
       "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://clerk.accounts.dev https://*.clerk.accounts.dev https://js.stripe.com https://*.stripe.com https://hooks.stripe.com https://app.cal.com",
       "img-src 'self' data: https: blob:",
-      "connect-src 'self' https://*.clerk.accounts.dev https://clerk.accounts.dev https://api.clerk.com https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://merchant-ui-api.stripe.com https://*.stripe.com https://app.cal.com",
+      "connect-src 'self' https://*.clerk.accounts.dev https://clerk.accounts.dev https://api.clerk.com https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://merchant-ui-api.stripe.com https://*.stripe.com https://app.cal.com https://us.i.posthog.com https://us-assets.i.posthog.com",
       "worker-src 'self' blob:",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'self'",
+      "upgrade-insecure-requests",
     ].join('; '),
   },
 ]

@@ -1,7 +1,7 @@
 'use server'
 
 import { headers } from 'next/headers'
-import { createServerClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { Resend } from 'resend'
 
 function isValidEmail(email: string): boolean {
@@ -37,12 +37,12 @@ export async function submitLead(formData: FormData): Promise<LeadResult> {
   const honeypot = (formData.get('website') as string) ?? ''
   if (honeypot.length > 0) return { success: true } // fingir éxito para no dar pistas
 
-  const email = (formData.get('email') as string | null)?.trim().toLowerCase() ?? ''
+  const email = (formData.get('email') as string | null)?.trim().toLowerCase().slice(0, 254) ?? ''
 
   if (!email) return { success: false, error: 'El email es obligatorio' }
   if (!isValidEmail(email)) return { success: false, error: 'Introduce un email válido' }
 
-  const supabase = await createServerClient()
+  const supabase = createServiceClient()
   const { error } = await supabase.from('leads').insert({ email, source: 'inscripcion' })
 
   if (error) {
