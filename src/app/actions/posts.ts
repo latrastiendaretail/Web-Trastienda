@@ -1,6 +1,6 @@
 'use server'
 
-import { createServerClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { requireAdmin } from '@/lib/auth/admin'
 
 function slugify(text: string): string {
@@ -24,7 +24,7 @@ function extractExcerpt(text: string): string {
   return clean.length <= 200 ? clean : clean.slice(0, 197) + '…'
 }
 
-async function uniqueSlug(base: string, supabase: Awaited<ReturnType<typeof createServerClient>>): Promise<string> {
+async function uniqueSlug(base: string, supabase: ReturnType<typeof createServiceClient>): Promise<string> {
   let slug = base
   let attempt = 0
   while (true) {
@@ -63,13 +63,14 @@ export async function createPost(formData: FormData): Promise<CreatePostResult> 
   const coverImage = (formData.get('cover_image') as string | null)?.trim() ?? ''
 
   if (!content) return { success: false, error: 'El contenido es obligatorio' }
+  if (content.length > 100_000) return { success: false, error: 'El contenido es demasiado largo' }
   if (linkedinUrl && !isValidHttpUrl(linkedinUrl)) return { success: false, error: 'URL de LinkedIn no válida' }
   if (coverImage && !isValidHttpUrl(coverImage)) return { success: false, error: 'URL de portada no válida' }
 
   const title = titleOverride || extractTitle(content)
   if (!title) return { success: false, error: 'No se pudo extraer el título (primera línea vacía)' }
 
-  const supabase = await createServerClient()
+  const supabase = createServiceClient()
   const slug = await uniqueSlug(slugOverride ? slugify(slugOverride) : slugify(title), supabase)
   const excerpt = excerptOverride || extractExcerpt(content)
 

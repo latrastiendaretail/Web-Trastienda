@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
-import { createServerClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import VideoPlayer from '@/components/campus/VideoPlayer'
 
 interface Props {
@@ -20,7 +20,7 @@ function moduleHref(courseSlug: string, mod: { order_index: number; is_bonus: bo
 export default async function BloquePage({ params }: Props) {
   const { slug, modulo } = await params
   const { userId } = await auth()
-  const supabase = await createServerClient()
+  const supabase = createServiceClient()
 
   const { data: course } = await supabase
     .from('courses')

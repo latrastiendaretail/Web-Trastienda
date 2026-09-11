@@ -92,7 +92,12 @@ export default function RootLayout({
         <body className="antialiased">
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(organizationJsonLd)
+                .replace(/</g, '\\u003c')
+                .replace(/>/g, '\\u003e')
+                .replace(/\//g, '\\u002f'),
+            }}
           />
           <PostHogProvider>
             {children}

@@ -17,5 +17,10 @@ export function getResend(): Resend | null {
 }
 
 export function baseUrl(): string {
-  return process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000'
+  const url = process.env.NEXT_PUBLIC_URL
+  if (url) return url.replace(/\/$/, '')
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('NEXT_PUBLIC_URL no está configurada en producción')
+  }
+  return 'http://localhost:3000'
 }

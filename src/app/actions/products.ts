@@ -26,7 +26,7 @@ export async function setCourseUpsell1to1(courseId: string, value: boolean): Pro
 export async function setCoursePrice(courseId: string, priceEuros: number): Promise<void> {
   await requireAdmin()
 
-  if (priceEuros <= 0) return
+  if (!Number.isFinite(priceEuros) || priceEuros <= 0 || priceEuros > 100_000) return
 
   const supabase = createServiceClient()
   const { data: course } = await supabase

@@ -86,18 +86,26 @@ function renderInline(text: string): React.ReactNode[] {
 
   while ((match = linkPattern.exec(text)) !== null) {
     if (match.index > lastIndex) parts.push(text.slice(lastIndex, match.index))
-    const isInternal = match[2].startsWith('/')
-    parts.push(
-      <a
-        key={key++}
-        href={match[2]}
-        {...(!isInternal && { target: '_blank', rel: 'noopener noreferrer' })}
-        className="underline hover:no-underline"
-        style={{ color: 'var(--color-acento)' }}
-      >
-        {match[1]}
-      </a>,
-    )
+    const rawHref = match[2]
+    const isInternal = rawHref.startsWith('/')
+    // Solo se permiten enlaces internos o http(s). Cualquier otra cosa
+    // (javascript:, data:, vbscript:…) se renderiza como texto plano.
+    const isSafeExternal = /^https?:\/\//i.test(rawHref)
+    if (!isInternal && !isSafeExternal) {
+      parts.push(match[0])
+    } else {
+      parts.push(
+        <a
+          key={key++}
+          href={rawHref}
+          {...(!isInternal && { target: '_blank', rel: 'noopener noreferrer' })}
+          className="underline hover:no-underline"
+          style={{ color: 'var(--color-acento)' }}
+        >
+          {match[1]}
+        </a>,
+      )
+    }
     lastIndex = linkPattern.lastIndex
   }
   if (lastIndex < text.length) parts.push(text.slice(lastIndex))

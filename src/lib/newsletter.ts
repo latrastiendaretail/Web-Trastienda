@@ -2,6 +2,13 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { getResend, MAIL_FROM, MAIL_REPLY_TO, baseUrl } from '@/lib/email'
 import { renderNewsletterConfirmEmail } from '@/emails/newsletterConfirm'
 
+/** Validez del enlace de confirmación de la newsletter. */
+const CONFIRM_TOKEN_TTL_MS = 48 * 60 * 60 * 1000
+
+function confirmTokenExpiry(): string {
+  return new Date(Date.now() + CONFIRM_TOKEN_TTL_MS).toISOString()
+}
+
 export function confirmUrl(token: string): string {
   return `${baseUrl()}/api/newsletter/confirmar?token=${token}`
 }
@@ -53,6 +60,7 @@ export async function handleNewsletterSignup(opts: {
         consent_ip: opts.ip ?? null,
         stripe_session_id: opts.stripeSessionId ?? null,
         confirm_token: confirmToken,
+        confirm_token_expires_at: confirmTokenExpiry(),
         unsubscribe_token: unsubToken,
         confirmed_at: null,
         unsubscribed_at: null,
@@ -68,6 +76,7 @@ export async function handleNewsletterSignup(opts: {
       consent_ip: opts.ip ?? null,
       stripe_session_id: opts.stripeSessionId ?? null,
       confirm_token: confirmToken,
+      confirm_token_expires_at: confirmTokenExpiry(),
       unsubscribe_token: unsubToken,
     })
     // Carrera con otra entrega del webhook: si ya existe, seguimos y reenviamos confirmación
@@ -75,6 +84,17 @@ export async function handleNewsletterSignup(opts: {
       console.error('[newsletter] insert error', error)
       return
     }
+  } else if (existing.status === 'pending') {
+    // Reenvío: token nuevo con caducidad fresca (el anterior puede haber expirado)
+    confirmToken = crypto.randomUUID()
+    await supabase
+      .from('newsletter_subscribers')
+      .update({
+        confirm_token: confirmToken,
+        confirm_token_expires_at: confirmTokenExpiry(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', existing.id)
   }
 
   const resend = getResend()

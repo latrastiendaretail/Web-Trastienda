@@ -2,7 +2,7 @@
 
 import { randomBytes } from 'node:crypto'
 import { auth } from '@clerk/nextjs/server'
-import { createServerClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 
 export async function getOrCreateCertificate(courseId: string): Promise<
   | { certificate: { id: string; code: string; issued_at: string } }
@@ -11,7 +11,7 @@ export async function getOrCreateCertificate(courseId: string): Promise<
   const { userId } = await auth()
   if (!userId) return { error: 'No autenticado' }
 
-  const supabase = await createServerClient()
+  const supabase = createServiceClient()
 
   // Return existing certificate if already issued
   const { data: existing } = await supabase
@@ -22,6 +22,16 @@ export async function getOrCreateCertificate(courseId: string): Promise<
     .single()
 
   if (existing) return { certificate: existing }
+
+  // Autorización server-side: solo alumnos matriculados (RLS ya no lo enforce).
+  const { data: enrollment } = await supabase
+    .from('enrollments')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('course_id', courseId)
+    .maybeSingle()
+
+  if (!enrollment) return { error: 'No estás matriculado en este curso' }
 
   // Check completion: module-video courses use module_progress; lesson courses use lesson_progress.
   const { data: videoModules } = await supabase
@@ -84,7 +94,7 @@ export async function getCertificateById(id: string) {
   const { userId } = await auth()
   if (!userId) return null
 
-  const supabase = await createServerClient()
+  const supabase = createServiceClient()
 
   const { data } = await supabase
     .from('certificates')
@@ -100,7 +110,7 @@ export async function getUserCertificates() {
   const { userId } = await auth()
   if (!userId) return []
 
-  const supabase = await createServerClient()
+  const supabase = createServiceClient()
 
   const { data } = await supabase
     .from('certificates')

@@ -300,6 +300,7 @@ export type Database = {
           consent_ip: string | null
           stripe_session_id: string | null
           confirm_token: string
+          confirm_token_expires_at: string | null
           unsubscribe_token: string
           confirmed_at: string | null
           unsubscribed_at: string | null
@@ -314,6 +315,7 @@ export type Database = {
           consent_ip?: string | null
           stripe_session_id?: string | null
           confirm_token?: string
+          confirm_token_expires_at?: string | null
           unsubscribe_token?: string
           confirmed_at?: string | null
           unsubscribed_at?: string | null
