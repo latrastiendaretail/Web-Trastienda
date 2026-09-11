@@ -3,25 +3,10 @@
 import { headers } from 'next/headers'
 import { createServiceClient } from '@/lib/supabase/service'
 import { Resend } from 'resend'
+import { leadsRatelimit } from '@/lib/ratelimit'
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254
-}
-
-// In-memory rate limit: 5 submissions per IP per hour.
-// Partial protection only — state is per serverless instance, not shared across.
-const _rl = new Map<string, { n: number; reset: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = _rl.get(ip)
-  if (!entry || entry.reset < now) {
-    _rl.set(ip, { n: 1, reset: now + 60 * 60 * 1000 })
-    return true
-  }
-  if (entry.n >= 5) return false
-  entry.n++
-  return true
 }
 
 export type LeadResult =
@@ -31,7 +16,8 @@ export type LeadResult =
 export async function submitLead(formData: FormData): Promise<LeadResult> {
   const headersList = await headers()
   const ip = headersList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'anon'
-  if (!checkRateLimit(ip)) return { success: false, error: 'Demasiados intentos. Inténtalo más tarde.' }
+  const { success: allowed } = await leadsRatelimit.limit(ip)
+  if (!allowed) return { success: false, error: 'Demasiados intentos. Inténtalo más tarde.' }
 
   // Honeypot: bots rellenan este campo oculto, humanos no
   const honeypot = (formData.get('website') as string) ?? ''

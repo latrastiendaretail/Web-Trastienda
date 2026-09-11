@@ -18,7 +18,9 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.accounts.dev https://*.clerk.accounts.dev https://www.youtube.com https://www.youtube-nocookie.com https://js.stripe.com https://app.cal.com",
+      // 'unsafe-eval' solo hace falta en desarrollo (React reconstruye stack
+      // traces con eval). Next.js/React no lo usan en producción.
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV !== 'production' ? " 'unsafe-eval'" : ''} https://clerk.accounts.dev https://*.clerk.accounts.dev https://www.youtube.com https://www.youtube-nocookie.com https://js.stripe.com https://app.cal.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.clerk.accounts.dev",
       "font-src 'self' https://fonts.gstatic.com https://*.clerk.accounts.dev",
       "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://clerk.accounts.dev https://*.clerk.accounts.dev https://js.stripe.com https://*.stripe.com https://hooks.stripe.com https://app.cal.com",

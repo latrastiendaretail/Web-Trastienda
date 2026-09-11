@@ -2,20 +2,7 @@
 
 import { headers } from 'next/headers'
 import { Resend } from 'resend'
-
-const _rl = new Map<string, { n: number; reset: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = _rl.get(ip)
-  if (!entry || entry.reset < now) {
-    _rl.set(ip, { n: 1, reset: now + 60 * 60 * 1000 })
-    return true
-  }
-  if (entry.n >= 3) return false
-  entry.n++
-  return true
-}
+import { contactRatelimit } from '@/lib/ratelimit'
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254
@@ -28,7 +15,8 @@ export type ContactResult =
 export async function submitContact(formData: FormData): Promise<ContactResult> {
   const headersList = await headers()
   const ip = headersList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'anon'
-  if (!checkRateLimit(ip)) return { success: false, error: 'Demasiados intentos. Inténtalo más tarde.' }
+  const { success: allowed } = await contactRatelimit.limit(ip)
+  if (!allowed) return { success: false, error: 'Demasiados intentos. Inténtalo más tarde.' }
 
   const honeypot = (formData.get('website') as string) ?? ''
   if (honeypot.length > 0) return { success: true }
