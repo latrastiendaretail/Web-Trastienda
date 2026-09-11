@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import CertificateCTA from '@/components/campus/CertificateCTA'
 import BuyButton from '@/components/campus/BuyButton'
+import { ProgressDial, Watermark } from '@/components/campus/academia/icons'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -62,6 +63,7 @@ export default async function CoursePage({ params }: Props) {
   // Certificate: check completion and existing cert
   // Courses with module videos use module_progress; lesson-based courses use lesson_progress.
   let certSection: { allDone: boolean; existingCertId?: string } = { allDone: false }
+  let progressUnits: { completed: number; total: number } | null = null
   if (userId && isEnrolled && !isComingSoon) {
     const [{ data: videoModules }, { data: existingCert }] = await Promise.all([
       supabase
@@ -88,6 +90,7 @@ export default async function CoursePage({ params }: Props) {
         .in('module_id', videoModuleIds)
         .eq('completed', true)
       allDone = (completedModules ?? 0) >= videoModuleIds.length
+      progressUnits = { completed: completedModules ?? 0, total: videoModuleIds.length }
     } else {
       const { data: lessons } = await supabase
         .from('lessons')
@@ -102,6 +105,7 @@ export default async function CoursePage({ params }: Props) {
           .in('lesson_id', lessonIds)
           .eq('completed', true)
         allDone = (completedCount ?? 0) >= lessonIds.length
+        progressUnits = { completed: completedCount ?? 0, total: lessonIds.length }
       }
     }
 
@@ -117,7 +121,7 @@ export default async function CoursePage({ params }: Props) {
   ]
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-5xl">
       {/* Back */}
       <a
         href="/campus/cursos"
@@ -126,9 +130,11 @@ export default async function CoursePage({ params }: Props) {
         ← Todos los cursos
       </a>
 
-      {/* Header */}
-      <div className="mt-6 mb-8">
-        <div className="flex items-center gap-3 mb-4">
+      {/* Hero */}
+      <div className="relative mt-6 mb-10 pb-10 border-b border-lino/50 overflow-hidden">
+        <Watermark text={String(mainModuleCount).padStart(2, '0')} className="text-[16rem] -right-6 -top-16 md:text-[20rem]" />
+
+        <div className="relative flex items-center gap-3 mb-5">
           <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.16em]">
             Formación intensiva
           </span>
@@ -141,14 +147,23 @@ export default async function CoursePage({ params }: Props) {
           </span>
         </div>
 
-        <h1 className="font-display text-[clamp(2rem,4vw,3.25rem)] font-medium text-tinta leading-[1.1] tracking-[-0.02em] mb-4">
+        <h1 className="relative font-display text-[clamp(2.25rem,5vw,4rem)] font-medium text-tinta leading-[1.05] tracking-[-0.02em] mb-5 max-w-[20ch]">
           {course.title}
         </h1>
 
         {course.tagline && (
-          <p className="font-sans text-base text-cuero leading-relaxed max-w-[58ch]">
+          <p className="relative font-sans text-base text-cuero leading-relaxed max-w-[58ch] mb-6">
             {course.tagline}
           </p>
+        )}
+
+        {progressUnits && progressUnits.total > 0 && (
+          <div className="relative flex items-center gap-3">
+            <ProgressDial total={progressUnits.total} completed={progressUnits.completed} markClassName="w-3 h-3" />
+            <span className="font-mono text-[10px] text-cuero uppercase tracking-[0.1em]">
+              {progressUnits.completed} de {progressUnits.total} completado
+            </span>
+          </div>
         )}
       </div>
 
