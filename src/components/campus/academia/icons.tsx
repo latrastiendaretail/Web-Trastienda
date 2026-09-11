@@ -38,3 +38,49 @@ export function Icon({ name, className }: { name: IconName; className?: string }
     />
   )
 }
+
+/**
+ * Dial de progreso — fila de marcas geométricas (mismo lenguaje que Icon),
+ * una por unidad (módulo/lección), rellena = completada, atenuada = pendiente.
+ * Sustituye la barra de progreso plana en tarjetas, sidebar y /progreso.
+ */
+export function ProgressDial({
+  total,
+  completed,
+  className,
+  markClassName,
+}: {
+  total: number
+  completed: number
+  className?: string
+  markClassName?: string
+}) {
+  if (total <= 0) return null
+  return (
+    <div className={`flex items-center gap-1 ${className ?? ''}`} role="img" aria-label={`${completed} de ${total} completado`}>
+      {Array.from({ length: total }).map((_, i) => (
+        <span
+          key={i}
+          className={`ltt-ico shrink-0 ${i < completed ? 'text-acento' : 'text-lino'} ${markClassName ?? 'w-2.5 h-2.5'}`}
+          aria-hidden="true"
+          dangerouslySetInnerHTML={{ __html: `<svg viewBox="0 0 24 24" focusable="false">${PATHS.repaso}</svg>` }}
+        />
+      ))}
+    </div>
+  )
+}
+
+/**
+ * Marca de agua tipográfica — número/palabra gigante detrás de un header,
+ * refuerzo editorial sin fotografía. Uso: <div className="relative">...<Watermark text="01" /></div>
+ */
+export function Watermark({ text, className }: { text: string; className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`pointer-events-none select-none absolute font-display font-medium text-tinta/[0.04] leading-none ${className ?? 'text-[14rem] -right-4 -top-10'}`}
+    >
+      {text}
+    </span>
+  )
+}
