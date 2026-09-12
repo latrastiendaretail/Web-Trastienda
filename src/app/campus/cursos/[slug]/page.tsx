@@ -27,12 +27,13 @@ export default async function CoursePage({ params }: Props) {
   const { userId } = await auth()
   const supabase = createServiceClient()
 
-  const { data: course } = await supabase
+  const { data: course, error: courseError } = await supabase
     .from('courses')
     .select('id, title, slug, tagline, description, duration_minutes, status, format, start_date, max_students, features, price_cents, stripe_price_id')
     .eq('slug', slug)
     .single()
 
+  if (courseError) console.error('[CoursePage] courses query error', slug, courseError)
   if (!course) notFound()
 
   const { data: rawModules } = await supabase
