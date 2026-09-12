@@ -20,12 +20,15 @@ const securityHeaders = [
       "default-src 'self'",
       // 'unsafe-eval' solo hace falta en desarrollo (React reconstruye stack
       // traces con eval). Next.js/React no lo usan en producción.
-      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV !== 'production' ? " 'unsafe-eval'" : ''} https://clerk.accounts.dev https://*.clerk.accounts.dev https://www.youtube.com https://www.youtube-nocookie.com https://js.stripe.com https://app.cal.com`,
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.clerk.accounts.dev",
-      "font-src 'self' https://fonts.gstatic.com https://*.clerk.accounts.dev",
-      "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://clerk.accounts.dev https://*.clerk.accounts.dev https://js.stripe.com https://*.stripe.com https://hooks.stripe.com https://app.cal.com",
+      // clerk.accounts.dev = instancia Development (local); clerk.latrastiendaretail.es
+      // = Frontend API custom domain de la instancia Production. Se mantienen ambos
+      // para que dev y prod funcionen con el mismo next.config.mjs.
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV !== 'production' ? " 'unsafe-eval'" : ''} https://clerk.accounts.dev https://*.clerk.accounts.dev https://clerk.latrastiendaretail.es https://challenges.cloudflare.com https://www.youtube.com https://www.youtube-nocookie.com https://js.stripe.com https://app.cal.com`,
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.clerk.accounts.dev https://clerk.latrastiendaretail.es",
+      "font-src 'self' https://fonts.gstatic.com https://*.clerk.accounts.dev https://clerk.latrastiendaretail.es",
+      "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://clerk.accounts.dev https://*.clerk.accounts.dev https://clerk.latrastiendaretail.es https://accounts.latrastiendaretail.es https://challenges.cloudflare.com https://js.stripe.com https://*.stripe.com https://hooks.stripe.com https://app.cal.com",
       "img-src 'self' data: https: blob:",
-      "connect-src 'self' https://*.clerk.accounts.dev https://clerk.accounts.dev https://api.clerk.com https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://merchant-ui-api.stripe.com https://*.stripe.com https://app.cal.com https://us.i.posthog.com https://us-assets.i.posthog.com",
+      "connect-src 'self' https://*.clerk.accounts.dev https://clerk.accounts.dev https://clerk.latrastiendaretail.es https://api.clerk.com https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://merchant-ui-api.stripe.com https://*.stripe.com https://app.cal.com https://us.i.posthog.com https://us-assets.i.posthog.com",
       "worker-src 'self' blob:",
       "object-src 'none'",
       "base-uri 'self'",
