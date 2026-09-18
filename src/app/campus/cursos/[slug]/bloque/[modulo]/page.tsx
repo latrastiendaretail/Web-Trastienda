@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import VideoPlayer from '@/components/campus/VideoPlayer'
+import SlideDeck from '@/components/campus/SlideDeck'
+import { getKpiTool } from '@/components/campus/kpis/tools'
+import { ProgressDial, Watermark, Icon } from '@/components/campus/academia/icons'
 
 interface Props {
   params: Promise<{ slug: string; modulo: string }>
@@ -24,7 +27,7 @@ export default async function BloquePage({ params }: Props) {
 
   const { data: course } = await supabase
     .from('courses')
-    .select('id, title, slug, status')
+    .select('id, title, slug, status, format')
     .eq('slug', slug)
     .single()
 
@@ -46,7 +49,7 @@ export default async function BloquePage({ params }: Props) {
 
   const moduleQuery = supabase
     .from('modules')
-    .select('id, title, description, video_url, order_index, is_bonus')
+    .select('id, title, description, video_url, order_index, is_bonus, pdf_url, tool_key, slides')
     .eq('course_id', course.id)
 
   const { data: moduleData } = isBonus
@@ -57,10 +60,30 @@ export default async function BloquePage({ params }: Props) {
 
   const moduleVideoId = extractVideoId(moduleData.video_url)
   const isComingSoon = course.status === 'coming_soon'
+  // Cursos autoformación (sin cohorte) no tienen sesión en directo — solo grabación pendiente.
+  const isSelfPaced = (course.format ?? '').toLowerCase().includes('autoformación')
+  const KpiTool = getKpiTool(moduleData.tool_key)
 
-  // Module-level progress (when module has its own video)
+  let pdfSignedUrl: string | null = null
+  if (moduleData.pdf_url) {
+    const { data: signed } = await supabase.storage
+      .from('campus-resources')
+      .createSignedUrl(moduleData.pdf_url, 60 * 10)
+    pdfSignedUrl = signed?.signedUrl ?? null
+  }
+
+  const slidePaths = moduleData.slides ?? []
+  let slideSignedUrls: string[] = []
+  if (slidePaths.length > 0) {
+    const signedSlides = await Promise.all(
+      slidePaths.map((path) => supabase.storage.from('campus-resources').createSignedUrl(path, 60 * 60)),
+    )
+    slideSignedUrls = signedSlides.map((s) => s.data?.signedUrl).filter((u): u is string => !!u)
+  }
+
+  // Module-level progress (cuando el módulo tiene vídeo o diapositivas propias)
   let moduleCompleted = false
-  if (moduleVideoId && userId) {
+  if ((moduleVideoId || slidePaths.length > 0) && userId) {
     const { data: modProgress } = await supabase
       .from('module_progress')
       .select('completed')
@@ -106,8 +129,20 @@ export default async function BloquePage({ params }: Props) {
   const lessonPrefix = moduleData.is_bonus ? 'B' : String(moduleData.order_index)
   const completedCount = completedSet.size
 
+  // Contenido del capítulo por separado (píldoras + vídeo). Solo se muestra en
+  // capítulos con contenido propio (pdf/herramienta) — no se inventa en cursos
+  // sin esta estructura. Píldoras son placeholders; el vídeo refleja el estado real.
+  const hasSeparateContent = !moduleData.is_bonus && (!!moduleData.pdf_url || !!moduleData.tool_key)
+  const chapterSteps = hasSeparateContent
+    ? [
+        { label: 'Píldora 1', desc: 'Resumen exprés del concepto', icon: 'pildora' as const, available: false },
+        { label: 'Píldora 2', desc: 'Caso práctico aplicado', icon: 'pildora' as const, available: false },
+        { label: 'Vídeo completo', desc: 'Sesión grabada del capítulo', icon: 'reproducir' as const, available: !!moduleVideoId },
+      ]
+    : []
+
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-5xl">
       {/* Back to course */}
       <a
         href={`/campus/cursos/${slug}`}
@@ -117,23 +152,70 @@ export default async function BloquePage({ params }: Props) {
       </a>
 
       {/* Module header */}
-      <div className="mt-6 mb-8">
+      <div className="relative mt-6 mb-10 pb-8 border-b border-lino/50 overflow-hidden">
+        <Watermark
+          text={moduleData.is_bonus ? '★' : String(moduleData.order_index).padStart(2, '0')}
+          className="text-[14rem] -right-4 -top-14 md:text-[18rem]"
+        />
         <span
-          className={`block font-mono text-[9px] uppercase tracking-[0.16em] mb-3 ${
+          className={`relative block font-mono text-[9px] uppercase tracking-[0.16em] mb-3 ${
             moduleData.is_bonus ? 'text-acento' : 'text-cuero'
           }`}
         >
           {moduleLabel}
         </span>
-        <h1 className="font-display text-[clamp(1.75rem,3.5vw,2.75rem)] font-medium text-tinta leading-[1.1] tracking-[-0.02em] mb-3">
+        <h1 className="relative font-display text-[clamp(1.85rem,4vw,3.25rem)] font-medium text-tinta leading-[1.1] tracking-[-0.02em] mb-4 max-w-[24ch]">
           {moduleData.title}
         </h1>
         {moduleData.description && (
-          <p className="font-sans text-base text-cuero leading-relaxed max-w-[58ch]">
+          <p className="relative font-sans text-base text-cuero leading-relaxed max-w-[58ch]">
             {moduleData.description}
           </p>
         )}
       </div>
+
+      {/* Contenido del capítulo — píldoras + vídeo por separado */}
+      {chapterSteps.length > 0 && (
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="font-mono text-[10px] text-cuero uppercase tracking-[0.1em]">Contenido del capítulo</span>
+            <div className="flex-1 h-px bg-lino/40" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 border border-lino/50 divide-y sm:divide-y-0 sm:divide-x divide-lino/30">
+            {chapterSteps.map((s, i) => (
+              <div key={s.label} className={`bg-blanco px-5 py-5 ${!s.available ? 'opacity-60' : ''}`}>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-mono text-[9px] text-cuero/60 uppercase tracking-[0.12em]">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <Icon name={s.icon} className={`w-4 h-4 ${s.available ? 'text-acento' : 'text-cuero/30'}`} />
+                </div>
+                <div className="font-sans text-[13px] font-medium text-tinta leading-snug mb-1">
+                  {s.label}
+                </div>
+                <div className="font-sans text-[11px] text-cuero leading-relaxed mb-3">
+                  {s.desc}
+                </div>
+                <span className={`font-mono text-[9px] uppercase tracking-[0.1em] ${s.available ? 'text-acento' : 'text-cuero/45'}`}>
+                  {s.available ? 'Disponible ↓' : 'Próximamente'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Módulo con diapositivas propias (documento dividido en puntos) ── */}
+      {slideSignedUrls.length > 0 && (
+        <div className="border border-lino/50 mb-12">
+          <SlideDeck
+            slideUrls={slideSignedUrls}
+            moduleId={moduleData.id}
+            initialCompleted={moduleCompleted}
+            title={moduleData.title}
+          />
+        </div>
+      )}
 
       {/* ── Módulo con vídeo propio (curso con estructura plana) ── */}
       {moduleVideoId ? (
@@ -145,13 +227,13 @@ export default async function BloquePage({ params }: Props) {
             title={moduleData.title}
           />
         </div>
-      ) : lessons.length === 0 ? (
+      ) : slideSignedUrls.length > 0 ? null : lessons.length === 0 ? (
         /* Sin vídeo y sin lecciones → próximamente */
         <div className="border border-lino/50 bg-blanco px-6 py-10 mb-12">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-lino/60 shrink-0" />
             <span className="font-mono text-[10px] text-cuero/50 uppercase tracking-[0.1em]">
-              {isComingSoon ? 'Grabación disponible tras la sesión en directo' : 'Grabación próximamente'}
+              {isComingSoon && !isSelfPaced ? 'Grabación disponible tras la sesión en directo' : 'Grabación próximamente'}
             </span>
           </div>
         </div>
@@ -159,18 +241,13 @@ export default async function BloquePage({ params }: Props) {
         /* ── Módulo con lecciones (cursos con arquitectura de lecciones) ── */
         <>
           {lessons.length > 0 && completedCount > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono text-[10px] text-cuero uppercase tracking-[0.1em]">Tu progreso</span>
+            <div className="flex items-center justify-between mb-8 border border-lino/50 bg-blanco px-5 py-4">
+              <span className="font-mono text-[10px] text-cuero uppercase tracking-[0.1em]">Tu progreso</span>
+              <div className="flex items-center gap-3">
+                <ProgressDial total={lessons.length} completed={completedCount} markClassName="w-3 h-3" />
                 <span className="font-mono text-[10px] text-acento uppercase tracking-[0.1em]">
-                  {completedCount} de {lessons.length} lecciones
+                  {completedCount} de {lessons.length}
                 </span>
-              </div>
-              <div className="w-full h-0.5 bg-lino/40">
-                <div
-                  className="h-full bg-acento transition-all duration-500"
-                  style={{ width: `${(completedCount / lessons.length) * 100}%` }}
-                />
               </div>
             </div>
           )}
@@ -215,7 +292,7 @@ export default async function BloquePage({ params }: Props) {
                           <div className="flex items-center gap-2 mt-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-lino/60 shrink-0" />
                             <span className="font-mono text-[9px] text-cuero/50 uppercase tracking-[0.1em]">
-                              {isComingSoon ? 'Sesión en directo · Junio 2026' : 'Grabación próximamente'}
+                              {isComingSoon && !isSelfPaced ? 'Sesión en directo · Junio 2026' : 'Grabación próximamente'}
                             </span>
                           </div>
                         )}
@@ -236,6 +313,37 @@ export default async function BloquePage({ params }: Props) {
             })}
           </div>
         </>
+      )}
+
+      {/* Recursos del capítulo: PDF descargable + herramienta interactiva */}
+      {(pdfSignedUrl || KpiTool) && (
+        <div className="mb-12">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="font-mono text-[10px] text-cuero uppercase tracking-[0.1em]">Recursos</span>
+            <div className="flex-1 h-px bg-lino/40" />
+          </div>
+
+          <div className="space-y-4">
+            {pdfSignedUrl && (
+              <a
+                href={pdfSignedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between border border-lino/50 bg-blanco px-6 py-4 hover:border-acento/50 transition-colors duration-200"
+              >
+                <div>
+                  <span className="font-mono text-[9px] text-acento uppercase tracking-[0.12em] block mb-1">
+                    Manual del capítulo
+                  </span>
+                  <span className="font-sans text-[13px] text-tinta">Descargar PDF</span>
+                </div>
+                <span className="font-mono text-[10px] text-cuero uppercase tracking-[0.1em]">↓</span>
+              </a>
+            )}
+
+            {KpiTool && <KpiTool />}
+          </div>
+        </div>
       )}
 
       {/* Prev / Next navigation */}

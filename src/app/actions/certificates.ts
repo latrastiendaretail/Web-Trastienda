@@ -38,7 +38,7 @@ export async function getOrCreateCertificate(courseId: string): Promise<
     .from('modules')
     .select('id')
     .eq('course_id', courseId)
-    .not('video_url', 'is', null)
+    .or('video_url.not.is.null,slides.not.is.null')
 
   const videoModuleIds = (videoModules ?? []).map((m) => m.id)
 

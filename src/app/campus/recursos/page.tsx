@@ -1,3 +1,5 @@
+import { Icon, Watermark } from '@/components/campus/academia/icons'
+
 const resourceCategories = [
   {
     category: 'Plantillas',
@@ -24,48 +26,55 @@ const resourceCategories = [
 ]
 
 export default function RecursosPage() {
+  const totalResources = resourceCategories.reduce((sum, c) => sum + c.resources.length, 0)
+
   return (
-    <div className="max-w-4xl">
-      <div className="mb-12">
-        <span className="block font-sans text-[9px] text-cuero uppercase tracking-[0.16em] mb-3">
+    <div className="max-w-5xl">
+      <div className="relative mb-14 pb-10 border-b border-lino/50 overflow-hidden">
+        <Watermark text={String(totalResources).padStart(2, '0')} className="text-[16rem] -right-6 -top-16 md:text-[20rem]" />
+        <span className="relative block font-mono text-[9px] text-cuero uppercase tracking-[0.16em] mb-3">
           Biblioteca
         </span>
-        <h1 className="font-display text-[clamp(2rem,4vw,3rem)] font-medium text-tinta leading-[1.1] tracking-[-0.02em] mb-3">
+        <h1 className="relative font-display text-[clamp(2.25rem,5vw,4rem)] font-medium text-tinta leading-[1.05] tracking-[-0.02em] mb-4">
           Recursos
         </h1>
-        <p className="font-sans text-base text-cuero leading-relaxed max-w-[52ch]">
+        <p className="relative font-sans text-base text-cuero leading-relaxed max-w-[52ch]">
           Plantillas, guías y materiales de apoyo para tu desarrollo profesional en Retail.
         </p>
       </div>
 
-      <div className="space-y-10">
+      <div className="space-y-12">
         {resourceCategories.map((cat) => (
           <div key={cat.category}>
-            <div className="font-sans text-[10px] text-cuero uppercase tracking-[0.14em] mb-4 pb-3 border-b border-lino/40">
-              {cat.category}
+            <div className="flex items-center gap-4 mb-5">
+              <span className="font-mono text-[10px] text-cuero uppercase tracking-[0.14em] shrink-0">
+                {cat.category}
+              </span>
+              <div className="h-px flex-1 bg-lino/40" />
             </div>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {cat.resources.map((res) => (
                 <div
                   key={res.title}
-                  className="flex items-center justify-between bg-blanco border border-lino/50 px-6 py-5 opacity-50 select-none"
+                  className="flex items-center justify-between bg-blanco border border-lino/50 px-5 py-4 opacity-50 select-none"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-8 h-10 bg-lino/30 border border-lino/50 flex items-end justify-center pb-1 shrink-0">
-                      <span className="font-sans text-[7px] text-cuero uppercase tracking-[0.06em]">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="relative w-9 h-11 bg-lino/30 border border-lino/50 flex items-end justify-center pb-1 shrink-0 overflow-hidden">
+                      <Icon name="leccion" className="absolute -top-1 -right-1 w-6 h-6 text-cuero/20" />
+                      <span className="relative font-mono text-[7px] text-cuero uppercase tracking-[0.06em]">
                         {res.type}
                       </span>
                     </div>
-                    <div>
-                      <span className="block font-sans text-sm font-medium text-tinta">
+                    <div className="min-w-0">
+                      <span className="block font-sans text-sm font-medium text-tinta truncate">
                         {res.title}
                       </span>
-                      <span className="font-sans text-[10px] text-cuero uppercase tracking-[0.08em]">
+                      <span className="font-mono text-[10px] text-cuero uppercase tracking-[0.08em]">
                         {res.pages}
                       </span>
                     </div>
                   </div>
-                  <span className="font-sans text-[9px] text-cuero uppercase tracking-[0.1em] border border-lino/60 px-2 py-1 shrink-0">
+                  <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.1em] border border-lino/60 px-2 py-1 shrink-0">
                     Próximamente
                   </span>
                 </div>

@@ -3,7 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import CertificateCTA from '@/components/campus/CertificateCTA'
 import BuyButton from '@/components/campus/BuyButton'
-import { ProgressDial, Watermark } from '@/components/campus/academia/icons'
+import { ProgressDial, Watermark, Icon } from '@/components/campus/academia/icons'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -38,7 +38,7 @@ export default async function CoursePage({ params }: Props) {
 
   const { data: rawModules } = await supabase
     .from('modules')
-    .select('id, title, description, order_index, is_bonus')
+    .select('id, title, description, order_index, is_bonus, pdf_url, tool_key')
     .eq('course_id', course.id)
     .order('order_index')
 
@@ -71,7 +71,7 @@ export default async function CoursePage({ params }: Props) {
         .from('modules')
         .select('id')
         .eq('course_id', course.id)
-        .not('video_url', 'is', null),
+        .or('video_url.not.is.null,slides.not.is.null'),
       supabase
         .from('certificates')
         .select('id')
@@ -184,85 +184,105 @@ export default async function CoursePage({ params }: Props) {
         </div>
       )}
 
-      {/* Bloques */}
+      {/* Bloques — recorrido paso a paso */}
       {modules.length > 0 && (
         <div className="mb-12">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-8">
             <div className="h-px flex-1 bg-lino/40" />
             <span className="font-mono text-[10px] text-cuero uppercase tracking-[0.14em] shrink-0">
-              {mainModuleCount} bloques de contenido{hasBonus ? ' + Bonus Track' : ''}
+              El recorrido · {mainModuleCount} bloques{hasBonus ? ' + Bonus Track' : ''}
             </span>
             <div className="h-px flex-1 bg-lino/40" />
           </div>
 
-          <div className="space-y-3">
-            {modules.map((mod) => {
-              const label = mod.is_bonus ? '★' : String(mod.order_index)
-              const href = `/campus/cursos/${slug}/bloque/${mod.is_bonus ? 'bonus' : (mod.order_index ?? mod.id)}`
-              // Locked: user is authenticated but not enrolled in this course
-              const locked = !!userId && !isEnrolled
+          <div className="relative">
+            {/* Línea de recorrido — continua tras las tarjetas, oculta donde hay tarjeta encima */}
+            <div className="absolute left-[27px] top-[27px] bottom-[27px] w-px bg-lino/40" aria-hidden="true" />
 
-              if (locked) {
-                return (
+            <div className="space-y-4">
+              {modules.map((mod, idx) => {
+                const href = `/campus/cursos/${slug}/bloque/${mod.is_bonus ? 'bonus' : (mod.order_index ?? mod.id)}`
+                // Locked: user is authenticated but not enrolled in this course
+                const locked = !!userId && !isEnrolled
+                const hasSeparateContent = !mod.is_bonus && (!!mod.pdf_url || !!mod.tool_key)
+                const stepLabel = mod.is_bonus ? 'Bonus' : `Paso ${String(idx + 1).padStart(2, '0')}`
+
+                const circle = (
                   <div
-                    key={mod.id}
-                    className="flex items-center gap-5 bg-blanco border border-lino/30 px-6 py-5 opacity-50 select-none"
+                    className={`relative z-10 w-[54px] h-[54px] rounded-full flex items-center justify-center shrink-0 border ${
+                      mod.is_bonus
+                        ? 'bg-papel text-acento border-acento/40'
+                        : locked
+                          ? 'bg-papel text-cuero/40 border-lino/50'
+                          : 'bg-tinta text-papel border-tinta'
+                    }`}
                   >
-                    <div
-                      className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 font-mono text-[11px] font-medium ${
-                        mod.is_bonus
-                          ? 'bg-acento/10 text-acento border border-acento/30'
-                          : 'bg-tinta/30 text-papel'
-                      }`}
-                    >
-                      {label}
+                    <span className="font-display text-lg font-medium leading-none">
+                      {mod.is_bonus ? '★' : mod.order_index}
+                    </span>
+                  </div>
+                )
+
+                const meta = hasSeparateContent ? (
+                  <div className="flex items-center gap-4 mt-2.5">
+                    <span className="flex items-center gap-1.5 font-mono text-[9px] text-cuero/70 uppercase tracking-[0.08em]">
+                      <Icon name="pildora" className="w-3.5 h-2.5 text-cuero/40" />
+                      2 píldoras
+                    </span>
+                    <span className="flex items-center gap-1.5 font-mono text-[9px] text-cuero/70 uppercase tracking-[0.08em]">
+                      <Icon name="reproducir" className="w-3 h-3 text-cuero/40" />
+                      1 vídeo
+                    </span>
+                  </div>
+                ) : null
+
+                if (locked) {
+                  return (
+                    <div key={mod.id} className="flex items-start gap-5 select-none">
+                      {circle}
+                      <div className="flex-1 min-w-0 bg-blanco border border-lino/30 px-6 py-5 mt-0 opacity-50">
+                        <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.12em] block mb-1.5">
+                          {stepLabel}
+                        </span>
+                        <div className="font-sans text-sm font-medium text-tinta leading-snug flex items-center justify-between gap-3">
+                          <span>{mod.is_bonus ? `Bonus Track — ${mod.title}` : mod.title}</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-cuero/30 shrink-0">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                          </svg>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
+                  )
+                }
+
+                return (
+                  <a key={mod.id} href={href} className="flex items-start gap-5 group cursor-pointer">
+                    {circle}
+                    <div className="flex-1 min-w-0 bg-blanco border border-lino/50 px-6 py-5 group-hover:border-tinta/30 transition-colors duration-200">
+                      <div className="flex items-center justify-between gap-3 mb-1.5">
+                        <span className={`font-mono text-[9px] uppercase tracking-[0.12em] ${mod.is_bonus ? 'text-acento' : 'text-cuero'}`}>
+                          {stepLabel}
+                        </span>
+                        <span className="font-mono text-[13px] text-cuero/40 group-hover:text-tinta group-hover:translate-x-0.5 transition-all shrink-0">
+                          →
+                        </span>
+                      </div>
                       <div className="font-sans text-sm font-medium text-tinta leading-snug">
                         {mod.is_bonus ? `Bonus Track — ${mod.title}` : mod.title}
                       </div>
+                      {mod.description && (
+                        <div className="font-sans text-[11px] text-cuero mt-1 leading-relaxed max-w-[60ch]">
+                          {mod.description}
+                        </div>
+                      )}
+                      {meta}
                     </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-cuero/30 shrink-0">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                  </div>
+                  </a>
                 )
-              }
-
-              return (
-                <a
-                  key={mod.id}
-                  href={href}
-                  className="flex items-center gap-5 bg-blanco border border-lino/50 px-6 py-5 hover:border-tinta/30 transition-colors duration-200 cursor-pointer group"
-                >
-                  <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 font-mono text-[11px] font-medium ${
-                      mod.is_bonus
-                        ? 'bg-acento/10 text-acento border border-acento/30'
-                        : 'bg-tinta text-papel'
-                    }`}
-                  >
-                    {label}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-sans text-sm font-medium text-tinta leading-snug">
-                      {mod.is_bonus ? `Bonus Track — ${mod.title}` : mod.title}
-                    </div>
-                    {mod.description && (
-                      <div className="font-sans text-[11px] text-cuero mt-0.5 leading-relaxed max-w-[60ch]">
-                        {mod.description}
-                      </div>
-                    )}
-                  </div>
-                  <span className="font-mono text-[13px] text-cuero/40 group-hover:text-tinta transition-colors shrink-0">
-                    →
-                  </span>
-                </a>
-              )
-            })}
+              })}
+            </div>
           </div>
-
         </div>
       )}
 

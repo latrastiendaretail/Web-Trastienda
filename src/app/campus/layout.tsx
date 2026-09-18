@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { useClerk, useUser } from '@clerk/nextjs'
 import { usePathname, useRouter } from 'next/navigation'
+import { AccentPulse } from '@/components/campus/academia/icons'
 
 const sidebarLinks = [
   { href: '/campus', label: 'Inicio', exact: true },
@@ -68,6 +69,10 @@ function Sidebar({
             priority
           />
         </a>
+        <div className="flex items-center gap-2 mt-3">
+          <AccentPulse />
+          <span className="font-mono text-[9px] text-papel/40 uppercase tracking-[0.16em]">Campus</span>
+        </div>
       </div>
 
       {/* Nav */}
@@ -81,10 +86,10 @@ function Sidebar({
               key={link.href}
               href={link.href}
               onClick={onClose}
-              className={`flex items-center gap-3 px-3 min-h-[44px] font-mono text-[11px] uppercase tracking-[0.08em] transition-colors duration-200 cursor-pointer ${
+              className={`flex items-center gap-3 px-3 min-h-[44px] font-mono text-[11px] uppercase tracking-[0.08em] transition-colors duration-200 cursor-pointer border-l-2 ${
                 isActive
-                  ? 'bg-papel/10 text-papel'
-                  : 'text-papel/50 hover:text-papel hover:bg-papel/5'
+                  ? 'bg-papel/10 text-papel border-acento'
+                  : 'text-papel/50 hover:text-papel hover:bg-papel/5 border-transparent'
               }`}
             >
               <NavIcon href={link.href} />
@@ -95,7 +100,8 @@ function Sidebar({
       </nav>
 
       {/* User + logout */}
-      <div className="px-4 py-6 border-t border-papel/[0.08] space-y-3">
+      <div className="px-4 py-6 border-t border-papel/[0.08] space-y-3 relative">
+        <div className="absolute -top-px left-4 right-4 h-px bg-[repeating-linear-gradient(90deg,rgba(244,239,230,0.15)_0,rgba(244,239,230,0.15)_2px,transparent_2px,transparent_6px)]" />
         {user?.primaryEmailAddress && (
           <p className="px-3 font-sans text-[10px] text-papel/30 truncate">
             {user.primaryEmailAddress.emailAddress}

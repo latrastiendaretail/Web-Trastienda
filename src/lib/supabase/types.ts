@@ -73,6 +73,9 @@ export type Database = {
           video_url: string | null
           order_index: number
           is_bonus: boolean
+          pdf_url: string | null
+          tool_key: string | null
+          slides: string[] | null
           created_at: string
         }
         Insert: {
@@ -82,6 +85,9 @@ export type Database = {
           video_url?: string | null
           order_index?: number
           is_bonus?: boolean
+          pdf_url?: string | null
+          tool_key?: string | null
+          slides?: string[] | null
         }
         Update: Partial<Database['public']['Tables']['modules']['Insert']>
         Relationships: [

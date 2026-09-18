@@ -5,6 +5,7 @@ import { useAuth } from '@clerk/nextjs'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect, Suspense } from 'react'
 import Image from 'next/image'
+import { Watermark } from '@/components/campus/academia/icons'
 
 function LoginForm() {
   const { isLoaded, signIn, setActive } = useSignIn()
@@ -194,8 +195,9 @@ export default function CampusLoginPage() {
   return (
     <main className="min-h-screen bg-papel flex">
       {/* Presentación del producto */}
-      <div className="hidden lg:flex lg:w-1/2 bg-tinta flex-col justify-between px-14 py-14 xl:px-20">
-        <a href="/" className="block cursor-pointer">
+      <div className="relative hidden lg:flex lg:w-1/2 bg-tinta flex-col justify-between px-14 py-14 xl:px-20 overflow-hidden">
+        <Watermark text="LT" tone="light" className="text-[26rem] -right-16 -bottom-24" />
+        <a href="/" className="relative block cursor-pointer">
           <Image
             src="/images/Logos/imagotipov2.svg"
             alt="La Trastienda"

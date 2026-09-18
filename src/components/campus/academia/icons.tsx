@@ -23,18 +23,24 @@ const PATHS: Record<string, string> = {
   chevron: '<path d="M12 17 3 7h18z"/>',
   aviso: '<path d="M12 2.5 22.5 21H1.5z"/>',
   punto: '<circle cx="12" cy="12" r="6"/>',
+  pildora: '<rect x="2.5" y="9" width="19" height="6" rx="3"/><line x1="12" y1="9" x2="12" y2="15" stroke="#fff" stroke-width="1.2"/>',
+  reproducir: '<circle cx="12" cy="12" r="9.5"/><path d="M10 8.3v7.4l6.2-3.7z" fill="#fff"/>',
 }
 
 export type IconName = keyof typeof PATHS
+
+function svgMarkup(d: string): string {
+  return `<svg viewBox="0 0 24 24" focusable="false" fill="currentColor" width="100%" height="100%">${d}</svg>`
+}
 
 export function Icon({ name, className }: { name: IconName; className?: string }) {
   const d = PATHS[name]
   if (!d) return null
   return (
     <span
-      className={`ltt-ico${className ? ` ${className}` : ''}`}
+      className={`inline-flex shrink-0${className ? ` ${className}` : ''}`}
       aria-hidden="true"
-      dangerouslySetInnerHTML={{ __html: `<svg viewBox="0 0 24 24" focusable="false">${d}</svg>` }}
+      dangerouslySetInnerHTML={{ __html: svgMarkup(d) }}
     />
   )
 }
@@ -61,9 +67,9 @@ export function ProgressDial({
       {Array.from({ length: total }).map((_, i) => (
         <span
           key={i}
-          className={`ltt-ico shrink-0 ${i < completed ? 'text-acento' : 'text-lino'} ${markClassName ?? 'w-2.5 h-2.5'}`}
+          className={`inline-flex shrink-0 ${i < completed ? 'text-acento' : 'text-lino'} ${markClassName ?? 'w-2.5 h-2.5'}`}
           aria-hidden="true"
-          dangerouslySetInnerHTML={{ __html: `<svg viewBox="0 0 24 24" focusable="false">${PATHS.repaso}</svg>` }}
+          dangerouslySetInnerHTML={{ __html: svgMarkup(PATHS.repaso) }}
         />
       ))}
     </div>
@@ -71,14 +77,38 @@ export function ProgressDial({
 }
 
 /**
+ * Acento vivo — punto que respira en acento-soft (amarillo/oro). Único elemento
+ * animado del campus, uso comedido: marca "esto está activo" sin ser lúdico.
+ * Respeta prefers-reduced-motion (regla global en globals.css).
+ */
+export function AccentPulse({ className }: { className?: string }) {
+  return (
+    <span className={`relative inline-flex shrink-0 ${className ?? 'w-2 h-2'}`} aria-hidden="true">
+      <span className="absolute inset-0 rounded-full bg-acento-soft anim-accent-pulse" />
+      <span className="relative w-full h-full rounded-full bg-acento-soft" />
+    </span>
+  )
+}
+
+/**
  * Marca de agua tipográfica — número/palabra gigante detrás de un header,
  * refuerzo editorial sin fotografía. Uso: <div className="relative">...<Watermark text="01" /></div>
  */
-export function Watermark({ text, className }: { text: string; className?: string }) {
+export function Watermark({
+  text,
+  className,
+  tone = 'dark',
+}: {
+  text: string
+  className?: string
+  tone?: 'dark' | 'light'
+}) {
   return (
     <span
       aria-hidden="true"
-      className={`pointer-events-none select-none absolute font-display font-medium text-tinta/[0.04] leading-none ${className ?? 'text-[14rem] -right-4 -top-10'}`}
+      className={`pointer-events-none select-none absolute font-display font-medium leading-none ${
+        tone === 'dark' ? 'text-tinta/[0.04]' : 'text-papel/[0.06]'
+      } ${className ?? 'text-[14rem] -right-4 -top-10'}`}
     >
       {text}
     </span>
