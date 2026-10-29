@@ -7,9 +7,14 @@ const isProtectedRoute = createRouteMatcher([
   '/admin(.*)',
 ])
 
-export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) await auth.protect()
-})
+// signInUrl fijo: NEXT_PUBLIC_CLERK_SIGN_IN_URL en producción llegó con un BOM
+// delante (U+FEFF), y el redirect relativo resultante entraba en bucle.
+export default clerkMiddleware(
+  async (auth, req) => {
+    if (isProtectedRoute(req)) await auth.protect()
+  },
+  { signInUrl: '/campus/login' },
+)
 
 export const config = {
   matcher: [
