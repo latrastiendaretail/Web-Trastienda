@@ -34,6 +34,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             >
               Blog
             </a>
+            <a
+              href="/admin/slides"
+              className="font-mono text-[10px] text-cuero hover:text-tinta uppercase tracking-[0.12em] transition-colors duration-200"
+            >
+              Diapositivas
+            </a>
           </nav>
           <div className="ml-auto">
             <a

@@ -3,45 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { markLessonComplete, markModuleComplete } from '@/app/actions/progress'
 import { getConsent, setConsent, CONSENT_EVENT } from '@/lib/consent'
-
-// Minimal YT types
-interface YTPlayer {
-  destroy(): void
-  getCurrentTime(): number
-  getDuration(): number
-}
-interface YTPlayerOptions {
-  videoId: string
-  playerVars?: Record<string, number | string>
-  events?: {
-    onReady?: () => void
-    onStateChange?: (e: { data: number }) => void
-  }
-}
-declare global {
-  interface Window {
-    YT: {
-      Player: new (el: HTMLElement, opts: YTPlayerOptions) => YTPlayer
-      PlayerState: { ENDED: 0; PLAYING: 1; PAUSED: 2 }
-    }
-    onYouTubeIframeAPIReady?: () => void
-  }
-}
-
-// Load YT API once across all instances
-let apiReady: Promise<void> | null = null
-function loadYTApi(): Promise<void> {
-  if (apiReady) return apiReady
-  apiReady = new Promise((resolve) => {
-    if (typeof window === 'undefined') return
-    if (window.YT?.Player) { resolve(); return }
-    window.onYouTubeIframeAPIReady = resolve
-    const s = document.createElement('script')
-    s.src = 'https://www.youtube.com/iframe_api'
-    document.head.appendChild(s)
-  })
-  return apiReady
-}
+import { loadYTApi, type YTPlayer } from '@/lib/youtube'
 
 type Props =
   | { videoId: string; lessonId: string; moduleId?: never; initialCompleted: boolean; title: string }

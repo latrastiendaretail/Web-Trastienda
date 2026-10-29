@@ -2,18 +2,13 @@ import { notFound } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import VideoPlayer from '@/components/campus/VideoPlayer'
-import SlideDeck from '@/components/campus/SlideDeck'
+import SlideDeck, { type SlideItem } from '@/components/campus/SlideDeck'
 import { getKpiTool } from '@/components/campus/kpis/tools'
 import { ProgressDial, Watermark, Icon } from '@/components/campus/academia/icons'
+import { extractVideoId } from '@/lib/youtube'
 
 interface Props {
   params: Promise<{ slug: string; modulo: string }>
-}
-
-function extractVideoId(url: string | null): string | null {
-  if (!url) return null
-  const match = url.match(/(?:embed\/|v=|youtu\.be\/)([A-Za-z0-9_-]{11})/)
-  return match ? match[1] : null
 }
 
 function moduleHref(courseSlug: string, mod: { order_index: number; is_bonus: boolean }) {
@@ -72,18 +67,36 @@ export default async function BloquePage({ params }: Props) {
     pdfSignedUrl = signed?.signedUrl ?? null
   }
 
-  const slidePaths = moduleData.slides ?? []
-  let slideSignedUrls: string[] = []
-  if (slidePaths.length > 0) {
+  // moduleData.slides: array jsonb. Cada elemento es un path de imagen (string,
+  // formato legacy) o un objeto {type:"video", url:"<youtube url>"} para intercalar
+  // vídeos entre diapositivas.
+  type RawSlide = string | { type: 'video'; url: string }
+  const rawSlides = (moduleData.slides ?? []) as RawSlide[]
+  const imagePaths = rawSlides.filter((s): s is string => typeof s === 'string')
+  const signedByPath = new Map<string, string>()
+  if (imagePaths.length > 0) {
     const signedSlides = await Promise.all(
-      slidePaths.map((path) => supabase.storage.from('campus-resources').createSignedUrl(path, 60 * 60)),
+      imagePaths.map((path) => supabase.storage.from('campus-resources').createSignedUrl(path, 60 * 60)),
     )
-    slideSignedUrls = signedSlides.map((s) => s.data?.signedUrl).filter((u): u is string => !!u)
+    imagePaths.forEach((path, i) => {
+      const url = signedSlides[i].data?.signedUrl
+      if (url) signedByPath.set(path, url)
+    })
   }
+  const slideItems: SlideItem[] = rawSlides.reduce<SlideItem[]>((acc, s) => {
+    if (typeof s === 'string') {
+      const url = signedByPath.get(s)
+      if (url) acc.push({ type: 'image', url })
+    } else if (s.type === 'video') {
+      const videoId = extractVideoId(s.url)
+      if (videoId) acc.push({ type: 'video', videoId })
+    }
+    return acc
+  }, [])
 
   // Module-level progress (cuando el módulo tiene vídeo o diapositivas propias)
   let moduleCompleted = false
-  if ((moduleVideoId || slidePaths.length > 0) && userId) {
+  if ((moduleVideoId || slideItems.length > 0) && userId) {
     const { data: modProgress } = await supabase
       .from('module_progress')
       .select('completed')
@@ -205,11 +218,11 @@ export default async function BloquePage({ params }: Props) {
         </div>
       )}
 
-      {/* ── Módulo con diapositivas propias (documento dividido en puntos) ── */}
-      {slideSignedUrls.length > 0 && (
+      {/* ── Módulo con diapositivas propias (documento dividido en puntos, con vídeos intercalados) ── */}
+      {slideItems.length > 0 && (
         <div className="border border-lino/50 mb-12">
           <SlideDeck
-            slideUrls={slideSignedUrls}
+            items={slideItems}
             moduleId={moduleData.id}
             initialCompleted={moduleCompleted}
             title={moduleData.title}
@@ -227,7 +240,7 @@ export default async function BloquePage({ params }: Props) {
             title={moduleData.title}
           />
         </div>
-      ) : slideSignedUrls.length > 0 ? null : lessons.length === 0 ? (
+      ) : slideItems.length > 0 ? null : lessons.length === 0 ? (
         /* Sin vídeo y sin lecciones → próximamente */
         <div className="border border-lino/50 bg-blanco px-6 py-10 mb-12">
           <div className="flex items-center gap-3">

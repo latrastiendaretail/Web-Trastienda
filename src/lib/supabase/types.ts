@@ -75,7 +75,7 @@ export type Database = {
           is_bonus: boolean
           pdf_url: string | null
           tool_key: string | null
-          slides: string[] | null
+          slides: Json[] | null
           created_at: string
         }
         Insert: {
@@ -87,7 +87,7 @@ export type Database = {
           is_bonus?: boolean
           pdf_url?: string | null
           tool_key?: string | null
-          slides?: string[] | null
+          slides?: Json[] | null
         }
         Update: Partial<Database['public']['Tables']['modules']['Insert']>
         Relationships: [
