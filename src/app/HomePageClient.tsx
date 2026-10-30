@@ -364,8 +364,12 @@ export default function HomePageClient() {
       },
       { threshold: 0.08, rootMargin: '0px 0px -48px 0px' }
     )
+    document.documentElement.classList.add('reveal-ready')
     els.forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      document.documentElement.classList.remove('reveal-ready')
+    }
   }, [])
 
   return (
