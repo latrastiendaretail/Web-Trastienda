@@ -158,11 +158,11 @@ const podcasts = [
     thumbnail: '/images/Podcast/miniatura-alex-villa.png',
   },
   {
-    videoId: null as string | null,
+    videoId: 'i2AoZUiRluU',
     episode: '04',
-    title: 'Próximamente',
-    guest: 'en camino',
-    thumbnail: null as string | null,
+    title: 'Conociendo al entrevistador',
+    guest: 'con Javier Ramos',
+    thumbnail: '/images/Podcast/miniatura-javier-ramos.png',
   },
 ]
 
@@ -1239,6 +1239,8 @@ export default function HomePageClient() {
                 <div className="aspect-video w-full overflow-hidden">
                   {p.videoId ? (
                     <YoutubeConsentGate videoId={p.videoId} title={p.title} thumbnail={p.thumbnail ?? undefined} />
+                  ) : p.thumbnail ? (
+                    <Image src={p.thumbnail} alt={p.guest} width={1280} height={720} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full border border-papel/10 flex flex-col items-center justify-center gap-3 bg-papel/[0.03]">
                       <div className="w-8 h-px bg-papel/20" />
@@ -1276,6 +1278,8 @@ export default function HomePageClient() {
                 <div className="aspect-video w-full overflow-hidden">
                   {p.videoId ? (
                     <YoutubeConsentGate videoId={p.videoId} title={p.title} thumbnail={p.thumbnail ?? undefined} />
+                  ) : p.thumbnail ? (
+                    <Image src={p.thumbnail} alt={p.guest} width={1280} height={720} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full border border-papel/10 flex flex-col items-center justify-center gap-3 bg-papel/[0.03]">
                       <div className="w-8 h-px bg-papel/20" />
