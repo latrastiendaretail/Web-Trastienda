@@ -40,6 +40,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             >
               Diapositivas
             </a>
+            <a
+              href="/admin/enlaces"
+              className="font-mono text-[10px] text-cuero hover:text-tinta uppercase tracking-[0.12em] transition-colors duration-200"
+            >
+              Enlaces
+            </a>
           </nav>
           <div className="ml-auto">
             <a

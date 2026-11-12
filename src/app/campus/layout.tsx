@@ -133,6 +133,15 @@ export default function CampusLayout({
     return <>{children}</>
   }
 
+  // Vista previa por enlace: sin sidebar ni datos de sesión
+  if (currentPath.startsWith('/campus/preview/')) {
+    return (
+      <div className="min-h-screen bg-papel">
+        <main className="px-6 md:px-10 py-10">{children}</main>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-papel flex">
       {/* Desktop sidebar */}

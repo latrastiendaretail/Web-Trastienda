@@ -4,17 +4,39 @@ import { useEffect, useRef, useState } from 'react'
 import { markLessonComplete, markModuleComplete } from '@/app/actions/progress'
 import { getConsent, setConsent, CONSENT_EVENT } from '@/lib/consent'
 import { loadYTApi, type YTPlayer } from '@/lib/youtube'
+import type { VideoPopup } from '@/components/campus/kpis/popups'
 
-type Props =
+type Props = (
   | { videoId: string; lessonId: string; moduleId?: never; initialCompleted: boolean; title: string }
   | { videoId: string; moduleId: string; lessonId?: never; initialCompleted: boolean; title: string }
+) & { popups?: VideoPopup[] }
 
-export default function VideoPlayer({ videoId, lessonId, moduleId, initialCompleted, title }: Props) {
+export default function VideoPlayer({ videoId, lessonId, moduleId, initialCompleted, title, popups }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<YTPlayer | null>(null)
   const [completed, setCompleted] = useState(initialCompleted)
   const [saving, setSaving] = useState(false)
   const [consentGiven, setConsentGiven] = useState(false)
+  const [activePopup, setActivePopup] = useState<VideoPopup | null>(null)
+  const shownPopups = useRef<Set<number>>(new Set())
+
+  // Popups temporizados: comprueba el tiempo cada 500 ms (la API de YouTube no emite eventos de tiempo)
+  useEffect(() => {
+    if (!consentGiven || !popups || popups.length === 0) return
+    const id = setInterval(() => {
+      const player = playerRef.current
+      if (!player || typeof player.getCurrentTime !== 'function') return
+      const t = player.getCurrentTime()
+      for (const p of popups) {
+        // Ventana de 10 s: si el usuario salta más allá no se dispara tarde
+        if (t >= p.atSeconds && t < p.atSeconds + 10 && !shownPopups.current.has(p.atSeconds)) {
+          shownPopups.current.add(p.atSeconds)
+          setActivePopup(p)
+        }
+      }
+    }, 500)
+    return () => clearInterval(id)
+  }, [consentGiven, popups])
 
   // Track consent — sync with banner changes
   useEffect(() => {
@@ -96,6 +118,36 @@ export default function VideoPlayer({ videoId, lessonId, moduleId, initialComple
   return (
     <div className="relative aspect-video w-full bg-tinta">
       <div ref={containerRef} className="w-full h-full" title={title} />
+      {activePopup && (
+        <div
+          role="dialog"
+          aria-label={activePopup.title}
+          className="absolute bottom-14 right-3 left-3 sm:left-auto sm:w-72 bg-papel border border-lino shadow-lg px-4 py-4"
+        >
+          <button
+            type="button"
+            onClick={() => setActivePopup(null)}
+            aria-label="Cerrar"
+            className="absolute top-2 right-3 font-mono text-[14px] leading-none text-cuero hover:text-tinta cursor-pointer"
+          >
+            ×
+          </button>
+          <div className="font-sans text-[13px] font-medium text-tinta mb-1 pr-5">{activePopup.title}</div>
+          <p className="font-sans text-[12px] text-cuero leading-relaxed mb-3">{activePopup.text}</p>
+          {activePopup.href ? (
+            <a
+              href={activePopup.href}
+              className="inline-block font-mono text-[10px] uppercase tracking-[0.08em] px-4 py-2 bg-tinta text-papel hover:bg-acento hover:text-tinta transition-colors duration-200"
+            >
+              {activePopup.ctaLabel}
+            </a>
+          ) : (
+            <span className="inline-block font-mono text-[10px] uppercase tracking-[0.08em] px-4 py-2 border border-lino text-cuero/60">
+              {activePopup.ctaLabel} · Próximamente
+            </span>
+          )}
+        </div>
+      )}
       {completed && (
         <div className="absolute top-3 right-3 bg-acento text-tinta font-sans text-[9px] font-medium uppercase tracking-[0.1em] px-2 py-1 pointer-events-none">
           ✓ Completado
