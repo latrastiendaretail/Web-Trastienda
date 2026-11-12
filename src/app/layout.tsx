@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Newsreader, Space_Grotesk, IBM_Plex_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 import { ClerkProvider } from '@clerk/nextjs'
 import CookieConsent from '@/components/CookieConsent'
 import LinkedInInsightTag from '@/components/LinkedInInsightTag'
@@ -7,24 +7,37 @@ import PostHogProvider from '@/components/PostHogProvider'
 import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 
-const newsreader = Newsreader({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  style: ['normal', 'italic'],
+// Fuentes en local (src/app/fonts, subset latin de Fontsource): evita que el build
+// dependa de descargar Google Fonts, que ya hizo fallar un deploy de producción.
+const newsreader = localFont({
+  src: [
+    { path: './fonts/newsreader-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/newsreader-latin-400-italic.woff2', weight: '400', style: 'italic' },
+    { path: './fonts/newsreader-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/newsreader-latin-500-italic.woff2', weight: '500', style: 'italic' },
+    { path: './fonts/newsreader-latin-600-normal.woff2', weight: '600', style: 'normal' },
+    { path: './fonts/newsreader-latin-600-italic.woff2', weight: '600', style: 'italic' },
+  ],
   variable: '--font-newsreader',
   display: 'swap',
 })
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
+const spaceGrotesk = localFont({
+  src: [
+    { path: './fonts/space-grotesk-latin-300-normal.woff2', weight: '300', style: 'normal' },
+    { path: './fonts/space-grotesk-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/space-grotesk-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/space-grotesk-latin-600-normal.woff2', weight: '600', style: 'normal' },
+  ],
   variable: '--font-space-grotesk',
   display: 'swap',
 })
 
-const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500'],
+const ibmPlexMono = localFont({
+  src: [
+    { path: './fonts/ibm-plex-mono-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/ibm-plex-mono-latin-500-normal.woff2', weight: '500', style: 'normal' },
+  ],
   variable: '--font-mono',
   display: 'swap',
 })
