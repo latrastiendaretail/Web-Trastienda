@@ -23,6 +23,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Usuarios
             </a>
             <a
+              href="/admin/alumnos"
+              className="font-mono text-[10px] text-cuero hover:text-tinta uppercase tracking-[0.12em] transition-colors duration-200"
+            >
+              Alumnos
+            </a>
+            <a
               href="/admin/productos"
               className="font-mono text-[10px] text-cuero hover:text-tinta uppercase tracking-[0.12em] transition-colors duration-200"
             >
