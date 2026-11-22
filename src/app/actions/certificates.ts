@@ -33,6 +33,8 @@ export async function getOrCreateCertificate(courseId: string): Promise<
 
   if (!enrollment) return { error: 'No estás matriculado en este curso' }
 
+  let finishedAt: string | null = null
+
   // Check completion: module-video courses use module_progress; lesson courses use lesson_progress.
   const { data: videoModules } = await supabase
     .from('modules')
@@ -54,6 +56,17 @@ export async function getOrCreateCertificate(courseId: string): Promise<
     if ((completedCount ?? 0) < total) {
       return { error: 'Curso no completado', completedCount: completedCount ?? 0, total }
     }
+
+    const { data: last } = await supabase
+      .from('module_progress')
+      .select('completed_at')
+      .eq('user_id', userId)
+      .in('module_id', videoModuleIds)
+      .eq('completed', true)
+      .order('completed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    finishedAt = last?.completed_at ?? null
   } else {
     const { data: lessons } = await supabase
       .from('lessons')
@@ -75,14 +88,27 @@ export async function getOrCreateCertificate(courseId: string): Promise<
     if ((completedCount ?? 0) < total) {
       return { error: 'Curso no completado', completedCount: completedCount ?? 0, total }
     }
+
+    const { data: last } = await supabase
+      .from('lesson_progress')
+      .select('completed_at')
+      .eq('user_id', userId)
+      .in('lesson_id', lessonIds)
+      .eq('completed', true)
+      .order('completed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    finishedAt = last?.completed_at ?? null
   }
 
-  const year = new Date().getFullYear()
+  // Fecha del diploma = día en que terminó el último bloque (no cuando pide el diploma).
+  const issuedAt = finishedAt ?? new Date().toISOString()
+  const year = new Date(issuedAt).getFullYear()
   const code = `LT · ${year} · ${randomBytes(4).toString('hex').toUpperCase()}`
 
   const { data: certificate, error } = await supabase
     .from('certificates')
-    .insert({ user_id: userId, course_id: courseId, code })
+    .insert({ user_id: userId, course_id: courseId, code, issued_at: issuedAt })
     .select('id, code, issued_at')
     .single()
 

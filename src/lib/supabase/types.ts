@@ -343,6 +343,7 @@ export type Database = {
           user_id: string
           course_id: string
           code: string
+          issued_at?: string
         }
         Update: never
         Relationships: [
