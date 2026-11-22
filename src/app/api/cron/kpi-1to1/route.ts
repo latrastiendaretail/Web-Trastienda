@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { getResend, MAIL_FROM, MAIL_REPLY_TO } from '@/lib/email'
+import { env } from '@/lib/env'
 import { renderKpi1to1Email } from '@/emails/kpi1to1'
 
 const OPT_OUT = 'mailto:latrastienda.retail@gmail.com?subject=Baja%20de%20comunicaciones'
@@ -15,7 +16,7 @@ function promoExpiry(): string {
 }
 
 export async function GET(request: Request) {
-  if (request.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (request.headers.get('authorization') !== `Bearer ${env('CRON_SECRET')}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { stripe } from '@/lib/stripe'
 import { createServiceClient } from '@/lib/supabase/service'
+import ActivatingAccess from '@/components/campus/ActivatingAccess'
 
 // Contiene datos de compra en la URL: nunca indexar.
 export const metadata: Metadata = {
@@ -16,36 +17,41 @@ interface Props {
 export default async function CompraExitoPage({ searchParams }: Props) {
   const { session_id, course_slug } = await searchParams
   const { userId } = await auth()
+  const supabase = createServiceClient()
 
+  let courseId = ''
   let courseName = ''
   let courseSlug = ''
   let customerEmail = ''
+  // true si hay constancia de pago/alta, aunque la matrícula aún no esté creada
+  let paid = false
 
   if (course_slug) {
-    // Flujo de curso gratuito: la matrícula ya la creó `enrollFree`.
-    // Aquí solo confirmamos leyendo el estado real, sin fiarnos de la URL.
-    const supabase = createServiceClient()
+    // Curso gratuito (o pago ya registrado): se confirma leyendo el estado real, no la URL.
     const { data: course } = await supabase
       .from('courses')
       .select('id, title, slug')
       .eq('slug', course_slug)
       .maybeSingle()
     if (!course) redirect('/campus')
+    courseId = course.id
+    courseName = course.title
+    courseSlug = course.slug
 
     if (userId) {
-      const { data: enrollment } = await supabase
-        .from('enrollments')
+      const { data: purchase } = await supabase
+        .from('purchases')
         .select('id')
         .eq('user_id', userId)
         .eq('course_id', course.id)
+        .eq('status', 'completed')
+        .limit(1)
         .maybeSingle()
-      if (!enrollment) redirect(`/campus/cursos/${course.slug}`)
+      paid = !!purchase
     }
-    courseName = course.title
-    courseSlug = course.slug
   } else if (session_id) {
-    // Flujo de pago Stripe. La concesión de acceso la hace SOLO el webhook
-    // (firmado, idempotente). Esta página únicamente muestra el estado.
+    // Pago Stripe. La concesión de acceso la hace SOLO el webhook (firmado, idempotente);
+    // esta página únicamente muestra el estado.
     let session: Awaited<ReturnType<typeof stripe.checkout.sessions.retrieve>> | null = null
     try {
       session = await stripe.checkout.sessions.retrieve(session_id)
@@ -59,10 +65,10 @@ export default async function CompraExitoPage({ searchParams }: Props) {
       redirect('/campus')
     }
 
+    paid = true
     customerEmail = session.customer_details?.email ?? ''
-    const courseId = session.metadata?.course_id
+    courseId = session.metadata?.course_id ?? ''
     if (courseId) {
-      const supabase = createServiceClient()
       const { data: course } = await supabase
         .from('courses')
         .select('title, slug')
@@ -75,37 +81,69 @@ export default async function CompraExitoPage({ searchParams }: Props) {
     redirect('/campus')
   }
 
+  let enrolled = false
+  if (userId && courseId) {
+    const { data: enrollment } = await supabase
+      .from('enrollments')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('course_id', courseId)
+      .maybeSingle()
+    enrolled = !!enrollment
+  }
+
+  // Sin matrícula ni constancia de pago: no hay nada que confirmar
+  if (!enrolled && !paid && courseSlug) redirect(`/campus/cursos/${courseSlug}`)
+
+  const activating = !!userId && !enrolled && paid
+
   return (
     <div className="min-h-screen bg-papel flex items-center justify-center px-6 py-20">
-      <div className="max-w-md w-full">
-        <div className="border border-lino/50 bg-blanco px-8 py-10">
-          <div className="font-mono text-[9px] text-acento uppercase tracking-[0.16em] mb-4">
-            Compra completada
-          </div>
-
-          <h1 className="font-display text-[clamp(1.5rem,3vw,2rem)] font-medium text-tinta leading-[1.1] tracking-[-0.02em] mb-4">
-            {courseName ? `Ya tienes acceso a "${courseName}"` : 'Pago procesado correctamente'}
+      <div className="max-w-lg w-full">
+        <div className="border border-lino bg-blanco px-8 py-10">
+          <h1 className="font-display text-[clamp(1.6rem,3vw,2.25rem)] font-medium text-tinta leading-[1.15] tracking-[-0.02em] mb-4">
+            {activating
+              ? 'Pago recibido'
+              : courseName
+                ? `Ya tienes acceso a «${courseName}»`
+                : 'Pago procesado correctamente'}
           </h1>
 
-          <p className="font-sans text-sm text-cuero leading-relaxed mb-8">
-            {customerEmail
-              ? `Hemos enviado la confirmación a ${customerEmail}.`
-              : 'Tu pago ha sido procesado.'}{' '}
-            Tu acceso al curso está activo ahora mismo.
-          </p>
+          {activating ? (
+            <div className="mb-8">
+              <ActivatingAccess />
+            </div>
+          ) : (
+            <p className="font-sans text-[16px] text-tinta/75 leading-relaxed mb-8">
+              {customerEmail
+                ? `Te hemos enviado la confirmación a ${customerEmail}. `
+                : 'Te hemos enviado la confirmación por correo. '}
+              {userId ? 'Tu acceso al curso está activo.' : 'Inicia sesión para empezar el curso.'}
+            </p>
+          )}
 
           <div className="flex flex-col gap-3">
-            {courseSlug && (
+            {!userId ? (
               <a
-                href={`/campus/cursos/${courseSlug}`}
-                className="font-mono text-[11px] font-medium text-papel bg-tinta px-5 min-h-[44px] flex items-center justify-center uppercase tracking-[0.08em] hover:bg-acento hover:text-tinta transition-colors duration-200"
+                href={`/campus/login${courseSlug ? `?redirect_url=${encodeURIComponent(`/campus/cursos/${courseSlug}`)}` : ''}`}
+                className="font-sans text-[15px] font-medium text-papel bg-tinta px-6 min-h-[48px] flex items-center justify-center hover:bg-acento hover:text-tinta transition-colors duration-200"
               >
-                Ir al curso →
+                Iniciar sesión
               </a>
+            ) : (
+              courseSlug &&
+              !activating && (
+                <a
+                  href={`/campus/cursos/${courseSlug}`}
+                  className="font-sans text-[15px] font-medium text-papel bg-tinta px-6 min-h-[48px] flex items-center justify-center hover:bg-acento hover:text-tinta transition-colors duration-200"
+                >
+                  Ir al curso
+                </a>
+              )
             )}
             <a
               href="/campus/cursos"
-              className="font-mono text-[11px] text-cuero hover:text-tinta uppercase tracking-[0.08em] text-center transition-colors duration-200"
+              className="font-sans text-[15px] text-tinta/65 hover:text-tinta text-center min-h-[44px] flex items-center justify-center transition-colors duration-200"
             >
               Ver todos los cursos
             </a>

@@ -2,7 +2,7 @@
 
 import { headers } from 'next/headers'
 import { Resend } from 'resend'
-import { contactRatelimit } from '@/lib/ratelimit'
+import { contactRatelimit, withinLimit } from '@/lib/ratelimit'
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254
@@ -15,7 +15,7 @@ export type ContactResult =
 export async function submitContact(formData: FormData): Promise<ContactResult> {
   const headersList = await headers()
   const ip = headersList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'anon'
-  const { success: allowed } = await contactRatelimit.limit(ip)
+  const allowed = await withinLimit(contactRatelimit, ip)
   if (!allowed) return { success: false, error: 'Demasiados intentos. Inténtalo más tarde.' }
 
   const honeypot = (formData.get('website') as string) ?? ''

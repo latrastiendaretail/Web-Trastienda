@@ -4,11 +4,9 @@ import { auth, clerkClient } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { stripe } from '@/lib/stripe'
 import { createServiceClient } from '@/lib/supabase/service'
-import { getResend, MAIL_FROM, MAIL_REPLY_TO, baseUrl } from '@/lib/email'
-import { renderCourseAccessEmail } from '@/emails/courseAccess'
+import { baseUrl } from '@/lib/email'
+import { sendAccessEmail } from '@/lib/accessEmail'
 import { NEWSLETTER_CONSENT_TEXT } from '@/lib/legal'
-
-const CAMPUS_UNSUB = 'mailto:latrastienda.retail@gmail.com?subject=Baja%20de%20avisos%20del%20campus'
 
 /** Metadata + opciones comunes a las sesiones de checkout. */
 function checkoutExtras(userId: string, courseId: string, newsletterOptIn: boolean) {
@@ -25,6 +23,21 @@ function checkoutExtras(userId: string, courseId: string, newsletterOptIn: boole
     invoice_creation: { enabled: true },
     payment_intent_data: { metadata: { user_id: userId, course_id: courseId } },
   }
+}
+
+
+/** Si ya hay un pago completado de este curso, no se cobra otra vez: el acceso se está activando. */
+async function redirectIfAlreadyPaid(userId: string, courseId: string, slug: string) {
+  const supabase = createServiceClient()
+  const { data: paid } = await supabase
+    .from('purchases')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('course_id', courseId)
+    .eq('status', 'completed')
+    .limit(1)
+    .maybeSingle()
+  if (paid) redirect(`/compra/exito?course_slug=${encodeURIComponent(slug)}`)
 }
 
 export async function createCheckoutSession(
@@ -56,6 +69,7 @@ export async function createCheckoutSession(
     .maybeSingle()
 
   if (enrollment) redirect(`/campus/cursos/${course.slug}`)
+  await redirectIfAlreadyPaid(userId, courseId, course.slug)
 
   // Get user email to pre-fill Stripe Checkout
   const clerk = await clerkClient()
@@ -104,6 +118,7 @@ export async function createEmbeddedCheckoutSession(
     .maybeSingle()
 
   if (enrollment) redirect(`/campus/cursos/${course.slug}`)
+  await redirectIfAlreadyPaid(userId, courseId, course.slug)
 
   const clerk = await clerkClient()
   const user = await clerk.users.getUser(userId)
@@ -152,9 +167,8 @@ export async function enrollFree(courseId: string): Promise<never> {
   const clerk = await clerkClient()
   const user = await clerk.users.getUser(userId)
   const email = user.emailAddresses[0]?.emailAddress ?? null
-  const firstName = user.firstName ?? ''
 
-  await supabase
+  const { data: purchase } = await supabase
     .from('purchases')
     .insert({
       user_id: userId,
@@ -164,36 +178,18 @@ export async function enrollFree(courseId: string): Promise<never> {
       currency: 'eur',
       status: 'completed',
       customer_email: email,
-      access_email_sent_at: email ? new Date().toISOString() : null,
     })
-    .select()
+    .select('id')
     .maybeSingle()
 
-  await supabase.from('enrollments').insert({ user_id: userId, course_id: courseId })
-
-  if (email) {
-    const { count: moduleCount } = await supabase
-      .from('modules')
-      .select('*', { count: 'exact', head: true })
-      .eq('course_id', courseId)
-
-    const resend = getResend()
-    if (resend) {
-      const { subject, html } = renderCourseAccessEmail({
-        firstName,
-        courseTitle: course.title,
-        courseUrl: `${baseUrl()}/campus/cursos/${course.slug}`,
-        moduleCount: moduleCount ?? 0,
-        amount: 'Gratuito',
-        date: new Date().toLocaleDateString('es-ES', { timeZone: 'Europe/Madrid' }),
-        paymentMethod: '—',
-        unsubscribeUrl: CAMPUS_UNSUB,
-      })
-      await resend.emails
-        .send({ from: MAIL_FROM, replyTo: MAIL_REPLY_TO, to: [email], subject, html })
-        .catch((err) => console.error('[enrollFree] email error', err))
-    }
+  // 23505 = ya matriculado (doble clic / pestañas): no es un error para el alumno
+  const { error: enrollError } = await supabase.from('enrollments').insert({ user_id: userId, course_id: courseId })
+  if (enrollError && enrollError.code !== '23505') {
+    console.error('[enrollFree] enrollment error', enrollError)
+    throw new Error('No se ha podido activar el acceso. Inténtalo de nuevo.')
   }
+
+  if (purchase?.id) await sendAccessEmail(purchase.id)
 
   redirect(`/compra/exito?course_slug=${encodeURIComponent(course.slug)}`)
 }

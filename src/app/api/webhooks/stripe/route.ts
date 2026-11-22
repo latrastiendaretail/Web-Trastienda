@@ -4,41 +4,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 import { stripe } from '@/lib/stripe'
 import { createServiceClient } from '@/lib/supabase/service'
-import { getResend, MAIL_FROM, MAIL_REPLY_TO, baseUrl } from '@/lib/email'
-import { renderCourseAccessEmail } from '@/emails/courseAccess'
 import { handleNewsletterSignup } from '@/lib/newsletter'
 import { NEWSLETTER_CONSENT_TEXT } from '@/lib/legal'
-
-const CAMPUS_UNSUB = 'mailto:latrastienda.retail@gmail.com?subject=Baja%20de%20avisos%20del%20campus'
-
-const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  card: 'Tarjeta',
-  klarna: 'Klarna (pago aplazado)',
-  sepa_debit: 'Domiciliación SEPA',
-  link: 'Link',
-  paypal: 'PayPal',
-  bizum: 'Bizum',
-}
-
-async function resolvePaymentMethod(paymentIntentId: string | null): Promise<string> {
-  if (!paymentIntentId) return 'Tarjeta'
-  try {
-    const pi = await stripe.paymentIntents.retrieve(paymentIntentId, { expand: ['latest_charge'] })
-    const charge = pi.latest_charge as Stripe.Charge | null
-    const type = charge?.payment_method_details?.type
-    if (!type) return 'Tarjeta'
-    return PAYMENT_METHOD_LABELS[type] ?? type.charAt(0).toUpperCase() + type.slice(1)
-  } catch {
-    return 'Tarjeta'
-  }
-}
+import { sendAccessEmail } from '@/lib/accessEmail'
+import { env } from '@/lib/env'
 
 async function grantCourseAccess(session: Stripe.Checkout.Session): Promise<NextResponse> {
   const userId = session.metadata?.user_id
   const courseId = session.metadata?.course_id
 
   if (!userId || !courseId) {
-    return NextResponse.json({ error: 'Missing metadata' }, { status: 400 })
+    // Sesión de otro producto de la misma cuenta de Stripe: se ignora (200 evita reintentos)
+    console.warn('[stripe webhook] sesión sin metadata user_id/course_id, ignorada', session.id)
+    return NextResponse.json({ received: true, ignored: true })
   }
 
   // Sólo conceder acceso si el pago está confirmado (Klarna/aplazados pueden llegar sin pagar)
@@ -94,59 +72,16 @@ async function grantCourseAccess(session: Stripe.Checkout.Session): Promise<Next
     }).catch((err) => console.error('[stripe webhook] newsletter error', err))
   }
 
-  // Email de acceso — sólo una vez (dedupe con access_email_sent_at)
-  const customerEmail = session.customer_details?.email
-  const resend = getResend()
-  if (customerEmail && resend) {
-    const { data: purchaseRow } = await supabase
-      .from('purchases')
-      .select('id, access_email_sent_at')
-      .eq('stripe_session_id', session.id)
-      .maybeSingle()
-
-    if (purchaseRow && !purchaseRow.access_email_sent_at) {
-      const { data: course } = await supabase
-        .from('courses')
-        .select('title, slug')
-        .eq('id', courseId)
-        .single()
-
-      if (course) {
-        const { count: moduleCount } = await supabase
-          .from('modules')
-          .select('*', { count: 'exact', head: true })
-          .eq('course_id', courseId)
-
-        const amount = ((session.amount_total ?? 0) / 100).toLocaleString('es-ES', {
-          style: 'currency',
-          currency: (session.currency ?? 'eur').toUpperCase(),
-        })
-
-        const { subject, html } = renderCourseAccessEmail({
-          firstName: session.customer_details?.name?.split(' ')[0] ?? '',
-          courseTitle: course.title,
-          courseUrl: `${baseUrl()}/campus/cursos/${course.slug}`,
-          moduleCount: moduleCount ?? 0,
-          amount,
-          date: new Date().toLocaleDateString('es-ES', { timeZone: 'Europe/Madrid' }),
-          paymentMethod: await resolvePaymentMethod(paymentIntentId),
-          unsubscribeUrl: CAMPUS_UNSUB,
-        })
-
-        const { error: sendError } = await resend.emails
-          .send({ from: MAIL_FROM, replyTo: MAIL_REPLY_TO, to: [customerEmail], subject, html })
-          .then((r) => ({ error: r.error }))
-          .catch((err) => ({ error: err }))
-
-        if (!sendError) {
-          await supabase
-            .from('purchases')
-            .update({ access_email_sent_at: new Date().toISOString() })
-            .eq('id', purchaseRow.id)
-        } else {
-          console.error('[stripe webhook] email error', sendError)
-        }
-      }
+  // Email de acceso: una sola vez, sin tumbar el webhook si falla (el cron lo reintenta)
+  const { data: purchaseRow } = await supabase
+    .from('purchases')
+    .select('id')
+    .eq('stripe_session_id', session.id)
+    .maybeSingle()
+  if (purchaseRow) {
+    const result = await sendAccessEmail(purchaseRow.id)
+    if (result === 'failed' || result === 'skipped') {
+      console.error('[stripe webhook] correo de acceso no enviado', { purchase: purchaseRow.id, result })
     }
   }
 
@@ -209,7 +144,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 })
   }
 
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+  const webhookSecret = env('STRIPE_WEBHOOK_SECRET')
   if (!webhookSecret) {
     console.error('[stripe webhook] STRIPE_WEBHOOK_SECRET not set')
     return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })

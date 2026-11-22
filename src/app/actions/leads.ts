@@ -3,7 +3,8 @@
 import { headers } from 'next/headers'
 import { createServiceClient } from '@/lib/supabase/service'
 import { Resend } from 'resend'
-import { leadsRatelimit } from '@/lib/ratelimit'
+import { leadsRatelimit, withinLimit } from '@/lib/ratelimit'
+import { MAIL_FROM } from '@/lib/email'
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254
@@ -16,7 +17,7 @@ export type LeadResult =
 export async function submitLead(formData: FormData): Promise<LeadResult> {
   const headersList = await headers()
   const ip = headersList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'anon'
-  const { success: allowed } = await leadsRatelimit.limit(ip)
+  const allowed = await withinLimit(leadsRatelimit, ip)
   if (!allowed) return { success: false, error: 'Demasiados intentos. Inténtalo más tarde.' }
 
   // Honeypot: bots rellenan este campo oculto, humanos no
@@ -42,7 +43,7 @@ export async function submitLead(formData: FormData): Promise<LeadResult> {
   if (process.env.RESEND_API_KEY && process.env.LEADS_EMAIL_TO) {
     const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
-      from: 'Campus <onboarding@resend.dev>',
+      from: MAIL_FROM,
       to: [process.env.LEADS_EMAIL_TO],
       subject: 'Nuevo alumno interesado — La Trastienda',
       text: `Nuevo registro en la lista de espera:\n\nEmail: ${email}\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}`,
