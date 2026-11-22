@@ -33,8 +33,8 @@ const EMPTY: FichaState = {
 const STEPS = ['Datos', 'Qué ha pasado', 'Lectura', 'Compromiso'] as const
 
 const inputClass =
-  'w-full bg-transparent border-b border-lino/60 focus:border-acento outline-none py-1.5 font-sans text-[13px] text-tinta placeholder:text-cuero/40 transition-colors duration-150'
-const labelClass = 'font-mono text-[9px] text-cuero uppercase tracking-[0.1em] block mb-1'
+  'w-full bg-transparent border-b border-tinta/30 focus:border-acento outline-none py-2 font-sans text-[16px] text-tinta placeholder:text-tinta/35 transition-colors duration-150'
+const labelClass = 'font-sans text-[14px] text-tinta/70 block mb-1'
 
 function Field({
   label, value, onChange, placeholder, type = 'text',
@@ -77,7 +77,7 @@ export default function FichaExplicaVenta() {
       const marginX = 48
       let y = 56
 
-      const acento = '#b06a3a'
+      const acento = '#B8821C'
       const tinta = '#1c1a17'
       const cuero = '#6b6058'
 
@@ -190,40 +190,40 @@ export default function FichaExplicaVenta() {
 
   if (!open) {
     return (
-      <div className="border border-lino/50 bg-blanco px-6 py-5 flex items-center justify-between gap-4">
+      <div className="border border-lino bg-blanco px-6 py-5 flex items-center justify-between gap-4">
         <div>
-          <span className="font-mono text-[9px] text-acento uppercase tracking-[0.12em] block mb-1">
-            Herramienta interactiva · Capítulo 01
+          <span className="font-sans text-[14px] text-acento-deep block mb-1">
+            Ficha del capítulo 01
           </span>
-          <h3 className="font-display text-lg text-tinta mb-1">Explica tu venta</h3>
-          <p className="font-sans text-[12px] text-cuero leading-relaxed max-w-[52ch]">
+          <h3 className="font-display text-[22px] font-medium text-tinta mb-1">Explica tu venta</h3>
+          <p className="font-sans text-[15px] text-tinta/70 leading-relaxed max-w-[52ch]">
             Ficha guiada en 4 pasos. Complétala cuando exista una desviación relevante en tu venta.
           </p>
         </div>
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="shrink-0 font-mono text-[11px] font-medium text-papel bg-acento px-5 min-h-[40px] flex items-center uppercase tracking-[0.08em] hover:bg-acento-deep transition-colors duration-200 cursor-pointer"
+          className="shrink-0 font-sans text-[15px] font-medium text-papel bg-tinta px-6 min-h-[44px] flex items-center hover:bg-acento hover:text-tinta transition-colors duration-200 cursor-pointer"
         >
-          Abrir ficha →
+          Abrir ficha
         </button>
       </div>
     )
   }
 
   return (
-    <div className="border border-lino/50 bg-blanco">
-      <div className="px-6 py-4 border-b border-lino/50 flex items-center justify-between">
+    <div className="border border-lino bg-blanco">
+      <div className="px-6 py-4 border-b border-lino flex items-center justify-between">
         <div>
-          <span className="font-mono text-[9px] text-acento uppercase tracking-[0.12em] block mb-1">
-            Herramienta interactiva · Capítulo 01
+          <span className="font-sans text-[14px] text-acento-deep block mb-1">
+            Ficha del capítulo 01
           </span>
-          <h3 className="font-display text-lg text-tinta">Explica tu venta</h3>
+          <h3 className="font-display text-[22px] font-medium text-tinta">Explica tu venta</h3>
         </div>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="font-mono text-[10px] text-cuero hover:text-tinta uppercase tracking-[0.1em] transition-colors duration-200 cursor-pointer"
+          className="font-sans text-[15px] text-tinta/65 hover:text-tinta min-h-[44px] transition-colors duration-200 cursor-pointer"
         >
           Cerrar
         </button>
@@ -238,20 +238,10 @@ export default function FichaExplicaVenta() {
               onClick={() => setStep(i)}
               className="flex items-center gap-2 cursor-pointer group"
             >
+              <span className={`font-sans text-[14px] tabular-nums ${i === step ? 'text-acento-deep font-medium' : i < step ? 'text-tinta' : 'text-tinta/45'}`}>{i < step ? '✓' : `${i + 1}.`}</span>
               <span
-                className={`w-5 h-5 rounded-full flex items-center justify-center font-mono text-[9px] shrink-0 transition-colors duration-150 ${
-                  i === step
-                    ? 'bg-acento text-papel'
-                    : i < step
-                      ? 'bg-tinta text-papel'
-                      : 'bg-lino/50 text-cuero'
-                }`}
-              >
-                {i < step ? '✓' : i + 1}
-              </span>
-              <span
-                className={`hidden sm:inline font-mono text-[9px] uppercase tracking-[0.08em] transition-colors duration-150 ${
-                  i === step ? 'text-tinta' : 'text-cuero/60 group-hover:text-cuero'
+                className={`hidden sm:inline font-sans text-[14px] transition-colors duration-150 ${
+                  i === step ? 'text-tinta font-medium' : 'text-tinta/55 group-hover:text-tinta'
                 }`}
               >
                 {label}
@@ -265,7 +255,7 @@ export default function FichaExplicaVenta() {
       <div className="px-6 py-6 min-h-[280px]">
         {step === 0 && (
           <div className="space-y-4">
-            <p className="font-sans text-[12px] text-cuero leading-relaxed max-w-[60ch]">
+            <p className="font-sans text-[15px] text-tinta/70 leading-relaxed max-w-[60ch]">
               Completa esta ficha cada vez que exista una desviación relevante en la venta de tu tienda.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -320,7 +310,7 @@ export default function FichaExplicaVenta() {
               <span className={labelClass}>¿Es puntual o tendencia?</span>
               <div className="flex flex-wrap gap-4 mt-1">
                 {(['Puntual', 'Tendencia', 'Todavía no lo sé'] as const).map((opt) => (
-                  <label key={opt} className="flex items-center gap-2 font-sans text-[12px] text-tinta cursor-pointer">
+                  <label key={opt} className="flex items-center gap-2 font-sans text-[15px] text-tinta cursor-pointer">
                     <input
                       type="radio"
                       name="tipo"
@@ -355,31 +345,31 @@ export default function FichaExplicaVenta() {
         )}
       </div>
 
-      <div className="px-6 py-4 border-t border-lino/50 flex items-center justify-between">
+      <div className="px-6 py-4 border-t border-lino flex items-center justify-between">
         <button
           type="button"
           onClick={() => (step === 0 ? setF(EMPTY) : setStep(step - 1))}
-          className="font-mono text-[10px] text-cuero hover:text-tinta uppercase tracking-[0.1em] transition-colors duration-200 cursor-pointer"
+          className="font-sans text-[15px] text-tinta/65 hover:text-tinta min-h-[44px] transition-colors duration-200 cursor-pointer"
         >
-          {step === 0 ? 'Vaciar ficha' : '← Atrás'}
+          {step === 0 ? 'Vaciar ficha' : 'Atrás'}
         </button>
 
         {step < STEPS.length - 1 ? (
           <button
             type="button"
             onClick={() => setStep(step + 1)}
-            className="font-mono text-[11px] font-medium text-tinta border border-tinta/30 px-5 min-h-[40px] flex items-center uppercase tracking-[0.08em] hover:border-tinta transition-colors duration-200 cursor-pointer"
+            className="font-sans text-[15px] font-medium text-tinta border border-tinta px-6 min-h-[44px] flex items-center hover:bg-tinta hover:text-papel transition-colors duration-200 cursor-pointer"
           >
-            Siguiente →
+            Siguiente
           </button>
         ) : (
           <button
             type="button"
             onClick={handleDownload}
             disabled={generating}
-            className="font-mono text-[11px] font-medium text-papel bg-acento px-5 min-h-[40px] flex items-center uppercase tracking-[0.08em] hover:bg-acento-deep transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="font-sans text-[15px] font-medium text-papel bg-tinta px-6 min-h-[44px] flex items-center hover:bg-acento hover:text-tinta transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {generating ? 'Generando...' : 'Descargar PDF →'}
+            {generating ? 'Generando…' : 'Descargar PDF'}
           </button>
         )}
       </div>

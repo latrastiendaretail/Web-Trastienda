@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase/service'
 import { auth } from '@clerk/nextjs/server'
-import { ProgressDial, Watermark } from '@/components/campus/academia/icons'
+import { ProgressDial } from '@/components/campus/academia/icons'
 
 export default async function ProgresoPage() {
   const { userId } = await auth()
@@ -101,50 +101,37 @@ export default async function ProgresoPage() {
   const avgProgress = totalUnits > 0 ? Math.round((totalCompleted / totalUnits) * 100) : 0
 
   const stats = [
-    { value: String(enrolledCount ?? 0), label: 'Cursos inscritos', sub: 'activos' },
-    { value: String(completedLessons ?? 0), label: 'Lecciones completadas', sub: 'en total' },
-    { value: `${avgProgress}%`, label: 'Progreso medio', sub: 'en todos los cursos' },
-    { value: String(certificates?.length ?? 0), label: 'Certificados', sub: 'obtenidos' },
+    { value: String(enrolledCount ?? 0), label: 'Cursos' },
+    { value: String(completedLessons ?? 0), label: 'Lecciones completadas' },
+    { value: `${avgProgress}%`, label: 'Progreso medio' },
+    { value: String(certificates?.length ?? 0), label: 'Certificados' },
   ]
 
   return (
-    <div className="max-w-5xl">
-      <div className="relative mb-12 pb-10 border-b border-lino/50 overflow-hidden">
-        <Watermark text={`${avgProgress}%`} className="text-[13rem] -right-6 -top-14 md:text-[15rem]" />
-        <span className="relative block font-mono text-[9px] text-cuero uppercase tracking-[0.16em] mb-3">
-          Seguimiento
-        </span>
-        <h1 className="relative font-display text-[clamp(2.25rem,5vw,3.75rem)] font-medium text-tinta leading-[1.05] tracking-[-0.02em] mb-4">
+    <div className="max-w-[760px] mx-auto">
+      <header className="mb-10">
+        <h1 className="font-display text-[clamp(2rem,4vw,3rem)] font-medium text-tinta leading-[1.1] tracking-[-0.02em] mb-3">
           Mi progreso
         </h1>
-        <p className="relative font-sans text-base text-cuero leading-relaxed max-w-[52ch]">
-          Tu avance formativo, historial de cursos y certificados.
-        </p>
-      </div>
+        <p className="font-sans text-[17px] text-tinta/70 leading-relaxed">Tus cursos, tu avance y tus certificados.</p>
+      </header>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-14">
+      <dl className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-6 border-y border-lino py-7 mb-14">
         {stats.map((stat) => (
-          <div key={stat.label} className="bg-blanco border border-lino/50 p-5">
-            <div className="font-display text-3xl font-medium text-tinta leading-none mb-1">
-              {stat.value}
-            </div>
-            <div className="font-mono text-[10px] text-cuero uppercase tracking-[0.1em] mb-0.5">
-              {stat.label}
-            </div>
-            <div className="font-mono text-[9px] text-cuero/50 uppercase tracking-[0.08em]">
-              {stat.sub}
-            </div>
+          <div key={stat.label}>
+            <dd className="font-display text-[34px] font-medium text-tinta leading-none mb-1.5">{stat.value}</dd>
+            <dt className="font-sans text-[14px] text-tinta/65">{stat.label}</dt>
           </div>
         ))}
-      </div>
+      </dl>
 
-      <div className="mb-12">
-        <h2 className="font-display text-xl font-medium text-tinta tracking-[-0.01em] mb-6">
-          Historial de cursos
+      <section className="mb-14" aria-labelledby="historial">
+        <h2 id="historial" className="font-display text-2xl font-medium text-tinta mb-4">
+          Mis cursos
         </h2>
 
         {enrollments && enrollments.length > 0 ? (
-          <div className="space-y-3">
+          <div className="border-t border-lino">
             {enrollments.map((e) => {
               const course = e.courses as { title: string; duration_minutes: number; status: string; slug: string } | null
               const progress = progressByCourse.get(e.course_id)
@@ -153,90 +140,71 @@ export default async function ProgresoPage() {
                 <a
                   key={e.course_id}
                   href={course?.slug ? `/campus/cursos/${course.slug}` : '/campus/cursos'}
-                  className="flex items-center justify-between bg-blanco border border-lino/50 px-6 py-4 hover:border-tinta/30 transition-colors duration-200 cursor-pointer group"
+                  className="flex items-center justify-between gap-5 border-b border-lino py-5 group cursor-pointer"
                 >
-                  <div>
-                    <span className="block font-sans text-sm font-medium text-tinta">
+                  <div className="min-w-0">
+                    <span className="block font-sans text-[17px] font-medium text-tinta group-hover:text-acento-deep transition-colors duration-200">
                       {course?.title ?? 'Curso'}
                     </span>
-                    <span className="font-mono text-[10px] text-cuero uppercase tracking-[0.08em]">
-                      Inscrito {new Date(e.enrolled_at).toLocaleDateString('es-ES')}
+                    <span className="font-sans text-[14px] text-tinta/60">
+                      Inscrito el {new Date(e.enrolled_at).toLocaleDateString('es-ES')}
                     </span>
                   </div>
                   <div className="flex items-center gap-4 shrink-0">
                     {progress && progress.total > 0 ? (
-                      <div className="flex items-center gap-2">
-                        <ProgressDial total={progress.total} completed={progress.completed} markClassName="w-2.5 h-2.5" />
-                        <span className={`font-mono text-[9px] uppercase tracking-[0.1em] ${isComplete ? 'text-acento' : 'text-cuero'}`}>
-                          {isComplete ? 'Completado' : `${progress.completed}/${progress.total}`}
+                      <>
+                        <ProgressDial total={progress.total} completed={progress.completed} className="hidden sm:block" />
+                        <span className="font-sans text-[14px] text-tinta/70 w-24 text-right">
+                          {isComplete ? 'Completado' : `${progress.completed} de ${progress.total}`}
                         </span>
-                      </div>
+                      </>
                     ) : (
-                      <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.1em] border border-lino/60 px-2 py-1">
-                        Sin empezar
-                      </span>
+                      <span className="font-sans text-[14px] text-tinta/60">Sin empezar</span>
                     )}
-                    <span className="font-mono text-[13px] text-cuero/40 group-hover:text-tinta transition-colors">→</span>
                   </div>
                 </a>
               )
             })}
           </div>
         ) : (
-          <div className="border border-lino/40 bg-blanco px-6 py-12 flex flex-col items-center justify-center text-center">
-            <p className="font-sans text-sm text-cuero/60 max-w-[36ch] leading-relaxed">
-              Aún no estás inscrito en ningún curso.
-            </p>
-            <a
-              href="/campus/cursos"
-              className="mt-6 inline-flex items-center font-mono text-[11px] font-medium text-tinta uppercase tracking-[0.08em] border border-tinta px-5 min-h-[40px] hover:bg-tinta hover:text-papel transition-colors duration-200 cursor-pointer"
-            >
-              Ver catálogo de cursos
-            </a>
-          </div>
+          <p className="font-sans text-[16px] text-tinta/70">
+            Aún no estás inscrito en ningún curso.{' '}
+            <a href="/campus/cursos" className="text-tinta underline underline-offset-4">Ver cursos</a>
+          </p>
         )}
-      </div>
+      </section>
 
-      <div>
-        <h2 className="font-display text-xl font-medium text-tinta tracking-[-0.01em] mb-6">
+      <section aria-labelledby="certificados">
+        <h2 id="certificados" className="font-display text-2xl font-medium text-tinta mb-4">
           Certificados
         </h2>
 
         {certificates && certificates.length > 0 ? (
-          <div className="space-y-3">
+          <div className="border-t border-lino">
             {certificates.map((cert) => {
               const course = cert.courses as { title: string; slug: string } | null
               return (
-                <div
-                  key={cert.id}
-                  className="flex items-center justify-between bg-blanco border border-lino/50 px-6 py-4"
-                >
-                  <div>
-                    <span className="block font-sans text-sm font-medium text-tinta">
-                      {course?.title ?? 'Curso'}
-                    </span>
-                    <span className="font-mono text-[10px] text-cuero uppercase tracking-[0.08em]">
+                <div key={cert.id} className="flex items-center justify-between gap-5 border-b border-lino py-5">
+                  <div className="min-w-0">
+                    <span className="block font-sans text-[17px] font-medium text-tinta">{course?.title ?? 'Curso'}</span>
+                    <span className="font-sans text-[14px] text-tinta/60">
                       {cert.code} · {new Date(cert.issued_at).toLocaleDateString('es-ES')}
                     </span>
                   </div>
                   <a
                     href={`/campus/certificado/${cert.id}`}
-                    className="font-mono text-[10px] text-acento border border-acento/40 px-3 py-1.5 uppercase tracking-[0.08em] hover:bg-acento hover:text-tinta transition-colors duration-200 shrink-0"
+                    className="font-sans text-[15px] font-medium text-tinta underline underline-offset-4 hover:text-acento-deep shrink-0"
                   >
-                    Ver diploma →
+                    Ver certificado
                   </a>
                 </div>
               )
             })}
           </div>
         ) : (
-          <div className="border border-lino/40 bg-blanco px-6 py-12 flex flex-col items-center justify-center text-center">
-            <p className="font-sans text-sm text-cuero/60 max-w-[36ch] leading-relaxed">
-              Los certificados se generan al completar un curso.
-            </p>
-          </div>
+          <p className="font-sans text-[16px] text-tinta/70">Recibirás tu certificado al completar un curso.</p>
         )}
-      </div>
+      </section>
     </div>
   )
 }

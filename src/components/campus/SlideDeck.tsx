@@ -55,7 +55,7 @@ function VideoSlide({ videoId, title }: { videoId: string; title: string }) {
   if (!consentGiven) {
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="font-sans text-[12px] text-papel/50 leading-snug max-w-[28ch]">
+        <p className="font-sans text-[15px] text-papel/80 leading-snug max-w-[34ch]">
           Para ver el contenido formativo necesitas aceptar las cookies de YouTube
         </p>
         <button
@@ -63,7 +63,7 @@ function VideoSlide({ videoId, title }: { videoId: string; title: string }) {
             setConsent('all')
             setConsentGiven(true)
           }}
-          className="font-sans text-[10px] text-tinta uppercase tracking-[0.08em] bg-acento hover:bg-acento/90 transition-colors duration-200 px-5 py-2.5 cursor-pointer"
+          className="font-sans text-[15px] font-medium text-tinta bg-acento hover:bg-acento-soft transition-colors duration-200 px-6 min-h-[44px] cursor-pointer"
         >
           Activar vídeo
         </button>
@@ -112,8 +112,8 @@ export default function SlideDeck({ items, moduleId, initialCompleted, title }: 
           <VideoSlide key={current.videoId} videoId={current.videoId} title={`${title} — vídeo ${index + 1} de ${total}`} />
         )}
         {completed && (
-          <div className="absolute top-3 right-3 bg-acento text-tinta font-sans text-[9px] font-medium uppercase tracking-[0.1em] px-2 py-1 pointer-events-none">
-            ✓ Completado
+          <div className="absolute top-3 right-3 bg-acento text-tinta font-sans text-[13px] font-medium px-2.5 py-1 pointer-events-none">
+            Completado
           </div>
         )}
       </div>
@@ -123,14 +123,14 @@ export default function SlideDeck({ items, moduleId, initialCompleted, title }: 
           type="button"
           onClick={() => goTo(index - 1)}
           disabled={index === 0}
-          className="font-mono text-[10px] text-papel/60 hover:text-papel uppercase tracking-[0.1em] transition-colors duration-200 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed min-h-[44px] flex items-center"
+          className="font-sans text-[15px] text-papel/75 hover:text-papel transition-colors duration-200 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed min-h-[44px] flex items-center"
         >
           ← Anterior
         </button>
 
         <div className="flex items-center gap-3">
-          <ProgressDial total={total} completed={index + 1} markClassName="w-2 h-2" />
-          <span className="font-mono text-[9px] text-papel/40 uppercase tracking-[0.1em]">
+          <ProgressDial total={total} completed={index + 1} className="w-28 bg-papel/20" />
+          <span className="font-sans text-[14px] text-papel/60">
             {index + 1} / {total}
           </span>
         </div>
@@ -139,9 +139,9 @@ export default function SlideDeck({ items, moduleId, initialCompleted, title }: 
           type="button"
           onClick={() => goTo(index + 1)}
           disabled={isLast}
-          className="font-mono text-[10px] text-papel/60 hover:text-papel uppercase tracking-[0.1em] transition-colors duration-200 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed min-h-[44px] flex items-center"
+          className="font-sans text-[15px] text-papel/75 hover:text-papel transition-colors duration-200 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed min-h-[44px] flex items-center"
         >
-          {saving ? 'Guardando...' : 'Siguiente →'}
+          {saving ? 'Guardando…' : 'Siguiente →'}
         </button>
       </div>
     </div>

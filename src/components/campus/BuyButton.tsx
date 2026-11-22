@@ -51,9 +51,9 @@ export default function BuyButton({ courseId, priceCents }: Props) {
               type="checkbox"
               checked={newsletter}
               onChange={(e) => setNewsletter(e.target.checked)}
-              className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-tinta cursor-pointer"
+              className="mt-0.5 h-4 w-4 shrink-0 accent-tinta cursor-pointer"
             />
-            <span className="font-sans text-[11px] text-cuero leading-snug">
+            <span className="font-sans text-[14px] text-tinta/70 leading-snug">
               Quiero recibir la newsletter de La Trastienda con formación, recursos y novedades
               sobre comercio y retail. Puedo darme de baja cuando quiera.{' '}
               <a
@@ -72,16 +72,16 @@ export default function BuyButton({ courseId, priceCents }: Props) {
           <button
             disabled={pending}
             onClick={handleClick}
-            className="font-mono text-[11px] font-medium text-papel bg-tinta px-5 min-h-[40px] flex items-center uppercase tracking-[0.08em] hover:bg-acento hover:text-tinta transition-colors duration-200 disabled:opacity-50 shrink-0 cursor-pointer"
+            className="font-sans text-[15px] font-medium text-papel bg-tinta px-6 min-h-[48px] flex items-center hover:bg-acento hover:text-tinta transition-colors duration-200 disabled:opacity-50 shrink-0 cursor-pointer"
           >
             {pending
-              ? 'Cargando...'
+              ? 'Cargando…'
               : isFree
-                ? 'Acceder gratis →'
-                : `Comprar — ${formatted} →`}
+                ? 'Acceder gratis'
+                : `Comprar por ${formatted}`}
           </button>
           {error && (
-            <p className="font-mono text-[10px] text-red-500">{error}</p>
+            <p className="font-sans text-[14px] text-red-700">{error}</p>
           )}
         </div>
       </div>

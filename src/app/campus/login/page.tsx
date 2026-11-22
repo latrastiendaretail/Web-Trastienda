@@ -5,7 +5,6 @@ import { useAuth } from '@clerk/nextjs'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect, Suspense } from 'react'
 import Image from 'next/image'
-import { Watermark } from '@/components/campus/academia/icons'
 
 function LoginForm() {
   const { isLoaded, signIn, setActive } = useSignIn()
@@ -66,21 +65,11 @@ function LoginForm() {
 
   return (
     <div className="w-full max-w-sm">
-      {/* Logo (solo mobile/tablet, desktop ya lo muestra el panel izq) */}
-      <a href="/" className="block mb-12 cursor-pointer lg:hidden">
-        <span className="block font-display text-2xl font-medium text-tinta tracking-tight leading-none">
-          La Trastienda
-        </span>
-        <span className="block font-sans text-[9px] text-acento uppercase tracking-[0.16em] mt-1">
-          Campus
-        </span>
-      </a>
-
       <div className="mb-8">
         <h1 className="font-display text-[2rem] font-medium text-tinta leading-[1.1] tracking-[-0.02em] mb-2">
           Acceder
         </h1>
-        <p className="font-sans text-sm text-cuero">
+        <p className="font-sans text-[16px] text-tinta/70">
           Introduce tus credenciales para entrar al campus.
         </p>
       </div>
@@ -89,7 +78,7 @@ function LoginForm() {
         type="button"
         onClick={handleGoogleLogin}
         disabled={googleLoading || loading || !isLoaded}
-        className="w-full flex items-center justify-center gap-3 font-sans text-[11px] font-medium text-tinta uppercase tracking-[0.08em] border border-lino py-4 hover:border-tinta transition-colors duration-200 cursor-pointer min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+        className="w-full flex items-center justify-center gap-3 font-sans text-[16px] font-medium text-tinta border border-tinta/30 py-4 hover:border-tinta transition-colors duration-200 cursor-pointer min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed mb-6"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" aria-hidden>
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -102,7 +91,7 @@ function LoginForm() {
 
       <div className="flex items-center gap-4 mb-6">
         <div className="flex-1 h-px bg-lino/60" />
-        <span className="font-mono text-[9px] text-cuero/50 uppercase tracking-[0.1em]">o</span>
+        <span className="font-sans text-[14px] text-tinta/50">o</span>
         <div className="flex-1 h-px bg-lino/60" />
       </div>
 
@@ -110,7 +99,7 @@ function LoginForm() {
         <div>
           <label
             htmlFor="email"
-            className="block font-sans text-[10px] text-cuero uppercase tracking-[0.1em] mb-2"
+            className="block font-sans text-[15px] font-medium text-tinta mb-2"
           >
             Email
           </label>
@@ -122,7 +111,7 @@ function LoginForm() {
             autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border-b border-lino bg-transparent pb-3 font-sans text-base text-tinta placeholder:text-lino focus:border-tinta focus:outline-none transition-colors duration-200"
+            className="w-full border-b border-tinta/30 bg-transparent pb-3 font-sans text-base text-tinta placeholder:text-tinta/30 focus:border-tinta focus:outline-none transition-colors duration-200"
             placeholder="tu@email.com"
           />
         </div>
@@ -130,7 +119,7 @@ function LoginForm() {
         <div>
           <label
             htmlFor="password"
-            className="block font-sans text-[10px] text-cuero uppercase tracking-[0.1em] mb-2"
+            className="block font-sans text-[15px] font-medium text-tinta mb-2"
           >
             Contraseña
           </label>
@@ -141,7 +130,7 @@ function LoginForm() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border-b border-lino bg-transparent pb-3 font-sans text-base text-tinta placeholder:text-lino focus:border-tinta focus:outline-none transition-colors duration-200"
+            className="w-full border-b border-tinta/30 bg-transparent pb-3 font-sans text-base text-tinta placeholder:text-tinta/30 focus:border-tinta focus:outline-none transition-colors duration-200"
             placeholder="••••••••"
           />
         </div>
@@ -155,7 +144,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading || !isLoaded}
-          className="w-full font-sans text-[11px] font-medium text-papel bg-tinta uppercase tracking-[0.08em] py-4 hover:bg-acento hover:text-tinta transition-colors duration-200 cursor-pointer min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full font-sans text-[16px] font-medium text-papel bg-tinta py-4 hover:bg-acento hover:text-tinta transition-colors duration-200 cursor-pointer min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Accediendo...' : 'Acceder al Campus'}
         </button>
@@ -164,11 +153,11 @@ function LoginForm() {
       <div className="mt-8 pt-8 border-t border-lino/40 flex items-center justify-between">
         <a
           href="/"
-          className="font-sans text-[10px] text-cuero hover:text-tinta uppercase tracking-[0.1em] transition-colors duration-200 cursor-pointer"
+          className="font-sans text-[15px] text-tinta/65 hover:text-tinta transition-colors duration-200 cursor-pointer"
         >
           ← Volver a la web
         </a>
-        <span className="font-sans text-[10px] text-cuero/50">
+        <span className="font-sans text-[13px] text-tinta/45">
           Secured by <strong className="font-medium">Clerk</strong>
         </span>
       </div>
@@ -176,69 +165,15 @@ function LoginForm() {
   )
 }
 
-const features = [
-  {
-    title: 'Formación práctica en Retail',
-    desc: 'Cursos diseñados por profesionales del sector, sin relleno teórico.',
-  },
-  {
-    title: 'A tu ritmo',
-    desc: 'Vídeos y módulos disponibles cuando quieras, desde cualquier dispositivo.',
-  },
-  {
-    title: 'Certificado al terminar',
-    desc: 'Acredita lo aprendido con un certificado descargable por curso.',
-  },
-]
-
 export default function CampusLoginPage() {
   return (
-    <main className="min-h-screen bg-papel flex">
-      {/* Presentación del producto */}
-      <div className="relative hidden lg:flex lg:w-1/2 bg-tinta flex-col justify-between px-14 py-14 xl:px-20 overflow-hidden">
-        <Watermark text="LT" tone="light" className="text-[26rem] -right-16 -bottom-24" />
-        <a href="/" className="relative block cursor-pointer">
-          <Image
-            src="/images/Logos/imagotipov2.svg"
-            alt="La Trastienda"
-            width={130}
-            height={44}
-            className="object-contain brightness-0 invert"
-            priority
-          />
-        </a>
-
-        <div className="max-w-[38ch]">
-          <span className="block font-sans text-[10px] text-acento uppercase tracking-[0.16em] mb-4">
-            Campus
-          </span>
-          <h1 className="font-display text-[clamp(2rem,3vw,2.75rem)] font-medium text-papel leading-[1.15] tracking-[-0.02em] mb-6">
-            La formación de Retail que tu equipo necesita.
-          </h1>
-          <ul className="space-y-5">
-            {features.map((f) => (
-              <li key={f.title} className="flex gap-3">
-                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-acento shrink-0" aria-hidden />
-                <div>
-                  <p className="font-sans text-sm font-medium text-papel">{f.title}</p>
-                  <p className="font-sans text-sm text-papel/50 leading-relaxed">{f.desc}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <p className="font-mono text-[10px] text-papel/30 uppercase tracking-[0.1em]">
-          La Trastienda © {new Date().getFullYear()}
-        </p>
-      </div>
-
-      {/* Formulario */}
-      <div className="flex flex-1 flex-col items-center justify-center px-6">
-        <Suspense>
-          <LoginForm />
-        </Suspense>
-      </div>
+    <main className="min-h-screen bg-papel flex flex-col items-center justify-center px-6 py-12">
+      <a href="/" className="block mb-10" aria-label="La Trastienda">
+        <Image src="/images/Logos/imagotipov2.svg" alt="La Trastienda" width={130} height={44} className="object-contain" priority />
+      </a>
+      <Suspense>
+        <LoginForm />
+      </Suspense>
     </main>
   )
 }

@@ -38,7 +38,7 @@ export function Icon({ name, className }: { name: IconName; className?: string }
   if (!d) return null
   return (
     <span
-      className={`inline-flex shrink-0${className ? ` ${className}` : ''}`}
+      className={`ltt-ico inline-flex shrink-0${className ? ` ${className}` : ''}`}
       aria-hidden="true"
       dangerouslySetInnerHTML={{ __html: svgMarkup(d) }}
     />
@@ -46,15 +46,12 @@ export function Icon({ name, className }: { name: IconName; className?: string }
 }
 
 /**
- * Dial de progreso — fila de marcas geométricas (mismo lenguaje que Icon),
- * una por unidad (módulo/lección), rellena = completada, atenuada = pendiente.
- * Sustituye la barra de progreso plana en tarjetas, sidebar y /progreso.
+ * Progreso: barra fina. Mantiene la API anterior (markClassName ya no se usa).
  */
 export function ProgressDial({
   total,
   completed,
   className,
-  markClassName,
 }: {
   total: number
   completed: number
@@ -62,55 +59,14 @@ export function ProgressDial({
   markClassName?: string
 }) {
   if (total <= 0) return null
+  const pct = Math.min(100, Math.round((completed / total) * 100))
   return (
-    <div className={`flex items-center gap-1 ${className ?? ''}`} role="img" aria-label={`${completed} de ${total} completado`}>
-      {Array.from({ length: total }).map((_, i) => (
-        <span
-          key={i}
-          className={`inline-flex shrink-0 ${i < completed ? 'text-acento' : 'text-lino'} ${markClassName ?? 'w-2.5 h-2.5'}`}
-          aria-hidden="true"
-          dangerouslySetInnerHTML={{ __html: svgMarkup(PATHS.repaso) }}
-        />
-      ))}
-    </div>
-  )
-}
-
-/**
- * Acento vivo — punto que respira en acento-soft (amarillo/oro). Único elemento
- * animado del campus, uso comedido: marca "esto está activo" sin ser lúdico.
- * Respeta prefers-reduced-motion (regla global en globals.css).
- */
-export function AccentPulse({ className }: { className?: string }) {
-  return (
-    <span className={`relative inline-flex shrink-0 ${className ?? 'w-2 h-2'}`} aria-hidden="true">
-      <span className="absolute inset-0 rounded-full bg-acento-soft anim-accent-pulse" />
-      <span className="relative w-full h-full rounded-full bg-acento-soft" />
-    </span>
-  )
-}
-
-/**
- * Marca de agua tipográfica — número/palabra gigante detrás de un header,
- * refuerzo editorial sin fotografía. Uso: <div className="relative">...<Watermark text="01" /></div>
- */
-export function Watermark({
-  text,
-  className,
-  tone = 'dark',
-}: {
-  text: string
-  className?: string
-  tone?: 'dark' | 'light'
-}) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`pointer-events-none select-none absolute font-display font-medium leading-none ${
-        tone === 'dark' ? 'text-tinta/[0.04]' : 'text-papel/[0.06]'
-      } ${className ?? 'text-[14rem] -right-4 -top-10'}`}
+    <div
+      className={`h-1 w-24 bg-lino overflow-hidden ${className ?? ''}`}
+      role="img"
+      aria-label={`${completed} de ${total} completado`}
     >
-      {text}
-    </span>
+      <div className="h-full bg-acento" style={{ width: `${pct}%` }} />
+    </div>
   )
 }

@@ -1,4 +1,4 @@
-import { Icon, ProgressDial, type IconName } from '@/components/campus/academia/icons'
+import { ProgressDial } from '@/components/campus/academia/icons'
 
 export interface CourseCardProps {
   slug: string
@@ -11,12 +11,13 @@ export interface CourseCardProps {
   durationMinutes?: number | null
   enrolled?: boolean
   progress?: { completed: number; total: number } | null
-  icon?: IconName
+  /** Se mantiene por compatibilidad con los llamadores; la tarjeta ya no lleva icono decorativo. */
+  icon?: string
 }
 
 function formatDuration(minutes?: number | null): string | null {
   if (!minutes) return null
-  return minutes >= 60 ? `${Math.round(minutes / 60)}h` : `${minutes}min`
+  return minutes >= 60 ? `${Math.round(minutes / 60)} h` : `${minutes} min`
 }
 
 export default function CourseCard({
@@ -30,85 +31,45 @@ export default function CourseCard({
   durationMinutes,
   enrolled,
   progress,
-  icon = 'modulo',
 }: CourseCardProps) {
-  const isPublished = status === 'published'
-  const isComingSoon = status === 'coming_soon'
   const duration = formatDuration(durationMinutes)
+  const meta = [
+    typeof moduleCount === 'number' && moduleCount > 0 ? `${moduleCount} bloques` : null,
+    duration,
+  ].filter(Boolean)
+
+  const price =
+    priceCents == null
+      ? null
+      : priceCents === 0
+        ? 'Gratis'
+        : (priceCents / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 })
+
+  const stateLabel = enrolled
+    ? 'Inscrito'
+    : status === 'published'
+      ? price
+      : status === 'coming_soon'
+        ? 'Próximamente'
+        : null
 
   return (
     <a
       href={`/campus/cursos/${slug}`}
-      className="group flex flex-col bg-blanco border border-lino/50 hover:border-tinta/40 transition-colors duration-200 cursor-pointer"
+      className="group flex flex-col bg-blanco border border-lino hover:border-tinta/40 transition-colors duration-200 cursor-pointer p-6"
     >
-      {/* Texture band — sello geométrico, no foto stock */}
-      <div className="relative h-20 bg-lino/25 overflow-hidden shrink-0">
-        <Icon
-          name={icon}
-          className="absolute -right-3 -bottom-3 w-24 h-24 text-tinta/[0.07] group-hover:text-acento/[0.12] transition-colors duration-200"
-        />
-        {category && (
-          <span className="absolute top-3 left-3 font-mono text-[9px] text-cuero uppercase tracking-[0.12em] bg-blanco/80 px-2 py-1">
-            {category}
-          </span>
-        )}
-        {enrolled && (
-          <span className="absolute top-3 right-3 font-mono text-[9px] text-acento uppercase tracking-[0.1em] border border-acento/40 bg-blanco/90 px-2 py-1">
-            Inscrito
-          </span>
-        )}
-      </div>
+      {category && <span className="font-sans text-[14px] text-acento-deep mb-3">{category}</span>}
+      <h3 className="font-display text-[22px] font-medium text-tinta leading-snug mb-2">{title}</h3>
+      {tagline && (
+        <p className="font-sans text-[15px] text-tinta/70 leading-relaxed line-clamp-3 mb-5">{tagline}</p>
+      )}
 
-      {/* Body */}
-      <div className="flex-1 px-5 pt-4 pb-3">
-        <h3 className="font-display text-lg font-medium text-tinta leading-snug mb-1.5">
-          {title}
-        </h3>
-        {tagline && (
-          <p className="font-sans text-[12px] text-cuero leading-relaxed line-clamp-2">
-            {tagline}
-          </p>
-        )}
-      </div>
-
-      {/* Footer */}
-      <div className="flex items-center justify-between px-5 py-3 border-t border-lino/30">
-        <div className="flex items-center gap-3 min-w-0">
-          {typeof moduleCount === 'number' && moduleCount > 0 && (
-            <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.1em] shrink-0">
-              {moduleCount} bloques
-            </span>
-          )}
-          {duration && (
-            <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.1em] shrink-0">
-              {duration}
-            </span>
-          )}
-        </div>
-
+      <div className="mt-auto pt-4 border-t border-lino flex items-center justify-between gap-3">
+        <span className="font-sans text-[14px] text-tinta/60">{meta.join(' · ')}</span>
         {progress && progress.total > 0 ? (
-          <div className="flex items-center gap-2 shrink-0">
-            <ProgressDial total={progress.total} completed={progress.completed} markClassName="w-2 h-2" />
-            <span className="font-mono text-[10px] text-acento group-hover:text-tinta transition-colors">→</span>
-          </div>
+          <ProgressDial total={progress.total} completed={progress.completed} />
         ) : (
-          <div className="flex items-center gap-2 shrink-0">
-            {priceCents != null && (
-              <span className="font-mono text-[10px] font-medium text-tinta">
-                {priceCents === 0
-                  ? 'Gratis'
-                  : (priceCents / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 })}
-              </span>
-            )}
-            <span
-              className={`font-mono text-[9px] uppercase tracking-[0.1em] border px-2 py-1 ${
-                isPublished ? 'text-acento border-acento/40' : 'text-cuero border-lino/60'
-              }`}
-            >
-              {isPublished ? 'Disponible' : isComingSoon ? 'Ver programa' : 'Próximamente'}
-            </span>
-            <span className="font-mono text-[10px] text-cuero/40 group-hover:text-tinta transition-colors">→</span>
-          </div>
+          stateLabel && <span className="font-sans text-[14px] font-medium text-tinta">{stateLabel}</span>
         )}
       </div>
     </a>

@@ -2,7 +2,7 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import CourseCard from '@/components/campus/CourseCard'
-import { ProgressDial, Watermark, AccentPulse } from '@/components/campus/academia/icons'
+import { ProgressDial } from '@/components/campus/academia/icons'
 
 export default async function CampusDashboard() {
   const { userId } = await auth()
@@ -104,48 +104,24 @@ export default async function CampusDashboard() {
   const suggested = (catalogCourses ?? []).filter((c) => !enrolledSet.has(c.id)).slice(0, 3)
 
   return (
-    <div className="max-w-6xl">
-      {/* Hero — tono distinto (tinta) para separar Inicio del resto del campus */}
-      <div className="relative -mx-6 md:-mx-10 -mt-10 px-6 md:px-10 pt-10 pb-12 mb-12 bg-tinta overflow-hidden">
-        <Watermark text="LT" tone="light" className="text-[15rem] -right-6 -top-16 md:text-[19rem]" />
-        <div className="relative flex items-center gap-2.5 mb-4">
-          <AccentPulse />
-          <span className="font-mono text-[9px] text-acento-soft uppercase tracking-[0.16em]">
-            Campus · La Trastienda
-          </span>
-        </div>
-        <h1 className="relative font-display text-[clamp(2.25rem,5vw,3.5rem)] font-medium text-papel leading-[1.05] tracking-[-0.02em] mb-4 max-w-[20ch]">
-          {firstName ? `Hola, ${firstName}.` : 'Bienvenido al Campus.'}
+    <div>
+      <header className="mb-14">
+        <h1 className="font-display text-[clamp(2rem,4vw,3rem)] font-medium text-tinta leading-[1.1] tracking-[-0.02em] mb-3">
+          {firstName ? `Hola, ${firstName}` : 'Bienvenido al campus'}
         </h1>
-        <div className="relative flex flex-wrap items-center gap-x-8 gap-y-3">
-          <span className="font-sans text-sm text-papel/80">
-            <strong className="font-display text-xl font-medium text-papel mr-1.5">{enrolledCount ?? 0}</strong>
-            {(enrolledCount ?? 0) === 1 ? 'curso inscrito' : 'cursos inscritos'}
-          </span>
-          {totalUnits > 0 && (
-            <span className="font-sans text-sm text-papel/80">
-              <strong className="font-display text-xl font-medium text-acento-soft mr-1.5">{avgProgress}%</strong>
-              progreso medio
-            </span>
-          )}
-          <a
-            href="/campus/progreso"
-            className="font-mono text-[10px] text-papel/50 hover:text-papel uppercase tracking-[0.1em] transition-colors duration-200 cursor-pointer"
-          >
-            Ver seguimiento completo →
-          </a>
-        </div>
-      </div>
+        <p className="font-sans text-[17px] text-tinta/70 leading-relaxed">
+          {(enrolledCount ?? 0) === 0
+            ? 'Aún no estás inscrito en ningún curso.'
+            : `Tienes ${enrolledCount} ${enrolledCount === 1 ? 'curso' : 'cursos'}${totalUnits > 0 ? ` y llevas un ${avgProgress}% completado` : ''}.`}
+        </p>
+      </header>
 
-      {/* Continúa donde lo dejaste */}
       {continueCourses.length > 0 && (
-        <div className="mb-14">
-          <div className="flex items-baseline justify-between mb-6">
-            <h2 className="font-display text-2xl font-medium text-tinta tracking-[-0.01em]">
-              Continúa donde lo dejaste
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <section className="mb-16" aria-labelledby="continua">
+          <h2 id="continua" className="font-display text-2xl font-medium text-tinta mb-5">
+            Continúa donde lo dejaste
+          </h2>
+          <div className="border-y border-lino divide-y divide-lino">
             {continueCourses.map((e) => {
               const course = e.courses as { id: string; title: string; slug: string } | null
               const progress = progressByCourse.get(e.course_id)
@@ -154,47 +130,43 @@ export default async function CampusDashboard() {
                 <a
                   key={e.course_id}
                   href={`/campus/cursos/${course.slug}`}
-                  className="flex items-center justify-between gap-5 bg-blanco border border-lino/50 px-6 py-5 hover:border-tinta/30 transition-colors duration-200 cursor-pointer group"
+                  className="flex items-center justify-between gap-6 py-5 group cursor-pointer"
                 >
                   <div className="min-w-0">
-                    <span className="font-mono text-[9px] text-cuero uppercase tracking-[0.12em] block mb-1.5">
-                      {progress && progress.total > 0 ? `${progress.completed} de ${progress.total}` : 'Sin empezar'}
-                    </span>
-                    <span className="font-sans text-[15px] font-medium text-tinta leading-snug truncate block">
+                    <span className="font-sans text-[18px] font-medium text-tinta group-hover:text-acento-deep transition-colors duration-200 block truncate">
                       {course.title}
                     </span>
-                  </div>
-                  <div className="flex items-center gap-4 shrink-0">
-                    {progress && progress.total > 0 && (
-                      <ProgressDial total={progress.total} completed={progress.completed} markClassName="w-2.5 h-2.5" />
-                    )}
-                    <span className="font-mono text-[13px] text-cuero/40 group-hover:text-tinta transition-colors">
-                      Continuar →
+                    <span className="font-sans text-[14px] text-tinta/60">
+                      {progress && progress.total > 0
+                        ? `${progress.completed} de ${progress.total} completados`
+                        : 'Sin empezar'}
                     </span>
+                  </div>
+                  <div className="flex items-center gap-5 shrink-0">
+                    {progress && progress.total > 0 && (
+                      <ProgressDial total={progress.total} completed={progress.completed} className="hidden sm:block" />
+                    )}
+                    <span className="font-sans text-[15px] font-medium text-tinta">Continuar</span>
                   </div>
                 </a>
               )
             })}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Catálogo */}
-      <div>
+      <section aria-labelledby="catalogo">
         <div className="flex items-baseline justify-between mb-6">
-          <h2 className="font-display text-2xl font-medium text-tinta tracking-[-0.01em]">
-            {suggested.length > 0 ? 'Sigue formándote' : 'Catálogo de cursos'}
+          <h2 id="catalogo" className="font-display text-2xl font-medium text-tinta">
+            {suggested.length > 0 ? 'Más cursos' : 'Catálogo'}
           </h2>
-          <a
-            href="/campus/cursos"
-            className="font-mono text-[10px] text-cuero hover:text-tinta uppercase tracking-[0.1em] transition-colors duration-200 cursor-pointer"
-          >
-            Ver todos →
+          <a href="/campus/cursos" className="font-sans text-[15px] text-tinta/70 hover:text-tinta underline underline-offset-4 transition-colors duration-200">
+            Ver todos
           </a>
         </div>
 
         {suggested.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {suggested.map((course) => (
               <CourseCard
                 key={course.id}
@@ -209,21 +181,13 @@ export default async function CampusDashboard() {
             ))}
           </div>
         ) : (
-          <div className="border border-lino/50 bg-blanco px-6 py-10 text-center">
-            <p className="font-sans text-sm text-cuero/60 max-w-[40ch] mx-auto leading-relaxed">
-              {enrolledCount && enrolledCount > 0
-                ? 'Estás al día con el catálogo disponible. Nuevos cursos, próximamente.'
-                : 'Los cursos estarán disponibles próximamente. Te notificaremos cuando estén listos.'}
-            </p>
-            <a
-              href="/campus/cursos"
-              className="mt-5 inline-flex items-center font-mono text-[11px] font-medium text-tinta uppercase tracking-[0.08em] border border-tinta px-5 min-h-[40px] hover:bg-tinta hover:text-papel transition-colors duration-200 cursor-pointer"
-            >
-              Ver catálogo completo
-            </a>
-          </div>
+          <p className="font-sans text-[16px] text-tinta/70 leading-relaxed max-w-[52ch]">
+            {enrolledCount && enrolledCount > 0
+              ? 'Ya tienes todo el catálogo disponible. Avisaremos cuando haya cursos nuevos.'
+              : 'Los cursos estarán disponibles pronto.'}
+          </p>
         )}
-      </div>
+      </section>
     </div>
   )
 }

@@ -4,194 +4,164 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { useClerk, useUser } from '@clerk/nextjs'
 import { usePathname, useRouter } from 'next/navigation'
-import { AccentPulse } from '@/components/campus/academia/icons'
 
-const sidebarLinks = [
+const navLinks = [
   { href: '/campus', label: 'Inicio', exact: true },
   { href: '/campus/cursos', label: 'Cursos' },
   { href: '/campus/progreso', label: 'Mi progreso' },
 ]
 
-function NavIcon({ href }: { href: string }) {
-  const cls = 'w-[15px] h-[15px] shrink-0'
-  if (href === '/campus')
-    return (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cls}>
-        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-    )
-  if (href === '/campus/cursos')
-    return (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cls}>
-        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-      </svg>
-    )
-  if (href === '/campus/progreso')
-    return (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cls}>
-        <line x1="18" y1="20" x2="18" y2="10"/>
-        <line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6" y1="20" x2="6" y2="14"/>
-      </svg>
-    )
-  return null
-}
-
-function Sidebar({
-  currentPath,
-  onClose,
-}: {
-  currentPath: string
-  onClose?: () => void
-}) {
+function TopBar({ currentPath }: { currentPath: string }) {
   const { signOut } = useClerk()
-  const { user } = useUser()
+  const { user, isLoaded, isSignedIn } = useUser()
   const router = useRouter()
+  const [open, setOpen] = useState(false)
 
   async function handleLogout() {
     await signOut()
     router.push('/')
   }
 
-  return (
-    <div className="flex flex-col h-full bg-tinta">
-      {/* Logo */}
-      <div className="px-6 py-6 border-b border-papel/[0.08]">
-        <a href="/" className="block cursor-pointer">
-          <Image
-            src="/images/Logos/imagotipov2.svg"
-            alt="La Trastienda"
-            width={120}
-            height={40}
-            className="object-contain brightness-0 invert"
-            priority
-          />
-        </a>
-        <div className="flex items-center gap-2 mt-3">
-          <AccentPulse />
-          <span className="font-mono text-[9px] text-papel/40 uppercase tracking-[0.16em]">Campus</span>
-        </div>
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 px-4 py-6 space-y-1" aria-label="Campus navigation">
-        {sidebarLinks.map((link) => {
-          const isActive = link.exact
-            ? currentPath === link.href
-            : currentPath.startsWith(link.href)
-          return (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={onClose}
-              className={`flex items-center gap-3 px-3 min-h-[44px] font-mono text-[11px] uppercase tracking-[0.08em] transition-colors duration-200 cursor-pointer border-l-2 ${
-                isActive
-                  ? 'bg-papel/10 text-papel border-acento'
-                  : 'text-papel/50 hover:text-papel hover:bg-papel/5 border-transparent'
-              }`}
-            >
-              <NavIcon href={link.href} />
-              {link.label}
-            </a>
-          )
-        })}
-      </nav>
-
-      {/* User + logout */}
-      <div className="px-4 py-6 border-t border-papel/[0.08] space-y-3 relative">
-        <div className="absolute -top-px left-4 right-4 h-px bg-[repeating-linear-gradient(90deg,rgba(244,239,230,0.15)_0,rgba(244,239,230,0.15)_2px,transparent_2px,transparent_6px)]" />
-        {user?.primaryEmailAddress && (
-          <p className="px-3 font-sans text-[10px] text-papel/30 truncate">
-            {user.primaryEmailAddress.emailAddress}
-          </p>
-        )}
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="flex items-center w-full px-3 min-h-[44px] font-mono text-[11px] text-papel/40 uppercase tracking-[0.08em] hover:text-papel/70 transition-colors duration-200 cursor-pointer"
-        >
-          Cerrar sesión
-        </button>
-      </div>
-    </div>
-  )
-}
-
-export default function CampusLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const currentPath = usePathname()
-
-  // Login (y cualquier ruta pública futura) no lleva sidebar ni "cerrar sesión":
-  // todavía no hay sesión que cerrar.
-  if (currentPath === '/campus/login') {
-    return <>{children}</>
-  }
-
-  // Vista previa por enlace: sin sidebar ni datos de sesión
-  if (currentPath.startsWith('/campus/preview/')) {
-    return (
-      <div className="min-h-screen bg-papel">
-        <main className="px-6 md:px-10 py-10">{children}</main>
-      </div>
-    )
-  }
+  const isActive = (link: (typeof navLinks)[number]) =>
+    link.exact ? currentPath === link.href : currentPath.startsWith(link.href)
 
   return (
-    <div className="min-h-screen bg-papel flex">
-      {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-56 shrink-0 fixed left-0 top-0 bottom-0 z-20">
-        <Sidebar currentPath={currentPath} />
-      </aside>
-
-      {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div
-          className="md:hidden fixed inset-0 z-40 bg-tinta/60"
-          onClick={() => setSidebarOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-      {sidebarOpen && (
-        <aside className="md:hidden fixed left-0 top-0 bottom-0 w-56 z-50">
-          <Sidebar currentPath={currentPath} onClose={() => setSidebarOpen(false)} />
-        </aside>
-      )}
-
-      {/* Main */}
-      <div className="flex-1 md:ml-56 flex flex-col min-h-screen">
-        {/* Mobile top bar */}
-        <header className="md:hidden flex items-center justify-between px-6 py-4 border-b border-lino/40 bg-papel">
-          <a href="/" className="block cursor-pointer">
+    <header className="sticky top-0 z-30 bg-papel/95 backdrop-blur-sm border-b border-lino">
+      <div className="mx-auto max-w-[1080px] px-6 md:px-10 h-16 flex items-center justify-between gap-6">
+        <div className="flex items-center gap-10">
+          <a href="/" className="block shrink-0" aria-label="La Trastienda">
             <Image
               src="/images/Logos/imagotipov2.svg"
               alt="La Trastienda"
               width={110}
               height={36}
               className="object-contain"
+              priority
             />
           </a>
-          <button
-            type="button"
-            onClick={() => setSidebarOpen(true)}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-tinta cursor-pointer"
-            aria-label="Abrir menú"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <line x1="3" y1="6" x2="21" y2="6"/>
-              <line x1="3" y1="12" x2="21" y2="12"/>
-              <line x1="3" y1="18" x2="21" y2="18"/>
-            </svg>
-          </button>
-        </header>
+          <nav className="hidden md:flex items-center gap-7" aria-label="Campus">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                aria-current={isActive(link) ? 'page' : undefined}
+                className={`font-sans text-[15px] py-5 border-b-2 transition-colors duration-200 ${
+                  isActive(link)
+                    ? 'text-tinta border-acento'
+                    : 'text-tinta/65 hover:text-tinta border-transparent'
+                }`}
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        </div>
 
-        <main className="flex-1 px-6 md:px-10 py-10">{children}</main>
+        <div className="hidden md:flex items-center gap-5">
+          {user?.primaryEmailAddress && (
+            <span className="font-sans text-[14px] text-tinta/60 truncate max-w-[220px]">
+              {user.primaryEmailAddress.emailAddress}
+            </span>
+          )}
+          {isLoaded && !isSignedIn ? (
+            <a
+              href="/campus/login"
+              className="font-sans text-[14px] font-medium text-tinta underline-offset-4 hover:underline min-h-[44px] inline-flex items-center"
+            >
+              Iniciar sesión
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="font-sans text-[14px] text-tinta/70 hover:text-tinta underline-offset-4 hover:underline transition-colors duration-200 cursor-pointer min-h-[44px]"
+            >
+              Cerrar sesión
+            </button>
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="md:hidden min-w-[44px] min-h-[44px] -mr-2 flex items-center justify-center text-tinta cursor-pointer"
+          aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={open}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="w-5 h-5">
+            {open ? (
+              <>
+                <line x1="5" y1="5" x2="19" y2="19" />
+                <line x1="19" y1="5" x2="5" y2="19" />
+              </>
+            ) : (
+              <>
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </>
+            )}
+          </svg>
+        </button>
       </div>
+
+      {open && (
+        <div className="md:hidden border-t border-lino bg-papel px-6 py-3">
+          <nav className="flex flex-col" aria-label="Campus">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                aria-current={isActive(link) ? 'page' : undefined}
+                className={`font-sans text-[16px] min-h-[48px] flex items-center ${
+                  isActive(link) ? 'text-tinta font-medium' : 'text-tinta/70'
+                }`}
+              >
+                {link.label}
+              </a>
+            ))}
+            {isLoaded && !isSignedIn ? (
+              <a href="/campus/login" className="font-sans text-[16px] min-h-[48px] flex items-center text-tinta font-medium">
+                Iniciar sesión
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="font-sans text-[16px] min-h-[48px] flex items-center text-tinta/70 text-left cursor-pointer"
+              >
+                Cerrar sesión
+              </button>
+            )}
+          </nav>
+        </div>
+      )}
+    </header>
+  )
+}
+
+export default function CampusLayout({ children }: { children: React.ReactNode }) {
+  const currentPath = usePathname()
+
+  // Login: sin barra, todavía no hay sesión.
+  if (currentPath === '/campus/login') {
+    return <>{children}</>
+  }
+
+  // Vista previa por enlace: sin navegación ni datos de sesión.
+  if (currentPath.startsWith('/campus/preview/')) {
+    return (
+      <div className="min-h-screen bg-papel">
+        <main className="mx-auto max-w-[1080px] px-6 md:px-10 py-12">{children}</main>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-papel">
+      <TopBar currentPath={currentPath} />
+      <main className="mx-auto max-w-[1080px] px-6 md:px-10 py-12 md:py-16">{children}</main>
     </div>
   )
 }

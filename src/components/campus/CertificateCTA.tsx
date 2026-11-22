@@ -18,9 +18,9 @@ export default function CertificateCTA({ courseId, existingCertificateId }: Prop
     return (
       <a
         href={`/campus/certificado/${existingCertificateId}`}
-        className="inline-flex items-center font-mono text-[11px] font-medium text-acento border border-acento/50 px-5 min-h-[40px] uppercase tracking-[0.08em] hover:bg-acento hover:text-tinta transition-colors duration-200 cursor-pointer"
+        className="inline-flex items-center font-sans text-[15px] font-medium text-tinta border border-tinta px-6 min-h-[48px] hover:bg-tinta hover:text-papel transition-colors duration-200 cursor-pointer"
       >
-        Ver mi certificado →
+        Ver mi certificado
       </a>
     )
   }
@@ -47,12 +47,12 @@ export default function CertificateCTA({ courseId, existingCertificateId }: Prop
       <button
         onClick={handleClaim}
         disabled={loading}
-        className="font-mono text-[11px] font-medium text-papel bg-acento px-5 min-h-[40px] flex items-center uppercase tracking-[0.08em] hover:bg-acento-deep transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        className="font-sans text-[15px] font-medium text-papel bg-tinta px-6 min-h-[48px] flex items-center hover:bg-acento hover:text-tinta transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? 'Generando...' : 'Obtener mi certificado →'}
+        {loading ? 'Generando…' : 'Obtener mi certificado'}
       </button>
       {error && (
-        <span className="font-mono text-[10px] text-red-500 uppercase tracking-[0.06em]">
+        <span className="font-sans text-[14px] text-red-700">
           {error}
         </span>
       )}

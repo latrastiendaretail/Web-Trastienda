@@ -96,7 +96,7 @@ export default function VideoPlayer({ videoId, lessonId, moduleId, initialComple
   if (!consentGiven) {
     return (
       <div className="relative aspect-video w-full bg-tinta flex flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="font-sans text-[12px] text-papel/50 leading-snug max-w-[28ch]">
+        <p className="font-sans text-[15px] text-papel/80 leading-snug max-w-[34ch]">
           Para ver el contenido formativo necesitas aceptar las cookies de YouTube
         </p>
         <button
@@ -104,11 +104,11 @@ export default function VideoPlayer({ videoId, lessonId, moduleId, initialComple
             setConsent('all')
             setConsentGiven(true)
           }}
-          className="font-sans text-[10px] text-tinta uppercase tracking-[0.08em] bg-acento hover:bg-acento/90 transition-colors duration-200 px-5 py-2.5 cursor-pointer"
+          className="font-sans text-[15px] font-medium text-tinta bg-acento hover:bg-acento-soft transition-colors duration-200 px-6 min-h-[44px] cursor-pointer"
         >
           Activar vídeo
         </button>
-        <p className="font-sans text-[9px] text-papel/20">
+        <p className="font-sans text-[13px] text-papel/50">
           Al activar aceptas las cookies de terceros (YouTube / Google)
         </p>
       </div>
@@ -128,34 +128,34 @@ export default function VideoPlayer({ videoId, lessonId, moduleId, initialComple
             type="button"
             onClick={() => setActivePopup(null)}
             aria-label="Cerrar"
-            className="absolute top-2 right-3 font-mono text-[14px] leading-none text-cuero hover:text-tinta cursor-pointer"
+            className="absolute top-2 right-3 font-sans text-[20px] leading-none text-tinta/60 hover:text-tinta min-w-[32px] min-h-[32px] cursor-pointer"
           >
             ×
           </button>
-          <div className="font-sans text-[13px] font-medium text-tinta mb-1 pr-5">{activePopup.title}</div>
-          <p className="font-sans text-[12px] text-cuero leading-relaxed mb-3">{activePopup.text}</p>
+          <div className="font-sans text-[15px] font-medium text-tinta mb-1 pr-5">{activePopup.title}</div>
+          <p className="font-sans text-[14px] text-tinta/70 leading-relaxed mb-3">{activePopup.text}</p>
           {activePopup.href ? (
             <a
               href={activePopup.href}
-              className="inline-block font-mono text-[10px] uppercase tracking-[0.08em] px-4 py-2 bg-tinta text-papel hover:bg-acento hover:text-tinta transition-colors duration-200"
+              className="inline-block font-sans text-[14px] font-medium px-4 py-2.5 bg-tinta text-papel hover:bg-acento hover:text-tinta transition-colors duration-200"
             >
               {activePopup.ctaLabel}
             </a>
           ) : (
-            <span className="inline-block font-mono text-[10px] uppercase tracking-[0.08em] px-4 py-2 border border-lino text-cuero/60">
+            <span className="inline-block font-sans text-[14px] px-4 py-2.5 border border-lino text-tinta/60">
               {activePopup.ctaLabel} · Próximamente
             </span>
           )}
         </div>
       )}
       {completed && (
-        <div className="absolute top-3 right-3 bg-acento text-tinta font-sans text-[9px] font-medium uppercase tracking-[0.1em] px-2 py-1 pointer-events-none">
-          ✓ Completado
+        <div className="absolute top-3 right-3 bg-acento text-tinta font-sans text-[13px] font-medium px-2.5 py-1 pointer-events-none">
+          Completado
         </div>
       )}
       {saving && (
-        <div className="absolute top-3 right-3 bg-tinta/80 text-papel font-sans text-[9px] uppercase tracking-[0.1em] px-2 py-1 pointer-events-none">
-          Guardando...
+        <div className="absolute top-3 right-3 bg-tinta/80 text-papel font-sans text-[13px] px-2.5 py-1 pointer-events-none">
+          Guardando…
         </div>
       )}
     </div>

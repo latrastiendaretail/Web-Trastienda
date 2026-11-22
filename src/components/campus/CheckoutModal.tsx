@@ -35,9 +35,9 @@ export default function CheckoutModal({ clientSecret, onClose }: Props) {
         <button
           onClick={onClose}
           aria-label="Cerrar"
-          className="absolute top-4 right-4 z-10 font-mono text-[11px] text-cuero hover:text-tinta uppercase tracking-[0.08em] transition-colors"
+          className="absolute top-4 right-4 z-10 font-sans text-[15px] text-tinta/65 hover:text-tinta min-h-[44px] transition-colors"
         >
-          ✕ Cerrar
+          Cerrar
         </button>
 
         <div className="p-6 pt-12">
