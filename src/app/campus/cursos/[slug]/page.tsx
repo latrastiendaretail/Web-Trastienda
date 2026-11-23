@@ -44,7 +44,6 @@ export default async function CoursePage({ params }: Props) {
 
   const modules = rawModules ?? []
   const mainModuleCount = modules.filter((m) => !m.is_bonus).length
-  const hasBonus = modules.some((m) => m.is_bonus)
   const isComingSoon = course.status === 'coming_soon'
   const features = (course.features as CourseFeature[] | null) ?? []
   const emailSubject = encodeURIComponent(`Interés en ${course.title}`)
